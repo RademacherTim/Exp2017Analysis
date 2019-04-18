@@ -1,0 +1,91 @@
+---
+title: "SI - structural carbon gain"
+author: Tim Rademacher
+date: "22/03/2019"
+output: html_document
+bibliography: /Volumes/added_SSD/projects/NSF-DB_plant_growth/bib/Exp2017.bib
+csl: /Volumes/added_SSD/projects/NSF-DB_plant_growth/bib/harvard.csl
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## Structural carbon gain for stem sections of the 2017 experiment at Harvard Forest
+
+We calculate the daily rate of structural carbon gain similar to @cuny_woody_2015. We derived the rate of primary cell wall formation ($r_{w,cz}, \mu m \, day^{-1}$) from the rate of cell production ($r_c$) according to the first equation on page 9 of the supplementary material.
+
+$$
+r_{w,cz} = (r_c \times 2 \times 0.5 \mu m \times RF_w) + (r_c \times 2 \times 0.5 \mu m \times 7 \mu m)
+$$ 
+<!-- Need to check with Patrick that the 7 \mu m as an radial diameter of the cambial cell, makes sense for our trees.--> 
+``` {r rateOfPrimaryCellFormation}
+rc <- NA # Need to actually input the rate for each section.
+RFw <- 7.0 # wdith of the radial files [mu m???]
+rwcz <- (rc * 2.0 * 0.5 * RFw) + (rc * 2.0 * 0.5 * 7.0) # equation on page 9 of supplementary material of @cuny_woody_2015 
+```
+
+The rate of desposition of wall material in the enlarging zone ($r_{w,ez}, \mu m \, day^{-1}$) and wall thickening zone  ($r_{w,wz}, \mu m \, day^{-1}$) are determined according to their equations on page 10.
+
+$$
+r_{w,ez} = XSI_{ez} \times 2 \times 0.5\mu m
+$$
+``` {r rateOfWallDepositionInEnlargingZone}
+#XSIez <- sum (rezi)
+#rwez <- XSIez * 2.0 * 0.5
+```
+, where the rate of daily xylem enlargement ($XSI_{ez}$) is simply the sum of the enlargement rates across all $n_{ez}$ cells in the enlarging zone.
+
+$$
+r_{w,zz} = \sum_{i=1}^{n_ez} r_{ez,i} 
+$$
+
+Similarly, the rate of deposition in the wall thickening zone is simply the sum of all (e.g. $n_w$ cells) individual cell rates ($r_{w, i}$).
+
+$$
+r_{w,wz} = \sum_{i=1}^{n_w} r_{w,i} 
+$$
+
+``` {r rateOfWallDepositionInWallThickeningZone}
+#rwwz <- sum (rwi) # Might need changing.
+```
+
+Instead of scaling to the entire tree, as Cuny and co-authors did, we estimate the number of radial files in each respective 10 cm stem section by dividing the circumference of the section by the mean width of the radial file. Analogous to their third equation on page 10, we estimated the total daily rate of depostition in a tree ring ($r_{w,tr}, \mu m^2 day{-1}$) as the product of the number of radial files ($n_{rf}$) and the deposition in each file ($r_{w,rf}$).
+
+$$
+r_{w,tr} = r_{w, rf} \times n_{rf}
+$$
+
+In contrast to @cuny_woody_2015, we then scaled this to the stem section assuming that the ring was a cylinder of height $h$, which results in a total daily rate of wall deposition for the stem section ($r_{w,s}, \mu m^3 \, day^{-1}$) of: <!-- TTR We might want to try how much a realistic taper does actually affect the results, but it is only a scalar so should not affect patterns.-->
+
+$$
+r_{w,s} = r_{w,tr} * h
+$$
+In accordance with @cuny_woody_2015, we finally scaled this volume increment to a dry mass and eventually a carbon increment ($C_{inc}, gC \, day^{-1}$) by multiplying with it with a cell wall density of 1.5 $g cm^{-3}$ and a carbon content of 50\%.
+
+$$
+C_{inc} = 1.5 \times r_{w,s} \times \frac {50} {100}
+$$
+
+## Integration across period
+
+Finally, the rate of biomass increment in grams of carbon per day is integrated across the different periods (i.e. before onset of experiment, first month, second and third month, and the the remainder of the growing season) to get a total structural carbon gain per period.
+
+## Alternative simple increment estimations
+
+Assuming a density is constant and simply multiplying it with the radial increment, we can get a simple estimation of the biomass accrued in each period. 
+
+## Comparison of detailed and simple estimations
+
+Compare the simple and more complex method.
+
+### To-do list and comments
+
+- make table of cambial cell radial diameter and primary wall thickness for each tree and acutally use our means instead of the 7$\mu m$ and 0.5 $\mu m$ used by @cuny_woody_2015.
+- check whether results are robust even with assumed realistic taper of the stem section. I will have to measure the section circumferences and taper first.
+- it remains unclear to me how we get the daily rates of cell production, cell enlargement and cell wall thickening and the cell counts for those. Are they dervied using a GAM?
+- We can do a second independent estimation for the November core from the anatomical ROXAS output for cell wall area scaled to a cylinder.
+- cell wall density and carbon content are known to vary with season [@lamlom_reassessment_2003], check robustness of results with realistic variation.
+
+# References

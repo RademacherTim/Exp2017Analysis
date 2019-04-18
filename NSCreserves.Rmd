@@ -1,0 +1,104 @@
+---
+title: 'SI - nonstructural carbon reserves'
+author: Tim Rademacher
+date: "22/03/2019"
+output: html_document
+bibliography: /Volumes/added_SSD/projects/NSF-DB_plant_growth/bib/Exp2017.bib
+csl: /Volumes/added_SSD/projects/NSF-DB_plant_growth/bib/harvard.csl
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library ('tidyverse')
+```
+
+## Calculating changes in nonstructural carbon reserves of stem section for the 2017 experiment at Harvard Forest
+
+To estimate changes in soluble sugars and starch for various tissue, we scaled the concentrations derived from each tissue using colorimetric assays. Below we describe the scaling assumption for each tissue, which gave us total reserves in each organ. The differences of total values between the four sampling points in turn provide estimates of the gains or losses of soluble sugars and starch for each tissue and tree. To scale concentrations, the biomass for each tissue is first estimated using allometric equations from @jenkins_comprehensive_2004. We then multiply the tissue biomass by the nonstructural carbon concentration measured for that tissue similar to @furze_whole-tree_2019. Below we provide examples for each tissue.
+
+## Total above ground biomass 
+
+According to @jenkins_comprehensive_2004, we calcualted total aboveground biomass ($B; in \; kg$) from the diameter at breast height ($DBH; in \; m$) as follows:
+
+$$
+B = exp (\beta_0 + \beta_1 \; ln \; DBH)
+$$
+
+``` {r totalBiomass}
+biomass <- exp (2.4800 + 2.4835 * log (trees$dbh)) # TTR Need to read in the dbh of trees first!
+```
+
+with generic pine species (Pinus spp.) parameters of $\beta_0 = -2.4800$ and $\beta_1 = 2.4835$. This total biomass does include foliage, stemwood, bark and branches. To get tissue specific values for stemwood, bark and foliage we estimated the fraction of the total biomass in each tissue using $\alpha_0 = –0.3737$ and $\alpha_1 = –1.8055$ from Table 2 in @jenkins_comprehensive_2004 and the following equation:
+
+$$
+f = exp (\alpha_0 + \frac {\alpha_1} {DBH})
+$$
+``` {r foliageBiomass}
+folFraction <- exp ()
+```
+
+Branch biomass was calculated as the residual of total biomass and the three other tissues estimated above.
+## For the whole stem
+
+To estimate the whole stem NSC reserves we first ...???
+
+
+## For stem sections
+
+We measured nonstructural carbon concentrations for the first of the stem core under the bark and scaled to the entire section using a linear relationship, as concentrations gradients have been shown to vary among species but generally decline with distance from the bark [@hoch_non-structural_2003]. In particular, Pinus sylvestris - the closest relative to Pinus strobus - has been shown to have linearly declining stem wood nonstructrual carbon concentrations [@hoch_non-structural_2003].
+<!-- The decline in @hoch_non-structural_2003 is actually more exponential than linear, but let's start with linear. Morgan might have better data for Pinus strobus that can help me scale more adequately.--> 
+
+Assuming linear scaling from the measured nonstructural carbon concentration in the first centimeter under the bark to zero at the pith, we obtain nonstructural carbon concentrations across the radial profile for each tree. These concentrations can then be simply integrated across the stem section by multiplication of the mean concentration across the radial profile ($\bar c_{NSC}$) with the mass of the stem section ($M_{s}$) to obtain the total nonstructural carbon reserves in the stem section ($R_{NSC}$).
+
+$$
+R_{NSC} = \bar c_{NSC} \times M_{s}
+$$
+
+The mass of the stem section is derived from its volume ($V_{s}$) and density ($\rho_{s}$). For the density 289.9$\pm$40.4 $kg \, m^{-3}$ is used, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine control white pine trees in the control group as determined using x-ray film. The volume is assumed to be a cylinder with diameter $dbh$ and height $h$. <!-- Maybe Patrick can giev a reference for the exact  procedure?-->
+$$
+M_{s} = V_{s} \times \rho_{s} = (\frac {dbh}{2})^2 \pi \times h \times \rho_{s}
+$$
+
+``` {r calculateStemSectionNSCs}
+# Declare the height of the stem section (h, m)
+h <- 0.1
+
+# Declare mean stem wood density (rho_s, kg m-3)
+rhos <- 289.9
+
+# Read tree stats (in particular dbh)
+trees <- read_csv ('../../data/trees/2017ExperimentalDataPredictors.csv', col_types = cols ())
+
+# Determine the volume of each stem section (Vsection; m3)
+trees$Vsection <- ((trees$dbh150 / 100.0) / 2.0)**2.0 * pi * h # dbh is in cm, therefore divide by 100.
+
+# Determine the mass of each stem section (Msection, kg)
+trees$Msection <- trees$Vsection * rhos
+
+# Read the mean wood concentration in the first centimeter for each section
+# TTR Do this once I have them.
+
+# Get mean concentration across the radial profile (gC gDW-1) by division by two.
+cSugar  <- 5.0 # this needs to be read in once I have values.
+cStarch <- 3.0 # this needs to be read in once I have values.
+
+# Get the total sugar, strach and NSC reserves in the stem section
+RSugar <- trees$Msection * cSugar
+RStarch <- trees$Msection * cStarch
+RNSC <- RSugar + RStarch
+```
+
+## For needles
+
+
+
+## For roots
+
+
+
+### To-do list and comments
+
+- Get better data for radial variation in NSCs in white pine stems from Morgan, as the scaling from Pinus sylvestris after the data from Hoch et al. (2003) is not really adequate.
+- adjust for more accurate dbh values once I measured the circumference for each section. At the moment is only calulates the mass once per tree and assume all sections have the same mass.
+
+# References
