@@ -10,9 +10,10 @@ csl: /Volumes/added_SSD/projects/NSF-DB_plant_growth/bib/harvard.csl
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library ('tidyverse')
+library ('googlesheets')
 ```
 
-## Calculating changes in nonstructural carbon reserves of stem section for the 2017 experiment at Harvard Forest
+## Calculating changes in nonstructural carbon reserves of the canopy, branches, stem, coarse roots and a 10cm stem section for the 2017 experiment at Harvard Forest
 
 To estimate changes in soluble sugars and starch for various tissue, we scaled the concentrations derived from each tissue using colorimetric assays. Below we describe the scaling assumption for each tissue, which gave us total reserves in each organ. The differences of total values between the four sampling points in turn provide estimates of the gains or losses of soluble sugars and starch for each tissue and tree. To scale concentrations, the biomass for each tissue is first estimated using allometric equations from @jenkins_comprehensive_2004. We then multiply the tissue biomass by the nonstructural carbon concentration measured for that tissue similar to @furze_whole-tree_2019. Below we provide examples for each tissue.
 
@@ -25,7 +26,9 @@ B = exp (\beta_0 + \beta_1 \; ln \; DBH)
 $$
 
 ``` {r totalBiomass}
-biomass <- exp (2.4800 + 2.4835 * log (trees$dbh)) # TTR Need to read in the dbh of trees first!
+key <- '1K8Vk9VHRdwNjIa28frc-Zt4uyk07G6CZe1EkJunUll0'
+predictors <- gs_read (gs_key (key), ws = 'predictors', col_types = cols ())
+biomass <- exp (2.4800 + 2.4835 * log (predictors [['cbh150']] / pi))  
 ```
 
 with generic pine species (Pinus spp.) parameters of $\beta_0 = -2.4800$ and $\beta_1 = 2.4835$. This total biomass does include foliage, stemwood, bark and branches. To get tissue specific values for stemwood, bark and foliage we estimated the fraction of the total biomass in each tissue using $\alpha_0 = –0.3737$ and $\alpha_1 = –1.8055$ from Table 2 in @jenkins_comprehensive_2004 and the following equation:
@@ -34,10 +37,11 @@ $$
 f = exp (\alpha_0 + \frac {\alpha_1} {DBH})
 $$
 ``` {r foliageBiomass}
-folFraction <- exp ()
+folFraction <- exp (-0.3737 + (-1.8055 / (predictors [['cbh150']] / pi)))
 ```
 
 Branch biomass was calculated as the residual of total biomass and the three other tissues estimated above.
+
 ## For the whole stem
 
 To estimate the whole stem NSC reserves we first ...???
