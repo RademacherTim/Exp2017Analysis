@@ -28,7 +28,10 @@ $$
 ``` {r totalBiomass}
 key <- '1K8Vk9VHRdwNjIa28frc-Zt4uyk07G6CZe1EkJunUll0'
 predictors <- gs_read (gs_key (key), ws = 'predictors', col_types = cols ())
-biomass <- exp (2.4800 + 2.4835 * log (predictors [['cbh150']] / pi))  
+biomass04 <- exp (2.4800 + 2.4835 * log (predictors [['cbh150']] / pi))  
+biomass08 <- exp (-2.6177 + 2.4638 * log (predictors [['cbh150']] / pi)) # with specific gravity < 0.45
+#biomass08 <- exp (-3.0506 + 2.6465 * log (predictors [['cbh150']] / pi)) # with specific gravity >= 0.45
+biomassxx <- 2.2874 * exp (0.1968 * (predictors [['cbh150']] / pi)) # From peichl
 ```
 
 with generic pine species (Pinus spp.) parameters of $\beta_0 = -2.4800$ and $\beta_1 = 2.4835$. This total biomass does include foliage, stemwood, bark and branches. To get tissue specific values for stemwood, bark and foliage we estimated the fraction of the total biomass in each tissue using $\alpha_0 = –0.3737$ and $\alpha_1 = –1.8055$ from Table 2 in @jenkins_comprehensive_2004 and the following equation:
@@ -36,11 +39,19 @@ with generic pine species (Pinus spp.) parameters of $\beta_0 = -2.4800$ and $\b
 $$
 f = exp (\alpha_0 + \frac {\alpha_1} {DBH})
 $$
-``` {r foliageBiomass}
-folFraction <- exp (-0.3737 + (-1.8055 / (predictors [['cbh150']] / pi)))
+``` {r fractionalBiomass}
+rootFraction <- exp (-1.5619 + ( 0.6614 / (predictors [['cbh150']] / pi)))
+stemFraction <- exp (-0.3737 + (-1.8055 / (predictors [['cbh150']] / pi)))
+barkFraction <- exp (-2.0980 + (-1.1432 / (predictors [['cbh150']] / pi)))
+foliFraction <- exp (-2.9584 + ( 4.4766 / (predictors [['cbh150']] / pi)))
+branFraction <- 1.0 - foliFraction - stemFraction - barkFraction
 ```
 
 Branch biomass was calculated as the residual of total biomass and the three other tissues estimated above.
+
+$$
+f_{branches} = 1.0 - f_{foliage} - f_{stemwood} - f_{bark}
+$$
 
 ## For the whole stem
 
