@@ -1,7 +1,7 @@
 ---
 title: "SI - structural carbon gain"
 author: Tim Rademacher
-date: "22/03/2019"
+date: "16/08/2019"
 output: html_document
 bibliography: /Volumes/added_SSD/projects/NSF-DB_plant_growth/bib/Exp2017.bib
 csl: /Volumes/added_SSD/projects/NSF-DB_plant_growth/bib/harvard.csl
@@ -9,12 +9,13 @@ csl: /Volumes/added_SSD/projects/NSF-DB_plant_growth/bib/harvard.csl
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
+library ('RAPTOR')
 ```
 
 ## Structural carbon gain for stem sections of the 2017 experiment at Harvard Forest
 
-We calculate the daily rate of structural carbon gain similar to @cuny_woody_2015. We derived the rate of primary cell wall formation ($r_{w,cz}, \mu m \, day^{-1}$) from the rate of cell production ($r_c$) according to the first equation on page 9 of the supplementary material.
+Using ROXAS output for the thinsection prepared from microcores in November we determine the cell wall area.
+
 
 $$
 r_{w,cz} = (r_c \times 2 \times 0.5 \mu m \times RF_w) + (r_c \times 2 \times 0.5 \mu m \times 7 \mu m)
