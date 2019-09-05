@@ -61,26 +61,29 @@ rm (PLOTCAL)
 # Add all datasets to the lab mastersheet # TTR These need work!!!!! Something is not 
 # working correctly. I get a warning pertaining to the distinct () function.
 #----------------------------------------------------------------------------------------
-res <- addToLabMasterSheet (data = processedData1,
-                            fileDir = '/home/trademacehr/projects/NSF-DB Plant Growth/',
-                            fileName = 'RCLabNSCMasterSheet.xlsx',
-                            IDs = c ('RCLabNumber', 'SampleID', 'Tissue', 'BatchID'))
-if (res != 0) print ('Error: addToLabMasterSheet () did not work.')
-res <- addToLabMasterSheet (data = processedData2,
-                            fileDir = '/home/trademacehr/projects/NSF-DB Plant Growth/',
-                            fileName = 'RCLabNSCMasterSheet.xlsx',
-                            IDs = c ('RCLabNumber', 'SampleID', 'Tissue', 'BatchID'))
-if (res != 0) print ('Error: addToLabMasterSheet () did not work.')
-res <- addToLabMasterSheet (data = processedData3,
-                            fileDir = '/home/trademacehr/projects/NSF-DB Plant Growth/',
-                            fileName = 'RCLabNSCMasterSheet.xlsx',
-                            IDs = c ('RCLabNumber', 'SampleID', 'Tissue', 'BatchID'))
-if (res != 0) print ('Error: addToLabMasterSheet () did not work.')
-res <- addToLabMasterSheet (data = processedData4,
-                            fileDir = '/home/trademacehr/projects/NSF-DB Plant Growth/',
-                            fileName = 'RCLabNSCMasterSheet.xlsx',
-                            IDs = c ('RCLabNumber', 'SampleID', 'Tissue', 'BatchID'))
-if (res != 0) print ('Error: addToLabMasterSheet () did not work.')
+ADDTOMASTER <-FALSE
+if (ADDTOMASTER) {
+  res <- addToLabMasterSheet (data = processedData1,
+                              fileDir = '/home/trademacehr/projects/NSF-DB Plant Growth/',
+                              fileName = 'RCLabNSCMasterSheet.xlsx',
+                              IDs = c ('RCLabNumber', 'SampleID', 'Tissue', 'BatchID'))
+  if (res != 0) print ('Error: addToLabMasterSheet () did not work.')
+  res <- addToLabMasterSheet (data = processedData2,
+                              fileDir = '/home/trademacehr/projects/NSF-DB Plant Growth/',
+                              fileName = 'RCLabNSCMasterSheet.xlsx',
+                              IDs = c ('RCLabNumber', 'SampleID', 'Tissue', 'BatchID'))
+  if (res != 0) print ('Error: addToLabMasterSheet () did not work.')
+  res <- addToLabMasterSheet (data = processedData3,
+                              fileDir = '/home/trademacehr/projects/NSF-DB Plant Growth/',
+                              fileName = 'RCLabNSCMasterSheet.xlsx',
+                              IDs = c ('RCLabNumber', 'SampleID', 'Tissue', 'BatchID'))
+  if (res != 0) print ('Error: addToLabMasterSheet () did not work.')
+  res <- addToLabMasterSheet (data = processedData4,
+                              fileDir = '/home/trademacehr/projects/NSF-DB Plant Growth/',
+                              fileName = 'RCLabNSCMasterSheet.xlsx',
+                              IDs = c ('RCLabNumber', 'SampleID', 'Tissue', 'BatchID'))
+  if (res != 0) print ('Error: addToLabMasterSheet () did not work.')
+}
 
 # combine all processed data into one tibble
 #----------------------------------------------------------------------------------------
@@ -130,4 +133,34 @@ stemData <- processedData [processedData [['Tissue']] == 'Stem', ]
 leafData <- processedData [processedData [['Tissue']] == 'Leaf' | 
                            processedData [['Tissue']] == 'Needle', ]
 rootData <- processedData [processedData [['Tissue']] == 'Root', ]
+
+
+# Print sugar and starch values to detect outliers
+#----------------------------------------------------------------------------------------
+# for (n in 1:41) {
+#   nS <- sum (stemData [['treeID']] == n)
+#   print (c (n, nS))
+#   print ('Sugar:')
+#   for (i in 1:nS) {
+#     print (c (n, nS, month (stemData [['DateOfSampleCollection']] [stemData [['treeID']] == n] [i]),
+#               stemData [['ConcentrationSugarPerDW']] [stemData [['treeID']] == n] [i]))
+#   }
+#   print ('Starch:')
+#   for (i in 1:nS) {
+#     print (c (n, nS, month (stemData [['DateOfSampleCollection']] [stemData [['treeID']] == n] [i]),
+#               stemData [['ConcentrationStarchPerDW']] [stemData [['treeID']] == n] [i]))
+#   }
+# }
+
+# use the mean for each sampling date only
+#----------------------------------------------------------------------------------------
+stemDataE <- stemData %>% group_by (treeID, DateOfSampleCollection) %>% 
+            summarise (SugarConcentrationPerDW = mean (ConcentrationSugarPerDW), 
+                       StarchConcentrationPerDW = mean (ConcentrationStarchPerDW))
+leafDataE <- leafData %>% group_by (treeID, DateOfSampleCollection) %>% 
+             summarise (SugarConcentrationPerDW = mean (ConcentrationSugarPerDW), 
+                        StarchConcentrationPerDW = mean (ConcentrationStarchPerDW))
+rootDataE <- rootData %>% group_by (treeID, DateOfSampleCollection) %>% 
+             summarise (SugarConcentrationPerDW = mean (ConcentrationSugarPerDW), 
+                        StarchConcentrationPerDW = mean (ConcentrationStarchPerDW))
 #========================================================================================

@@ -60,7 +60,7 @@ To estimate the whole stem NSC reserves we first ...???
 
 ## For stem sections
 
-We measured nonstructural carbon concentrations for the first of the stem core under the bark and scaled to the entire section using a linear relationship, as concentrations gradients have been shown to vary among species but generally decline with distance from the bark [@hoch_non-structural_2003]. In particular, Pinus sylvestris - the closest relative to Pinus strobus - has been shown to have linearly declining stem wood nonstructrual carbon concentrations [@hoch_non-structural_2003].
+We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) and scaled to the entire section using a linear relationship, as concentrations gradients have been shown to vary among species but generally decline with distance from the bark [@hoch_non-structural_2003]. In particular, Pinus sylvestris - the closest relative to Pinus strobus - has been shown to have linearly declining stem wood nonstructrual carbon concentrations [@hoch_non-structural_2003].
 <!-- The decline in @hoch_non-structural_2003 is actually more exponential than linear, but let's start with linear. Morgan might have better data for Pinus strobus that can help me scale more adequately.--> 
 
 Assuming linear scaling from the measured nonstructural carbon concentration in the first centimeter under the bark to zero at the pith, we obtain nonstructural carbon concentrations across the radial profile for each tree. These concentrations can then be simply integrated across the stem section by multiplication of the mean concentration across the radial profile ($\bar c_{NSC}$) with the mass of the stem section ($M_{s}$) to obtain the total nonstructural carbon reserves in the stem section ($R_{NSC}$).
@@ -69,7 +69,7 @@ $$
 R_{NSC} = \bar c_{NSC} \times M_{s}
 $$
 
-The mass of the stem section is derived from its volume ($V_{s}$) and density ($\rho_{s}$). For the density 289.9$\pm$40.4 $kg \, m^{-3}$ is used, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine control white pine trees in the control group as determined using x-ray film. The volume is assumed to be a cylinder with diameter $dbh$ and height $h$. <!-- Maybe Patrick can giev a reference for the exact  procedure?-->
+The mass of the stem section is derived from its volume ($V_{s}$) and density ($\rho_{s}$). For the density 289.9$\pm$40.4 $kg \, m^{-3}$ is used, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film. The volume is assumed to be a cylinder with diameter $dbh$ and height $h$. <!-- Maybe Patrick can giev a reference for the exact  procedure?-->
 $$
 M_{s} = V_{s} \times \rho_{s} = (\frac {dbh}{2})^2 \pi \times h \times \rho_{s}
 $$
@@ -79,19 +79,27 @@ $$
 h <- 0.1
 
 # Declare mean stem wood density (rho_s, kg m-3)
-rhos <- 289.9
+rho <- 289.9
 
-# Read tree stats (in particular dbh)
-trees <- read_csv ('../../data/trees/2017ExperimentalDataPredictors.csv', col_types = cols ())
-
-# Determine the volume of each stem section (Vsection; m3)
-trees$Vsection <- ((trees$dbh150 / 100.0) / 2.0)**2.0 * pi * h # dbh is in cm, therefore divide by 100.
+# Determine the volume of each stem section (m3) at various height (0.5m, 1m, 1.5m, 2m, 2.5m)
+# dbh is in cm, therefore divide by 100.
+predictors <- add_column (predictors,   
+                          V50  = ((predictors [['dbh50']]  / 100.0) / 2.0)**2.0 * pi * h,
+                          V100 = ((predictors [['dbh100']] / 100.0) / 2.0)**2.0 * pi * h,
+                          V150 = ((predictors [['dbh150']] / 100.0) / 2.0)**2.0 * pi * h, 
+                          V200 = ((predictors [['dbh200']] / 100.0) / 2.0)**2.0 * pi * h,
+                          V250 = ((predictors [['dbh250']] / 100.0) / 2.0)**2.0 * pi * h)
 
 # Determine the mass of each stem section (Msection, kg)
-trees$Msection <- trees$Vsection * rhos
+predictors <- add_column (predictors,
+                          M050 = predictors [['V050']] * rho,
+                          M100 = predictors [['V100']] * rho,
+                          M150 = predictors [['V150']] * rho,
+                          M200 = predictors [['V200']] * rho,
+                          M250 = predictors [['V250']] * rho)
 
 # Read the mean wood concentration in the first centimeter for each section
-# TTR Do this once I have them.
+
 
 # Get mean concentration across the radial profile (gC gDW-1) by division by two.
 cSugar  <- 5.0 # this needs to be read in once I have values.

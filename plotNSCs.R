@@ -9,11 +9,13 @@ source ('processNSCDataForExp2017.R')
 # Make boxplot of treatments and height
 #----------------------------------------------------------------------------------------
 NSC = 'Sugar'
-data = rootData
-if (NSC == 'Sugar' & data [['Tissue']] [1] == 'Wood') {
+data = stemData
+if (NSC == 'Sugar' & data [['Tissue']] [1] == 'Stem') {
   yLimit <- c (0, 2.4) 
-} else if (NSC == 'Starch' & data [['Tissue']] [1] == 'Wood') {
+  NOTWOOD <- FALSE
+} else if (NSC == 'Starch' & data [['Tissue']] [1] == 'Stem') {
   yLimit <- c (0, 1.0)
+  NOTWOOD <- FALSE
 } else if (NSC == 'Sugar' & data [['Tissue']] [1] == 'Root') {
   yLimit <- c (0, 3.5)
   NOTWOOD <- TRUE
