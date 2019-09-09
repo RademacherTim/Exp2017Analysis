@@ -154,13 +154,34 @@ rootData <- processedData [processedData [['Tissue']] == 'Root', ]
 
 # use the mean for each sampling date only
 #----------------------------------------------------------------------------------------
-stemDataE <- stemData %>% group_by (treeID, DateOfSampleCollection) %>% 
-            summarise (SugarConcentrationPerDW = mean (ConcentrationSugarPerDW), 
-                       StarchConcentrationPerDW = mean (ConcentrationStarchPerDW))
-leafDataE <- leafData %>% group_by (treeID, DateOfSampleCollection) %>% 
-             summarise (SugarConcentrationPerDW = mean (ConcentrationSugarPerDW), 
-                        StarchConcentrationPerDW = mean (ConcentrationStarchPerDW))
-rootDataE <- rootData %>% group_by (treeID, DateOfSampleCollection) %>% 
-             summarise (SugarConcentrationPerDW = mean (ConcentrationSugarPerDW), 
-                        StarchConcentrationPerDW = mean (ConcentrationStarchPerDW))
+stemData <- ungroup (stemData %>% 
+                     group_by (DateOfSampleCollection, treeID, sampleHeight, treatment) %>% 
+                     summarise (sugar  = mean (ConcentrationSugarPerDW), 
+                                starch = mean (ConcentrationStarchPerDW)))
+stemData <- stemData %>% rename (date = DateOfSampleCollection)
+
+# Add NA for 2017-10-09 measurements for tree 1 and 3 for now.
+#----------------------------------------------------------------------------------------
+stemData <- add_row (stemData, .before = 164, treeID = 1, date = as_date ('2017-10-09'),
+                     treatment = 1, sampleHeight = 1.5, sugar = NA, starch = NA)
+stemData <- add_row (stemData, .before = 168, treeID = 3, date = as_date ('2017-10-09'),
+                     treatment = 1, sampleHeight = 1.5, sugar = NA, starch = NA)
+# Add NA for 2017-08-10 measurements of tree 41 at 1.0 m (B) and for 
+# 2017-10-09 measurement of tree 27 at 2.5 m (A) for which the sample size was too small 
+# with 3.9 mg and 4.3 mg, respectively
+#----------------------------------------------------------------------------------------
+stemData <- add_row (stemData, .before = 163, treeID = 41, date = as_date ('2017-08-10'),
+                     treatment = 2, sampleHeight = 1.0, sugar = NA, starch = NA)
+stemData <- add_row (stemData, .before = 219, treeID = 27, date = as_date ('2017-10-09'),
+                     treatment = 4, sampleHeight = 2.5, sugar = NA, starch = NA)
+
+#----------------------------------------------------------------------------------------
+leafData <- ungroup (leafData %>% group_by (DateOfSampleCollection, treeID) %>% 
+                     summarise (sugar  = mean (ConcentrationSugarPerDW), 
+                                starch = mean (ConcentrationStarchPerDW)))
+leafData <- leafData %>% rename (date = DateOfSampleCollection)
+rootData <- ungroup (rootData %>% group_by (DateOfSampleCollection, treeID) %>% 
+                     summarise (sugar  = mean (ConcentrationSugarPerDW), 
+                                starch = mean (ConcentrationStarchPerDW)))
+rootData <- rootData %>% rename (date = DateOfSampleCollection)
 #========================================================================================

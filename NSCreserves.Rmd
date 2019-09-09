@@ -1,10 +1,10 @@
 ---
 title: 'SI - nonstructural carbon reserves'
 author: Tim Rademacher
-date: "22/03/2019"
-output: html_document
-bibliography: /Volumes/added_SSD/projects/NSF-DB_plant_growth/bib/Exp2017.bib
-csl: /Volumes/added_SSD/projects/NSF-DB_plant_growth/bib/harvard.csl
+date: "06/09/2019"
+output: pdf_document
+bibliography: "/home/trademacehr/projects/NSF-DB\ Plant\ Growth/bib/Exp2017.bib"
+csl: "/home/trademacehr/projects/NSF-DB\ Plant\ Growth/bib/harvard.csl"
 ---
 
 ```{r setup, include=FALSE}
@@ -13,25 +13,130 @@ library ('tidyverse')
 library ('googlesheets')
 ```
 
-## Calculating changes in nonstructural carbon reserves of the canopy, branches, stem, coarse roots and a 10cm stem section for the 2017 experiment at Harvard Forest
+## Calculating nonstructural carbon reserves for the 2017 experiment at Harvard Forest
 
-To estimate changes in soluble sugars and starch for various tissue, we scaled the concentrations derived from each tissue using colorimetric assays. Below we describe the scaling assumption for each tissue, which gave us total reserves in each organ. The differences of total values between the four sampling points in turn provide estimates of the gains or losses of soluble sugars and starch for each tissue and tree. To scale concentrations, the biomass for each tissue is first estimated using allometric equations from @jenkins_comprehensive_2004. We then multiply the tissue biomass by the nonstructural carbon concentration measured for that tissue similar to @furze_whole-tree_2019. Below we provide examples for each tissue.
+To estimate changes in soluble sugars (here we refer to only glucose and ) and starch (as glucose equivalent) for various tissue, we scaled the concentrations derived from each tissue using colorimetric assays as described in the methods. Below we describe the scaling assumptions for nonstructural reserves in a stem section, as well as estimates at the organ-level for the stem, roots and leaves. The differences of total values between the four sampling points in turn provide estimates of net gains or losses of soluble sugars and starch for each stem section, organ and tree. To scale concentrations that were derived from measurements, we estimated the dry matter for each stem section, organ and tree and multiplied it by the nonstructural carbon concentration measured for that tissue similar to @furze_whole-tree_2019. Below we provide examples for each tissue.
+
+## For stem sections
+
+We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith [@hoch_non-structural_2003;furze_whole-tree_2018], we only consider nonstructural carbon reserves in the first centimeter underlying the bark for each stem section. We limit our estimation to the first centimeter, because deeper reserves are more difficult, and thus less likely, to be accessed on timescales considered here.
+<!-- The decline in @hoch_non-structural_2003 is actually more exponential than linear, but let's start with linear. Morgan might have better data for Pinus strobus that can help me scale more adequately.--> 
+
+Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an average of these reserves, we derive the total amount of nonstructural carbon in sugars and strach ($M_{sugar,i}$ and $M_{starch,i}$, respectively) by multiplying the mass of the hollow cylinder ($M_{s,i}$) of each stem section $i$ with the section's measured concentrations of sugar and starch ($c_{sugar,i}$ and $c_{starch,i}$, respectively). 
+
+$$
+ M_{sugar,i} = c_{sugar,i} \times M_{s,i} = V_{s,i} \times \rho_w \times c_{sugar,i}
+$$
+The mass of a hollow cylinder representing the outeter most centimeter of material is derived from its volume ($V_{s,i}$) and an average density of the wood of ... ($\rho_w$). In turn the volume calculated using a height ($h$) of 10 cm and the section's circumference ($cbh_{s,i}$; in $cm$), which was measured in the field using a tape measure. We use  289.9$\pm$ 40.4$kg \, m^{-3}$ as density, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film. <!--Maybe Patrick can giev a reference for the exact  procedure?-->
+
+$$
+M_{s,i} = V_{s,i} \times \rho_{w} =  \pi \times h \times \rho_{w} \Big (\Big (\frac {cbh_{s,i}}{2 \pi}\Big)^2 - \Big (\frac {cbh_{s,i}}{2 \pi} - 0.01\Big)^2 \Big)
+$$
+
+``` {r calculateStemSectionNSCs, warning = FALSE}
+# Get the tree measurements of circumference from the googlesheet 
+key <- '1K8Vk9VHRdwNjIa28frc-Zt4uyk07G6CZe1EkJunUll0'
+suppressMessages (predictors <- gs_read (gs_key (key), ws = 'predictors', col_types = cols ()))
+
+# Declare the height of the stem section (h, m)
+h <- 0.1
+
+# Declare mean stem wood density (rho_s, kg m-3)
+rho_w <- 289.9
+
+# Determine the volume of each stem section (m3) at various height (0.5m, 1m, 1.5m, 2m, 2.5m)
+# cbh is in cm, therefore divide by 100 and by 2.0 and pi to get the sections radius in m
+predictors <- add_column (predictors,   
+                          V50  = ((predictors[['cbh50']]/(100.0*2.0*pi))^2.0*pi*h) - 
+                                 ((predictors[['cbh50']]/(100.0*2.0*pi)-0.01)^2.0*pi*h),
+                          V100 = (predictors[['cbh100']]/(100.0*2.0*pi))^2.0*pi*h - 
+                                 ((predictors[['cbh100']]/(100.0*2.0*pi)-0.01)^2.0*pi*h),
+                          V150 = (predictors[['cbh150']]/(100.0*2.0*pi))^2.0*pi*h - 
+                                 ((predictors[['cbh150']]/(100.0*2.0*pi)-0.01)^2.0*pi*h), 
+                          V200 = (predictors[['cbh200']]/(100.0*2.0*pi))^2.0*pi*h - 
+                                 ((predictors[['cbh200']]/(100.0*2.0*pi)-0.01)^2.0*pi*h),
+                          V250 = (predictors[['cbh250']]/(100.0*2.0*pi))^2.0*pi*h - 
+                                 ((predictors[['cbh250']]/(100.0*2.0*pi)-0.01)^2.0*pi*h))
+
+# Determine the mass of each stem section (Msection, kg)
+predictors <- add_column (predictors,
+                          M50  = predictors [['V50']]  * rho_w,
+                          M100 = predictors [['V100']] * rho_w,
+                          M150 = predictors [['V150']] * rho_w,
+                          M200 = predictors [['V200']] * rho_w,
+                          M250 = predictors [['V250']] * rho_w)
+```
+
+``` {r getSugarConcentration}
+# Read the sugar and starch concentration (means for needles, branches and roots and first centimeter for wood sections)
+suppressMessages (source ('processNSCDataForExp2017.R'))
+
+# Create responseVariables tibble
+responseVariables <- tibble (year = 2017,
+                             month    = c (rep (7, 41), rep (8, 41), 
+                                           rep (10, 41), rep (11, 41)),
+                             tree = rep (1:41, 4),
+                             sugarW250 = NA, starchW250 = NA, sugarW200 = NA,	
+                             starchW200 = NA,	sugarW150 = NA,	starchW150 = NA,	
+                             sugarW100 = NA,	starchW100 = NA, sugarW50 = NA,	
+                             starchW50 = NA)
+
+# Wrangle data to get sugar and starch concentrations (g kg-1) for each section and 
+# multiply the concentration by the dry mass of the section (kg) to obtain total sugar and 
+# starch reserves (kg)
+for (r in 1:dim (responseVariables) [1]) {
+  treeID <- responseVariables [['tree']] [r]
+  iMonth <- responseVariables [['month']] [r]
+  if (unique (stemData [['treatment']] [stemData [['treeID']] == treeID]) == 1) {
+    responseVariables [['sugarW150']] [r] <- 
+      predictors [['M150']] [predictors [['tree']] == treeID] * 
+      (stemData [['sugar']] [stemData [['treeID']] == treeID & 
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+  } else if (unique (stemData [['treatment']] [stemData [['treeID']] == responseVariables [['tree']] [r]]) == 2 | unique (stemData [['treatment']] [stemData [['treeID']] == responseVariables [['tree']] [r]]) == 3) {
+    responseVariables [['sugarW100']] [r] <- 
+      predictors [['M100']] [predictors [['tree']] == treeID] * 
+      (stemData [['sugar']] [stemData [['treeID']] == treeID & 
+                             stemData [['sampleHeight']] == 1 &
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+    responseVariables [['sugarW200']] [r] <- 
+      predictors [['M200']] [predictors [['tree']] == treeID] * 
+      (stemData [['sugar']] [stemData [['treeID']] == treeID & 
+                             stemData [['sampleHeight']] == 2 &
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+  } else if (unique (stemData [['treatment']] [stemData [['treeID']] == responseVariables [['tree']] [r]]) == 4) {
+    responseVariables [['sugarW50']] [r] <- 
+      predictors [['M50']] [predictors [['tree']] == treeID] * 
+      (stemData [['sugar']] [stemData [['treeID']] == treeID & 
+                             stemData [['sampleHeight']] == 0.5 &
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+    responseVariables [['sugarW150']] [r] <- 
+      predictors [['M150']] [predictors [['tree']] == treeID] * 
+      (stemData [['sugar']] [stemData [['treeID']] == treeID & 
+                             stemData [['sampleHeight']] == 1.5 &
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+    responseVariables [['sugarW250']] [r] <- 
+      predictors [['M250']] [predictors [['tree']] == treeID] * 
+      (stemData [['sugar']] [stemData [['treeID']] == treeID & 
+                             stemData [['sampleHeight']] == 2.5 &
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+  }
+}
+
+```
 
 ## Total above ground biomass 
 
-According to @jenkins_comprehensive_2004, we calcualted total aboveground biomass ($B; in \; kg$) from the diameter at breast height ($DBH; in \; m$) as follows:
+According to @jenkins_comprehensive_2004, we calcualted total aboveground biomass ($B; in \; kg$) from the diameter at breast height of tree $t$ ($d_{t}; in \; m$) as follows:
 
 $$
-B = exp (\beta_0 + \beta_1 \; ln \; DBH)
+B = exp (\beta_0 + \beta_1 \; ln \; d_{t})
 $$
 
 ``` {r totalBiomass}
-key <- '1K8Vk9VHRdwNjIa28frc-Zt4uyk07G6CZe1EkJunUll0'
-predictors <- gs_read (gs_key (key), ws = 'predictors', col_types = cols ())
 biomass04 <- exp (2.4800 + 2.4835 * log (predictors [['cbh150']] / pi))  
-biomass08 <- exp (-2.6177 + 2.4638 * log (predictors [['cbh150']] / pi)) # with specific gravity < 0.45
+#biomass08 <- exp (-2.6177 + 2.4638 * log (predictors [['cbh150']] / pi)) # with specific gravity < 0.45
 #biomass08 <- exp (-3.0506 + 2.6465 * log (predictors [['cbh150']] / pi)) # with specific gravity >= 0.45
-biomassxx <- 2.2874 * exp (0.1968 * (predictors [['cbh150']] / pi)) # From peichl
+#biomassxx <- 2.2874 * exp (0.1968 * (predictors [['cbh150']] / pi)) # From peichl
 ```
 
 with generic pine species (Pinus spp.) parameters of $\beta_0 = -2.4800$ and $\beta_1 = 2.4835$. This total biomass does include foliage, stemwood, bark and branches. To get tissue specific values for stemwood, bark and foliage we estimated the fraction of the total biomass in each tissue using $\alpha_0 = –0.3737$ and $\alpha_1 = –1.8055$ from Table 2 in @jenkins_comprehensive_2004 and the following equation:
@@ -53,75 +158,6 @@ $$
 f_{branches} = 1.0 - f_{foliage} - f_{stemwood} - f_{bark}
 $$
 
-## For the whole stem
-
-To estimate the whole stem NSC reserves we first ...???
-
-
-## For stem sections
-
-We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) and scaled to the entire section using a linear relationship, as concentrations gradients have been shown to vary among species but generally decline with distance from the bark [@hoch_non-structural_2003]. In particular, Pinus sylvestris - the closest relative to Pinus strobus - has been shown to have linearly declining stem wood nonstructrual carbon concentrations [@hoch_non-structural_2003].
-<!-- The decline in @hoch_non-structural_2003 is actually more exponential than linear, but let's start with linear. Morgan might have better data for Pinus strobus that can help me scale more adequately.--> 
-
-Assuming linear scaling from the measured nonstructural carbon concentration in the first centimeter under the bark to zero at the pith, we obtain nonstructural carbon concentrations across the radial profile for each tree. These concentrations can then be simply integrated across the stem section by multiplication of the mean concentration across the radial profile ($\bar c_{NSC}$) with the mass of the stem section ($M_{s}$) to obtain the total nonstructural carbon reserves in the stem section ($R_{NSC}$).
-
-$$
-R_{NSC} = \bar c_{NSC} \times M_{s}
-$$
-
-The mass of the stem section is derived from its volume ($V_{s}$) and density ($\rho_{s}$). For the density 289.9$\pm$40.4 $kg \, m^{-3}$ is used, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film. The volume is assumed to be a cylinder with diameter $dbh$ and height $h$. <!-- Maybe Patrick can giev a reference for the exact  procedure?-->
-$$
-M_{s} = V_{s} \times \rho_{s} = (\frac {dbh}{2})^2 \pi \times h \times \rho_{s}
-$$
-
-``` {r calculateStemSectionNSCs}
-# Declare the height of the stem section (h, m)
-h <- 0.1
-
-# Declare mean stem wood density (rho_s, kg m-3)
-rho <- 289.9
-
-# Determine the volume of each stem section (m3) at various height (0.5m, 1m, 1.5m, 2m, 2.5m)
-# dbh is in cm, therefore divide by 100.
-predictors <- add_column (predictors,   
-                          V50  = ((predictors [['dbh50']]  / 100.0) / 2.0)**2.0 * pi * h,
-                          V100 = ((predictors [['dbh100']] / 100.0) / 2.0)**2.0 * pi * h,
-                          V150 = ((predictors [['dbh150']] / 100.0) / 2.0)**2.0 * pi * h, 
-                          V200 = ((predictors [['dbh200']] / 100.0) / 2.0)**2.0 * pi * h,
-                          V250 = ((predictors [['dbh250']] / 100.0) / 2.0)**2.0 * pi * h)
-
-# Determine the mass of each stem section (Msection, kg)
-predictors <- add_column (predictors,
-                          M050 = predictors [['V050']] * rho,
-                          M100 = predictors [['V100']] * rho,
-                          M150 = predictors [['V150']] * rho,
-                          M200 = predictors [['V200']] * rho,
-                          M250 = predictors [['V250']] * rho)
-
-# Read the mean wood concentration in the first centimeter for each section
-
-
-# Get mean concentration across the radial profile (gC gDW-1) by division by two.
-cSugar  <- 5.0 # this needs to be read in once I have values.
-cStarch <- 3.0 # this needs to be read in once I have values.
-
-# Get the total sugar, strach and NSC reserves in the stem section
-RSugar <- trees$Msection * cSugar
-RStarch <- trees$Msection * cStarch
-RNSC <- RSugar + RStarch
-```
-
-## For needles
-
-
-
-## For roots
-
-
-
-### To-do list and comments
-
-- Get better data for radial variation in NSCs in white pine stems from Morgan, as the scaling from Pinus sylvestris after the data from Hoch et al. (2003) is not really adequate.
-- adjust for more accurate dbh values once I measured the circumference for each section. At the moment is only calulates the mass once per tree and assume all sections have the same mass.
+For each organ and the entire tree we multiplied the respecitve biomass with the average sugar and starch concentration derived from colourimetric assays. The total nonstructural carbon estimates are the sum of the mass of sugar and starch. 
 
 # References
