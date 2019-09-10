@@ -12,6 +12,7 @@
 
 <meta name="author" content="Tim Rademacher" />
 
+<meta name="date" content="2019-09-09" />
 
 <title>SI - respiratory losses</title>
 
@@ -180,14 +181,14 @@ summary {
 
 <h1 class="title toc-ignore">SI - respiratory losses</h1>
 <h4 class="author">Tim Rademacher</h4>
-<h4 class="date">21/03/2019</h4>
+<h4 class="date">09/09/2019</h4>
 
 </div>
 
 
 <div id="estimating-respiratory-losses-for-stem-sections" class="section level2">
 <h2>Estimating respiratory losses for stem sections</h2>
-<p>To estimate stem respiratory losses, weekly stem respiration measurements were made using a Li-Cor820 starting at 13.00h. The LiCor820 was attached to a PVC pipe (4&quot; diameter) that were previously fitted and attached to the sections stems using silicone to create a closed system in which the enclosed air circulates via a small pump, similar to the Flux Puppy system <span class="citation">(<span class="citeproc-not-found" data-reference-id="citation"><strong>???</strong></span>)</span>. Respiration rates were calculate from the change CO<sub>2</sub> using the RespChamberProc package <span class="citation">(<span class="citeproc-not-found" data-reference-id="citation"><strong>???</strong></span>)</span> in R <span class="citation">(<span class="citeproc-not-found" data-reference-id="citation"><strong>???</strong></span>)</span>. Stem sections were measured in the same order to minimise variations in time of day from week to week. The rates were corrected for water vapour pressure fluctuations using climate data from Fisher weather station for the 15 minute interval during which the measurement took place.</p>
+<p>To estimate stem respiratory losses, weekly stem respiration measurements were made using a Li-Cor820 starting at 13.00h. The LiCor820 was attached to a PVC pipe (4&quot; diameter) that were previously fitted and attached to the stem sections using silicone to create a closed chamber in which the enclosed air circulates via a small pump, similar to the Flux Puppy system <span class="citation">(Carbone <em>et al.</em>, 2019)</span>. Respiration rates were calculate from the change CO<sub>2</sub> using the RespChamberProc package <span class="citation">(<span class="citeproc-not-found" data-reference-id="citation"><strong>???</strong></span>)</span> in R <span class="citation">(R Core Team, 2018)</span>. Stem sections were measured in the same order to minimise variations in time of day from week to week. The rates were corrected for water vapour pressure fluctuations using climate data from Fisher weather station for the 15 minute interval during which the measurement took place.</p>
 </div>
 <div id="integration-over-the-surface-area-of-the-stem-section" class="section level2">
 <h2>Integration over the surface area of the stem section</h2>
@@ -438,8 +439,16 @@ polygon (x = c (tmp250 [['month']] [tmp250 [['treatment']] == 4],
 </ul>
 </div>
 </div>
-<div id="references" class="section level1">
+<div id="references" class="section level1 unnumbered">
 <h1>References</h1>
+<div id="refs" class="references">
+<div id="ref-carbone_flux_2019">
+<p>Carbone, M. S. <em>et al.</em> (2019) ‘Flux Puppy – An open-source software application and portable system design for low-cost manual measurements of CO2 and H2O fluxes’, <em>Agricultural and Forest Meteorology</em>, 274, pp. 1–6. doi: <a href="https://doi.org/10.1016/j.agrformet.2019.04.012">10.1016/j.agrformet.2019.04.012</a>.</p>
+</div>
+<div id="ref-r_core_team_r:_2018">
+<p>R Core Team (2018) <em>R: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. Available at: <a href="https://www.R-project.org/" class="uri">https://www.R-project.org/</a>.</p>
+</div>
+</div>
 </div>
 
 

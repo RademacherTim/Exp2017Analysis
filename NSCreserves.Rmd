@@ -139,10 +139,10 @@ biomass04 <- exp (2.4800 + 2.4835 * log (predictors [['cbh150']] / pi))
 #biomassxx <- 2.2874 * exp (0.1968 * (predictors [['cbh150']] / pi)) # From peichl
 ```
 
-with generic pine species (Pinus spp.) parameters of $\beta_0 = -2.4800$ and $\beta_1 = 2.4835$. This total biomass does include foliage, stemwood, bark and branches. To get tissue specific values for stemwood, bark and foliage we estimated the fraction of the total biomass in each tissue using $\alpha_0 = –0.3737$ and $\alpha_1 = –1.8055$ from Table 2 in @jenkins_comprehensive_2004 and the following equation:
+with generic pine species (Pinus spp.) parameters of $\beta_0 = -2.4800$ and $\beta_1 = 2.4835$. This total biomass includes foliage, stemwood, bark and branches. To get tissue specific values for the mass of stemwood, bark and foliage we estimated the fraction of the total aboveground biomass in each tissue using parameters from Table 2 in @jenkins_comprehensive_2004 (i.e. for stemwood $\alpha_0 = –0.3737$ and $\alpha_1 = –1.8055$) and the following equation:
 
 $$
-f = exp (\alpha_0 + \frac {\alpha_1} {DBH})
+f = exp (\alpha_0 + \frac {\alpha_1} {d_t})
 $$
 ``` {r fractionalBiomass}
 rootFraction <- exp (-1.5619 + ( 0.6614 / (predictors [['cbh150']] / pi)))
@@ -150,14 +150,33 @@ stemFraction <- exp (-0.3737 + (-1.8055 / (predictors [['cbh150']] / pi)))
 barkFraction <- exp (-2.0980 + (-1.1432 / (predictors [['cbh150']] / pi)))
 foliFraction <- exp (-2.9584 + ( 4.4766 / (predictors [['cbh150']] / pi)))
 branFraction <- 1.0 - foliFraction - stemFraction - barkFraction
+
+rootMass <- biomass04 * rootFraction
+stemMass <- biomass04 * stemFraction
+barkMass <- biomass04 * barkFraction
+branMass <- biomass04 * branFraction
+foliMass <- biomass04 * foliFraction
 ```
 
-Branch biomass was calculated as the residual of total biomass and the three other tissues estimated above.
+Branch biomass was calculated as the residual of total aboveground biomass and the three other tissues estimated above. Here, the mean stem, bark, branch and foliage fractions were `r round (mean (stemFraction) * 100.0,1)`%, `r round (mean (barkFraction) * 100.0,1)`%, `r round (mean (branFraction) * 100.0,1)`%, and  `r round (mean (foliFraction) * 100.0,1)`%, respectively.
 
 $$
 f_{branches} = 1.0 - f_{foliage} - f_{stemwood} - f_{bark}
 $$
+Root biomass was also estimated as a fraction of total aboveground biomass with an average of `r round (mean (rootFraction) * 100.0,1)`%.
 
-For each organ and the entire tree we multiplied the respecitve biomass with the average sugar and starch concentration derived from colourimetric assays. The total nonstructural carbon estimates are the sum of the mass of sugar and starch. 
+For each organ and the entire tree we multiplied the respecitve biomass with the average sugar and starch concentration (in $% dry weight$) derived from colourimetric assays. The total nonstructural carbon estimates are the sum of the mass of sugar and starch. 
+
+```{r totalFoliage reserves}
+# Determine tissue sugar reserves
+#sugarRoot   <- rootData [['sugar']] * rootMass # TR still missing values
+sugarNeedle <- leafData [['sugar']] * foliMass
+
+# Determine tissue starch reserves
+#starchRoot   <- rootData [['starch']] * rootMass # TR still missing values
+starchNeedle <- leafData [['starch']] * foliMass
+
+# TR I could also calculate sugar in branches and bark in the future with the samples we still have at NAU. Furthermore, I could average the stem section of the control to derive stem values.
+```
 
 # References

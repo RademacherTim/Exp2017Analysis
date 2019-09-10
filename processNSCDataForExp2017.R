@@ -180,6 +180,22 @@ leafData <- ungroup (leafData %>% group_by (DateOfSampleCollection, treeID) %>%
                      summarise (sugar  = mean (ConcentrationSugarPerDW), 
                                 starch = mean (ConcentrationStarchPerDW)))
 leafData <- leafData %>% rename (date = DateOfSampleCollection)
+
+# Add NA for 2017-08-10 measurement of tree 13, 
+#        for 2017-10-09 measurement of tree 41,
+#    and for 2017-11-01 measurement of tree 04, 16, 31 
+#----------------------------------------------------------------------------------------
+leafData <- add_row (leafData, .before = 54,  treeID = 13, date = as_date ('2017-08-10'),
+                     sugar = NA, starch = NA)
+leafData <- add_row (leafData, .before = 123, treeID = 41, date = as_date ('2017-10-09'),
+                     sugar = NA, starch = NA)
+leafData <- add_row (leafData, .before = 127, treeID = 4,  date = as_date ('2017-11-03'),
+                     sugar = NA, starch = NA)
+leafData <- add_row (leafData, .before = 139, treeID = 16, date = as_date ('2017-11-03'),
+                     sugar = NA, starch = NA)
+leafData <- add_row (leafData, .before = 154, treeID = 31, date = as_date ('2017-11-03'),
+                     sugar = NA, starch = NA)
+
 rootData <- ungroup (rootData %>% group_by (DateOfSampleCollection, treeID) %>% 
                      summarise (sugar  = mean (ConcentrationSugarPerDW), 
                                 starch = mean (ConcentrationStarchPerDW)))

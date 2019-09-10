@@ -16,16 +16,16 @@ library ('googlesheets')
 
 ## Estimating respiratory losses for stem sections
 
-To estimate stem respiratory losses, weekly stem respiration measurements were made using a Li-Cor820 starting at 13.00h. The LiCor820 was attached to a PVC pipe (4" diameter) that were previously fitted and attached to the sections stems using silicone to create a closed system in which the enclosed air circulates via a small pump, similar to the Flux Puppy system [@citation]. Respiration rates were calculate from the change CO<sub>2</sub> using the RespChamberProc package [@citation] in R [@citation]. Stem sections were measured in the same order to minimise variations in time of day from week to week. The rates were corrected for water vapour pressure fluctuations using climate data from Fisher weather station for the 15 minute interval during which the measurement took place. 
+To estimate stem respiratory losses, weekly stem respiration measurements were made using a Li-Cor820 starting at 13.00h. The LiCor820 was attached to a PVC pipe (4" diameter) that were previously fitted and attached to the stem sections using silicone to create a closed chamber in which the enclosed air circulates via a small pump, similar to the Flux Puppy system [@carbone_flux_2019]. Respiration rates were calculate from the change CO<sub>2</sub> using the RespChamberProc package [@citation] in R [@r_core_team_r:_2018]. Stem sections were measured in the same order to minimise variations in time of day from week to week. The rates were corrected for water vapour pressure fluctuations using climate data from Fisher weather station for the 15 minute interval during which the measurement took place. 
 
 ## Integration over the surface area of the stem section
 
 Instantaneous fluxes of respiratory CO2 loss were measured as described above and subsequently integrated across space (e.g. the specific surface area of a 10 cm stem section) for each stem section to estimate the respiratrates in grams per stem section per day. To integrate the measured respiration rates across a 10cm stem section, we calculate the surface area of the i-th stem section ($A_{s,i}$) as follows:
 
 $$
-A_{s, i} = \frac {cbh_{s,i}} {100} * h 
+A_{s, i} = \frac {cbh_{s,i}} {100} \times h 
 $$
-, where is the $cbh_{s,i}$ is the circumference in cemtimeters and $h$ is the height of the section in meters (here $h = 0.1$).
+, where is the $cbh_{s,i}$ is the circumference in cemtimeters and $h$ is the height of the section in meters (here $h = 0.1$m).
 
 The stem respiration rate over this surface area was then determined by multiplication of the instanteanous respiration flux (in $g \, m^{-2} \,day^{-1}$) by the surface area to get the respiration rate (in $g \, day_{-1}$).
 ```{r integrateAcrossSpace}
@@ -124,11 +124,12 @@ for (iTree in 1:41) {
 
 Respiration rates were averaged for over four time period: (i) pre-treatment, (ii) treatment period 1 (i.e. first month after start of the experiment), (iii) treament period 2 (i.e. second and third month after the start of the experiment) and (iii) treatment period 3 (i.e. fourth month after the start of the experiment to the end of the growing season). 
 
-We then approximated the total loss of carbon for each combination of period and stem section by multiplying the geometric mean of spatially integrated respiration rates (g day-1) measured during each period by the length of the period ($l_p$ in days).
+We then approximated the total loss of carbon for each combination of period $j$ and stem section $i$ ($R_{i,j}$) by multiplying the temporal mean of spatially integrated respiration rates in $g \, day^{-1}$ measured during each period $j$ by the length of the period ($l_p$ in days).
 
 $$
-R_{s,i} = \bar R_{s, i, j} \times l_p
+R_{i,j} = \frac {1} {n} \sum_{k=1}^{n} R_{i,k} \times l_p
 $$
+, where n is the number of weekly sampling dates during each period.
 
 ``` {r temporalIntegration}
 # Set period boundaries
