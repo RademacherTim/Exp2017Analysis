@@ -16,7 +16,7 @@ library ('tidyverse')
 
 To estimate changes in soluble sugars and starch for various tissue, we scaled the concentrations derived from each tissue using colorimetric assays. Below we describe the scaling assumption for each tissue, which gave us total reserves in each organ. The differences of total values between the four sampling points in turn provide estimates of the gains or losses of soluble sugars and starch for each tissue and tree. To scale concentrations, the biomass for each tissue is first estimated using allometric equations from @jenkins_comprehensive_2004. We then multiply the tissue biomass by the nonstructural carbon concentration measured for that tissue similar to @furze_whole-tree_2019. Below we provide examples for each tissue.
 
-## Total above ground biomass 
+## Tree and organ biomass
 
 According to @jenkins_comprehensive_2004, we calcualted total aboveground biomass ($B; in \; kg$) from the diameter at breast height ($DBH; in \; m$) as follows:
 
@@ -25,23 +25,41 @@ B = exp (\beta_0 + \beta_1 \; ln \; DBH)
 $$
 
 ``` {r totalBiomass}
-biomass <- exp (2.4800 + 2.4835 * log (trees$dbh)) # TTR Need to read in the dbh of trees first!
+# Read tree stats (in particular dbh)
+trees <- read_csv ('../../data/trees/2017ExperimentalDataPredictors.csv', col_types = cols ())
+
+# Determine the total above ground biomass of each tree (biomass; kg)
+biomass <- exp (2.5356 + 2.4349 * log (trees$dbh150)) 
 ```
 
-with generic pine species (Pinus spp.) parameters of $\beta_0 = -2.4800$ and $\beta_1 = 2.4835$. This total biomass does include foliage, stemwood, bark and branches. To get tissue specific values for stemwood, bark and foliage we estimated the fraction of the total biomass in each tissue using $\alpha_0 = –0.3737$ and $\alpha_1 = –1.8055$ from Table 2 in @jenkins_comprehensive_2004 and the following equation:
+with generic pine species (Pinus spp.) parameters of $\beta_0 = -2.5356$ and $\beta_1 = 2.4349$. This total biomass does include foliage, stemwood, bark and branches. To get tissue specific values for stemwood, bark and foliage we estimated the fraction of the total biomass in each tissue using the following equation:
 
 $$
 f = exp (\alpha_0 + \frac {\alpha_1} {DBH})
 $$
+$\alpha_0$ and $\alpha_1$ are wood type specific coeffecients. Here, we used the softwood values, for example $\alpha_0 = –0.3737$ and $\alpha_1 = –1.8055$ for stemwood, from Table 2 in @jenkins_comprehensive_2004.
+
 ``` {r foliageBiomass}
-folFraction <- exp ()
+# Determine the fractions of total above ground biomass in foliage 
+foliFraction <- exp (-2.9584 + ( 4.4766 / trees$dbh150))
+rootFraction <- exp (-1.5619 + ( 0.6614 / trees$dbh150))
+barkFraction <- exp (-2.0980 + (-1.1432 / trees$dbh150))
+stemFraction <- exp (-0.3737 + (-1.8055 / trees$dbh150))
+branFraction <- 1.0 - foliFraction - barkFraction - stemFraction
+
+# Determine actual biomass in each organ
+foliage  <- foliFraction * biomass
+branches <- branFraction * biomass
+roots    <- foliFraction * biomass
+bark     <- foliFraction * biomass
+stem     <- foliFraction * biomass
 ```
 
-Branch biomass was calculated as the residual of total biomass and the three other tissues estimated above.
+Branch biomass was estimated as the residual fraction of total biomass and the sum of foliage, bark and stem fractions.
+
 ## For the whole stem
 
-To estimate the whole stem NSC reserves we first ...???
-
+To estimate the whole stem nonstructural carbon reserves, the biomass of the stem, as derived above, is further divided into the biomass of a hollow cylinder of the first centimeter and the inner cylinder. Each division is then multiplied with the respective nonstrucutral carbon concentration. 
 
 ## For stem sections
 
@@ -54,9 +72,9 @@ $$
 R_{NSC} = \bar c_{NSC} \times M_{s}
 $$
 
-The mass of the stem section is derived from its volume ($V_{s}$) and density ($\rho_{s}$). For the density 289.9$\pm$40.4 $kg \, m^{-3}$ is used, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine control white pine trees in the control group as determined using x-ray film. The volume is assumed to be a cylinder with diameter $dbh$ and height $h$. <!-- Maybe Patrick can giev a reference for the exact  procedure?-->
+The mass of the stem section is derived from its volume ($V_{s}$) and density ($\rho_{s}$). For the density 289.9$\pm$40.4 $kg \, m^{-3}$ is used, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine control white pine trees in the control group as determined using x-ray film. The volume is assumed to be a cylinder with diameter $dbh$ and height $h$. <!-- Maybe Patrick can give a reference for the exact procedure?-->
 $$
-M_{s} = V_{s} \times \rho_{s} = (\frac {dbh}{2})^2 \pi \times h \times \rho_{s}
+M_{s} = V_{s} \times \rho_{s} = (\frac {d_s}{2})^2 \pi \times h \times \rho_{s}
 $$
 
 ``` {r calculateStemSectionNSCs}
@@ -90,11 +108,11 @@ RNSC <- RSugar + RStarch
 
 ## For needles
 
-
+Similar to the stem's nonstructural carbon reserves, foliar biomass is multiplied with the mean foliar concentration of nonstructural carbon to obtain the total foliar reservoir of nonstructural carbon. The foliar biomass was derived as a fraction of the total above ground biomass according to @jenkins_comprehensive_2004.
 
 ## For roots
 
-
+Finally root nonstructural carbon reserves were also scaled by multiplying the sum of coarse and fine root biomass with the root nonstrucutral carbon concentration. To estimate total root biomass, we divided the coarse root fraction as per @jenkins_comprehensive_2004 into three combinations of large and intermediate roots (90% and 10%, 75% and 25%, and 50% and 50%) and added a total fine root biomass equivalent to 5%, 15% and 30% of the coarse roots, respectively [@richardson_distribution_2015]. These are realistic scenarios used by @richardson_distribution_2015 to bracket the uncertainty of root biomass in white pine. <!-- Morgan did this differently! Maybe I should change this.-->
 
 ### To-do list and comments
 
