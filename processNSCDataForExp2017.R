@@ -20,6 +20,9 @@ rawData3 <- readRawNSCData (fileDir = '/home/trademacehr/projects/NSF-DB Plant G
                             fileName = 'RCLab_2019_03_22_HF_Roots_Exp2017.xlsx',
                             IDs = c ('RCLabNumber', 'SampleID', 'Tissue', 'BatchID'))
 rawData4 <- readRawNSCData (fileDir = '/home/trademacehr/projects/NSF-DB Plant Growth/Exp2017/data/',
+                            fileName = 'RCLab_2019_09_03_HF_Roots_Exp2017.xlsx',
+                            IDs = c ('RCLabNumber', 'SampleID', 'Tissue', 'BatchID'))
+rawData5 <- readRawNSCData (fileDir = '/home/trademacehr/projects/NSF-DB Plant Growth/Exp2017/data/',
                             fileName = 'RCLab_2019_04_30_HF_Wood_Exp2017.xlsx',
                             IDs = c ('RCLabNumber', 'SampleID', 'Tissue', 'BatchID'))
 
@@ -41,7 +44,11 @@ processedData4 <- processNSCs (rawData = rawData4,
                                cvLimitSample = 0.25,
                                cvLimitTube = 0.25,
                                LCS = 'Oak')
-rm (rawData1, rawData2, rawData3, rawData4)
+processedData5 <- processNSCs (rawData = rawData5,
+                               cvLimitSample = 0.25,
+                               cvLimitTube = 0.25,
+                               LCS = 'Oak')
+rm (rawData1, rawData2, rawData3, rawData4, rawData5)
 
 # Produce pdf file with calibration curves
 #----------------------------------------------------------------------------------------
@@ -54,6 +61,8 @@ if (PLOTCAL) {
   res <- plotCalibrationCurves (data = processedData3)
   if (res != 0) print ('Error: plotCalibrationCurves () did not work.')
   res <- plotCalibrationCurves (data = processedData4)
+  if (res != 0) print ('Error: plotCalibrationCurves () did not work.')
+  res <- plotCalibrationCurves (data = processedData5)
   if (res != 0) print ('Error: plotCalibrationCurves () did not work.')
 }
 rm (PLOTCAL)
@@ -81,14 +90,20 @@ if (ADDTOMASTER) {
   res <- addToLabMasterSheet (data = processedData4,
                               fileDir = '/home/trademacehr/projects/NSF-DB Plant Growth/',
                               fileName = 'RCLabNSCMasterSheet.xlsx',
+                              IDs = c ('RCLabNumber', 'SampleID', 'Tissue', 'BatchID')) # TR throws up and error, which I need to look into.
+  if (res != 0) print ('Error: addToLabMasterSheet () did not work.')
+  res <- addToLabMasterSheet (data = processedData5,
+                              fileDir = '/home/trademacehr/projects/NSF-DB Plant Growth/',
+                              fileName = 'RCLabNSCMasterSheet.xlsx',
                               IDs = c ('RCLabNumber', 'SampleID', 'Tissue', 'BatchID'))
   if (res != 0) print ('Error: addToLabMasterSheet () did not work.')
 }
 
 # combine all processed data into one tibble
 #----------------------------------------------------------------------------------------
-processedData <- rbind (processedData1, processedData2, processedData3, processedData4)
-rm (processedData1, processedData2, processedData3, processedData4)
+processedData <- rbind (processedData1, processedData2, processedData3, processedData4, 
+                        processedData5)
+rm (processedData1, processedData2, processedData3, processedData4, processedData5)
 
 # add columns for treeID, and treatment to tibble 
 #----------------------------------------------------------------------------------------
@@ -152,13 +167,14 @@ rootData <- processedData [processedData [['Tissue']] == 'Root', ]
 #   }
 # }
 
-# use the mean for each sampling date only
+# summarise the data by section using the mean for each sampling date
 #----------------------------------------------------------------------------------------
-stemData <- ungroup (stemData %>% 
-                     group_by (DateOfSampleCollection, treeID, sampleHeight, treatment) %>% 
-                     summarise (sugar  = mean (ConcentrationSugarPerDW), 
-                                starch = mean (ConcentrationStarchPerDW)))
-stemData <- stemData %>% rename (date = DateOfSampleCollection)
+stemData <- dplyr::ungroup (stemData %>% 
+                            dplyr::group_by (DateOfSampleCollection, treeID, sampleHeight, 
+                                             treatment) %>% 
+                            dplyr::summarise (sugar  = mean (ConcentrationSugarPerDW), 
+                                              starch = mean (ConcentrationStarchPerDW)))
+stemData <- stemData %>% dplyr::rename (date = DateOfSampleCollection)
 
 # Add NA for 2017-10-09 measurements for tree 1 and 3 for now.
 #----------------------------------------------------------------------------------------
@@ -175,11 +191,13 @@ stemData <- add_row (stemData, .before = 163, treeID = 41, date = as_date ('2017
 stemData <- add_row (stemData, .before = 219, treeID = 27, date = as_date ('2017-10-09'),
                      treatment = 4, sampleHeight = 2.5, sugar = NA, starch = NA)
 
+# Summarise leaf data by tree using the mean for each sampling date
 #----------------------------------------------------------------------------------------
-leafData <- ungroup (leafData %>% group_by (DateOfSampleCollection, treeID) %>% 
-                     summarise (sugar  = mean (ConcentrationSugarPerDW), 
-                                starch = mean (ConcentrationStarchPerDW)))
-leafData <- leafData %>% rename (date = DateOfSampleCollection)
+leafData <- dplyr::ungroup (leafData %>% 
+                            dplyr::group_by (DateOfSampleCollection, treeID, treatment) %>% 
+                            dplyr::summarise (sugar  = mean (ConcentrationSugarPerDW), 
+                                              starch = mean (ConcentrationStarchPerDW)))
+leafData <- leafData %>% dplyr::rename (date = DateOfSampleCollection)
 
 # Add NA for 2017-08-10 measurement of tree 13, 
 #        for 2017-10-09 measurement of tree 41,
@@ -196,8 +214,18 @@ leafData <- add_row (leafData, .before = 139, treeID = 16, date = as_date ('2017
 leafData <- add_row (leafData, .before = 154, treeID = 31, date = as_date ('2017-11-03'),
                      sugar = NA, starch = NA)
 
-rootData <- ungroup (rootData %>% group_by (DateOfSampleCollection, treeID) %>% 
-                     summarise (sugar  = mean (ConcentrationSugarPerDW), 
-                                starch = mean (ConcentrationStarchPerDW)))
-rootData <- rootData %>% rename (date = DateOfSampleCollection)
+# Summarise root data by tree using the mean for each sampling date
+#----------------------------------------------------------------------------------------
+rootData <- dplyr::ungroup (rootData %>% 
+                            dplyr::group_by (DateOfSampleCollection, treeID, treatment) %>% 
+                            dplyr::summarise (sugar  = mean (ConcentrationSugarPerDW), 
+                                              starch = mean (ConcentrationStarchPerDW)))
+rootData <- rootData %>% dplyr::rename (date = DateOfSampleCollection)
+
+# Add NA for 2017-08-10 measurement of tree 11 and 15 
+#----------------------------------------------------------------------------------------
+rootData <- add_row (rootData, .before = 52,  treeID = 11, date = as_date ('2017-08-10'),
+                     sugar = NA, starch = NA)
+rootData <- add_row (rootData, .before = 56, treeID = 15, date = as_date ('2017-08-10'),
+                     sugar = NA, starch = NA)
 #========================================================================================

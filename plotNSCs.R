@@ -8,31 +8,32 @@ source ('processNSCDataForExp2017.R')
 
 # Make boxplot of treatments and height
 #----------------------------------------------------------------------------------------
-NSC = 'Sugar'
-data = stemData
-if (NSC == 'Sugar' & data [['Tissue']] [1] == 'Stem') {
+NSC = 'starch'
+tissue = 'leaf'
+data = get (paste (tissue, 'Data', sep = ''))
+if (NSC == 'sugar' & tissue == 'stem') {
   yLimit <- c (0, 2.4) 
   NOTWOOD <- FALSE
-} else if (NSC == 'Starch' & data [['Tissue']] [1] == 'Stem') {
+} else if (NSC == 'starch' & tissue == 'stem') {
   yLimit <- c (0, 1.0)
   NOTWOOD <- FALSE
-} else if (NSC == 'Sugar' & data [['Tissue']] [1] == 'Root') {
+} else if (NSC == 'sugar' & tissue == 'root') {
   yLimit <- c (0, 3.5)
   NOTWOOD <- TRUE
-} else if (NSC == 'Starch' & data [['Tissue']] [1] == 'Root') {
+} else if (NSC == 'starch' & tissue == 'root') {
   yLimit <- c (0, 1.6)
   NOTWOOD <- TRUE
-} else if (NSC == 'Sugar' & data [['Tissue']] [1] == 'Leaf') {
+} else if (NSC == 'sugar' & tissue == 'leaf') {
   yLimit <- c (0, 13)
   NOTWOOD <- TRUE
-} else if (NSC == 'Starch' & data [['Tissue']] [1] == 'Leaf') {
+} else if (NSC == 'starch' & tissue == 'leaf') {
   yLimit <- c (0, 9)
   NOTWOOD <- TRUE
 }
 colours <- c ('#8dd3c799','#ffffb399','#bebada99','#fb807299')
 par (mar = c (5, 5, 1, 1))
-boxplot (data [[paste ('Concentration',NSC,'PerDW', sep = '')]] [data [['treatment']] == 1 &
-                                                                 month (data [['DateOfSampleCollection']]) == 7],
+boxplot (data [['Sugar']] [data [['treatment']] == 1 &
+                           month (data [['date']]) == 7],
          xlim = c (0, 38.5),
          ylim = yLimit,
          col  = 'white',
@@ -62,17 +63,17 @@ addBoxplot <- function (data, iTreat, iMon, position, iH = 1.5, NSC = 'Sugar') {
   }
   
   if (is.na (iH)) {
-    boxplot (data [[paste ('Concentration',NSC,'PerDW', sep = '')]] [data [['treatment']] == iTreat & 
-                                                                     month (data [['DateOfSampleCollection']]) == iMon], 
+    boxplot (data [[NSC]] [data [['treatment']] == iTreat & 
+                           month (data [['date']]) == iMon], 
              col = colours [iTreat],
              at  = (which (iMon == months) - 1) * 10 + iTreat + additional,
              add = TRUE,
              axes = FALSE)
     
   } else {
-    boxplot (data [[paste ('Concentration',NSC,'PerDW', sep = '')]] [data [['treatment']] == iTreat & 
-                                                                     data [['sampleHeight']] == iH &
-                                                 month (data [['DateOfSampleCollection']]) == iMon], 
+    boxplot (data [[NSC]] [data [['treatment']] == iTreat & 
+                           data [['sampleHeight']] == iH &
+                           month (data [['date']]) == iMon], 
              col = colours [iTreat],
              at  = (which (iMon == months) - 1) * 10 + iTreat + additional,
              add = TRUE,

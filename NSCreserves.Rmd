@@ -2,7 +2,7 @@
 title: 'SI - nonstructural carbon reserves'
 author: Tim Rademacher
 date: "06/09/2019"
-output: pdf_document
+output: html_document
 bibliography: "/home/trademacehr/projects/NSF-DB\ Plant\ Growth/bib/Exp2017.bib"
 csl: "/home/trademacehr/projects/NSF-DB\ Plant\ Growth/bib/harvard.csl"
 ---
@@ -22,15 +22,15 @@ To estimate changes in soluble sugars (here we refer to only glucose and ) and s
 We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith [@hoch_non-structural_2003;furze_whole-tree_2018], we only consider nonstructural carbon reserves in the first centimeter underlying the bark for each stem section. We limit our estimation to the first centimeter, because deeper reserves are more difficult, and thus less likely, to be accessed on timescales considered here.
 <!-- The decline in @hoch_non-structural_2003 is actually more exponential than linear, but let's start with linear. Morgan might have better data for Pinus strobus that can help me scale more adequately.--> 
 
-Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an average of these reserves, we derive the total amount of nonstructural carbon in sugars and strach ($M_{sugar,i}$ and $M_{starch,i}$, respectively) by multiplying the mass of the hollow cylinder ($M_{s,i}$) of each stem section $i$ with the section's measured concentrations of sugar and starch ($c_{sugar,i}$ and $c_{starch,i}$, respectively). 
+Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an average of these reserves, we derive the total amount of nonstructural carbon in sugars and strach ($M_{sugar,i}$ and $M_{starch,i}$, respectively) by multiplying the mass of the hollow cylinder ($M_{i}$) of each stem section $i$ with the section's measured concentrations of sugar and starch ($c_{sugar,i}$ and $c_{starch,i}$, respectively). 
 
 $$
- M_{sugar,i} = c_{sugar,i} \times M_{s,i} = V_{s,i} \times \rho_w \times c_{sugar,i}
+ M_{sugar,i} = c_{sugar,i} \times M_{i} = V_{i} \times \rho_w \times c_{sugar,i}
 $$
-The mass of a hollow cylinder representing the outeter most centimeter of material is derived from its volume ($V_{s,i}$) and an average density of the wood of ... ($\rho_w$). In turn the volume calculated using a height ($h$) of 10 cm and the section's circumference ($cbh_{s,i}$; in $cm$), which was measured in the field using a tape measure. We use  289.9$\pm$ 40.4$kg \, m^{-3}$ as density, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film. <!--Maybe Patrick can giev a reference for the exact  procedure?-->
+The mass of a hollow cylinder representing the outeter most centimeter of material is derived from its volume ($V_{i}$) and an average density of the wood ($\rho_w$). In turn the volume calculated using a height ($h$) of 10 cm and the section's circumference ($cbh_{i}$; in $cm$), which was measured in the field using a tape measure. Here,  289.9$\pm$ 40.4$kg \, m^{-3}$ was used as for the density of wood, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film <!--[@bjoerklund_scientific_2019]--> (REF).
 
 $$
-M_{s,i} = V_{s,i} \times \rho_{w} =  \pi \times h \times \rho_{w} \Big (\Big (\frac {cbh_{s,i}}{2 \pi}\Big)^2 - \Big (\frac {cbh_{s,i}}{2 \pi} - 0.01\Big)^2 \Big)
+M_{i} = V_{i} \times \rho_{w} =  \pi \times h \times \rho_{w} \Big (\Big (\frac {cbh_{i}}{2 \pi}\Big)^2 - \Big (\frac {cbh_{i}}{2 \pi} - 0.01\Big)^2 \Big)
 $$
 
 ``` {r calculateStemSectionNSCs, warning = FALSE}
@@ -169,14 +169,20 @@ For each organ and the entire tree we multiplied the respecitve biomass with the
 
 ```{r totalFoliage reserves}
 # Determine tissue sugar reserves
-#sugarRoot   <- rootData [['sugar']] * rootMass # TR still missing values
+sugarRoot   <- rootData [['sugar']] * rootMass # TR still missing values
 sugarNeedle <- leafData [['sugar']] * foliMass
 
 # Determine tissue starch reserves
-#starchRoot   <- rootData [['starch']] * rootMass # TR still missing values
+starchRoot   <- rootData [['starch']] * rootMass # TR still missing values
 starchNeedle <- leafData [['starch']] * foliMass
 
 # TR I could also calculate sugar in branches and bark in the future with the samples we still have at NAU. Furthermore, I could average the stem section of the control to derive stem values.
 ```
+
+Finally, the whole-tree nonstructural carbon reserve  ($R_{NSC,t}$) in tree $t$ is the sum of the sugar and starch reserves in all five tissues (i.e. roots, stems, bark, branches, and leaves). 
+
+$$
+R_{NSC,t} = \sum_{i=1}^{5} (R_{sugar,i} + R_{starch,i})
+$$
 
 # References

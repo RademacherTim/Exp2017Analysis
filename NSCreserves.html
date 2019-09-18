@@ -193,12 +193,12 @@ summary {
 <div id="for-stem-sections" class="section level2">
 <h2>For stem sections</h2>
 <p>We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith [<span class="citation">Hoch, Richter and Körner (2003)</span>;furze_whole-tree_2018], we only consider nonstructural carbon reserves in the first centimeter underlying the bark for each stem section. We limit our estimation to the first centimeter, because deeper reserves are more difficult, and thus less likely, to be accessed on timescales considered here. <!-- The decline in @hoch_non-structural_2003 is actually more exponential than linear, but let's start with linear. Morgan might have better data for Pinus strobus that can help me scale more adequately.--></p>
-<p>Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an average of these reserves, we derive the total amount of nonstructural carbon in sugars and strach (<span class="math inline">\(M_{sugar,i}\)</span> and <span class="math inline">\(M_{starch,i}\)</span>, respectively) by multiplying the mass of the hollow cylinder (<span class="math inline">\(M_{s,i}\)</span>) of each stem section <span class="math inline">\(i\)</span> with the section’s measured concentrations of sugar and starch (<span class="math inline">\(c_{sugar,i}\)</span> and <span class="math inline">\(c_{starch,i}\)</span>, respectively).</p>
+<p>Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an average of these reserves, we derive the total amount of nonstructural carbon in sugars and strach (<span class="math inline">\(M_{sugar,i}\)</span> and <span class="math inline">\(M_{starch,i}\)</span>, respectively) by multiplying the mass of the hollow cylinder (<span class="math inline">\(M_{i}\)</span>) of each stem section <span class="math inline">\(i\)</span> with the section’s measured concentrations of sugar and starch (<span class="math inline">\(c_{sugar,i}\)</span> and <span class="math inline">\(c_{starch,i}\)</span>, respectively).</p>
 <p><span class="math display">\[
- M_{sugar,i} = c_{sugar,i} \times M_{s,i} = V_{s,i} \times \rho_w \times c_{sugar,i}
-\]</span> The mass of a hollow cylinder representing the outeter most centimeter of material is derived from its volume (<span class="math inline">\(V_{s,i}\)</span>) and an average density of the wood of … (<span class="math inline">\(\rho_w\)</span>). In turn the volume calculated using a height (<span class="math inline">\(h\)</span>) of 10 cm and the section’s circumference (<span class="math inline">\(cbh_{s,i}\)</span>; in <span class="math inline">\(cm\)</span>), which was measured in the field using a tape measure. For the density 289.9$$40.4 <span class="math inline">\(kg \, m^{-3}\)</span> is used, which is the mean <span class="math inline">\(\pm\)</span> standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film. <!-- Maybe Patrick can giev a reference for the exact  procedure?--></p>
+ M_{sugar,i} = c_{sugar,i} \times M_{i} = V_{i} \times \rho_w \times c_{sugar,i}
+\]</span> The mass of a hollow cylinder representing the outeter most centimeter of material is derived from its volume (<span class="math inline">\(V_{i}\)</span>) and an average density of the wood (<span class="math inline">\(\rho_w\)</span>). In turn the volume calculated using a height (<span class="math inline">\(h\)</span>) of 10 cm and the section’s circumference (<span class="math inline">\(cbh_{i}\)</span>; in <span class="math inline">\(cm\)</span>), which was measured in the field using a tape measure. Here, 289.9<span class="math inline">\(\pm\)</span> 40.4<span class="math inline">\(kg \, m^{-3}\)</span> was used as for the density of wood, which is the mean <span class="math inline">\(\pm\)</span> standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film <!--[@bjoerklund_scientific_2019]--> (REF).</p>
 <p><span class="math display">\[
-M_{s,i} = V_{s,i} \times \rho_{w} =  \pi \times h \times \rho_{w} \Big (\Big (\frac {cbh_{s,i}}{2 \pi}\Big)^2 - \Big (\frac {cbh_{s,i}}{2 \pi} - 0.01\Big)^2 \Big)
+M_{i} = V_{i} \times \rho_{w} =  \pi \times h \times \rho_{w} \Big (\Big (\frac {cbh_{i}}{2 \pi}\Big)^2 - \Big (\frac {cbh_{i}}{2 \pi} - 0.01\Big)^2 \Big)
 \]</span></p>
 <pre class="r"><code># Get the tree measurements of circumference from the googlesheet 
 key &lt;- '1K8Vk9VHRdwNjIa28frc-Zt4uyk07G6CZe1EkJunUll0'
@@ -309,20 +309,35 @@ B = exp (\beta_0 + \beta_1 \; ln \; d_{t})
 #biomass08 &lt;- exp (-2.6177 + 2.4638 * log (predictors [['cbh150']] / pi)) # with specific gravity &lt; 0.45
 #biomass08 &lt;- exp (-3.0506 + 2.6465 * log (predictors [['cbh150']] / pi)) # with specific gravity &gt;= 0.45
 #biomassxx &lt;- 2.2874 * exp (0.1968 * (predictors [['cbh150']] / pi)) # From peichl</code></pre>
-<p>with generic pine species (Pinus spp.) parameters of <span class="math inline">\(\beta_0 = -2.4800\)</span> and <span class="math inline">\(\beta_1 = 2.4835\)</span>. This total biomass does include foliage, stemwood, bark and branches. To get tissue specific values for stemwood, bark and foliage we estimated the fraction of the total biomass in each tissue using <span class="math inline">\(\alpha_0 = –0.3737\)</span> and <span class="math inline">\(\alpha_1 = –1.8055\)</span> from Table 2 in <span class="citation">Jenkins <em>et al.</em> (2004)</span> and the following equation:</p>
+<p>with generic pine species (Pinus spp.) parameters of <span class="math inline">\(\beta_0 = -2.4800\)</span> and <span class="math inline">\(\beta_1 = 2.4835\)</span>. This total biomass includes foliage, stemwood, bark and branches. To get tissue specific values for the mass of stemwood, bark and foliage we estimated the fraction of the total aboveground biomass in each tissue using parameters from Table 2 in <span class="citation">Jenkins <em>et al.</em> (2004)</span> (i.e. for stemwood <span class="math inline">\(\alpha_0 = –0.3737\)</span> and <span class="math inline">\(\alpha_1 = –1.8055\)</span>) and the following equation:</p>
 <p><span class="math display">\[
-f = exp (\alpha_0 + \frac {\alpha_1} {DBH})
+f = exp (\alpha_0 + \frac {\alpha_1} {d_t})
 \]</span></p>
 <pre class="r"><code>rootFraction &lt;- exp (-1.5619 + ( 0.6614 / (predictors [['cbh150']] / pi)))
 stemFraction &lt;- exp (-0.3737 + (-1.8055 / (predictors [['cbh150']] / pi)))
 barkFraction &lt;- exp (-2.0980 + (-1.1432 / (predictors [['cbh150']] / pi)))
 foliFraction &lt;- exp (-2.9584 + ( 4.4766 / (predictors [['cbh150']] / pi)))
-branFraction &lt;- 1.0 - foliFraction - stemFraction - barkFraction</code></pre>
-<p>Branch biomass was calculated as the residual of total biomass and the three other tissues estimated above.</p>
+branFraction &lt;- 1.0 - foliFraction - stemFraction - barkFraction
+
+rootMass &lt;- biomass04 * rootFraction
+stemMass &lt;- biomass04 * stemFraction
+barkMass &lt;- biomass04 * barkFraction
+branMass &lt;- biomass04 * branFraction
+foliMass &lt;- biomass04 * foliFraction</code></pre>
+<p>Branch biomass was calculated as the residual of total aboveground biomass and the three other tissues estimated above. Here, the mean stem, bark, branch and foliage fractions were 62.5%, 11.5%, 19.4%, and 6.6%, respectively.</p>
 <p><span class="math display">\[
 f_{branches} = 1.0 - f_{foliage} - f_{stemwood} - f_{bark}
-\]</span></p>
-<p>For each organ and the entire tree we multiplied the respecitve biomass with the average sugar and starch concentration derived from colourimetric assays. The total nonstructural carbon estimates are the sum of the mass of sugar and starch.</p>
+\]</span> Root biomass was also estimated as a fraction of total aboveground biomass with an average of 21.7%.</p>
+<p>For each organ and the entire tree we multiplied the respecitve biomass with the average sugar and starch concentration (in <span class="math inline">\(% dry weight\)</span>) derived from colourimetric assays. The total nonstructural carbon estimates are the sum of the mass of sugar and starch.</p>
+<pre class="r"><code># Determine tissue sugar reserves
+#sugarRoot   &lt;- rootData [['sugar']] * rootMass # TR still missing values
+sugarNeedle &lt;- leafData [['sugar']] * foliMass
+
+# Determine tissue starch reserves
+#starchRoot   &lt;- rootData [['starch']] * rootMass # TR still missing values
+starchNeedle &lt;- leafData [['starch']] * foliMass
+
+# TR I could also calculate sugar in branches and bark in the future with the samples we still have at NAU. Furthermore, I could average the stem section of the control to derive stem values.</code></pre>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>
@@ -334,7 +349,7 @@ f_{branches} = 1.0 - f_{foliage} - f_{stemwood} - f_{bark}
 <p>Hoch, G., Richter, A. and Körner, C. (2003) ‘Non-structural carbon compounds in temperate forest trees’, <em>Plant, Cell &amp; Environment</em>, 26(7), pp. 1067–1081. doi: <a href="https://doi.org/10.1046/j.0016-8025.2003.01032.x">10.1046/j.0016-8025.2003.01032.x</a>.</p>
 </div>
 <div id="ref-jenkins_comprehensive_2004">
-<p>Jenkins, J. C. <em>et al.</em> (2004) <em>Comprehensive database of diameter-based biomass regressions for north american tree species</em>. NE-GTR-319. Newtown Square, PA: U.S. Department of Agriculture, Forest Service, Northeastern Research Station. doi: <a href="https://doi.org/10.2737/NE-GTR-319">10.2737/NE-GTR-319</a>.</p>
+<p>Jenkins, J. C. <em>et al.</em> (2004) <em>Comprehensive database of diameter-based biomass regressions for North American tree species</em>. NE-GTR-319. Newtown Square, PA: U.S. Department of Agriculture, Forest Service, Northeastern Research Station. doi: <a href="https://doi.org/10.2737/NE-GTR-319">10.2737/NE-GTR-319</a>.</p>
 </div>
 </div>
 </div>
