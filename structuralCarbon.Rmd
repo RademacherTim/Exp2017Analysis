@@ -3,125 +3,111 @@ title: "SI - structural carbon gain"
 author: Tim Rademacher
 date: "16/08/2019"
 output: html_document
-bibliography: /Volumes/added_SSD/projects/NSF-DB_plant_growth/bib/Exp2017.bib
-csl: /Volumes/added_SSD/projects/NSF-DB_plant_growth/bib/harvard.csl
+bibliography: "/home/trademacehr/projects/NSF-DB\ Plant\ Growth/bib/Exp2017.bib"
+csl: "/home/trademacehr/projects/NSF-DB\ Plant\ Growth/bib/harvard.csl"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library ('RAPTOR')
+library ('zoo')
+library ('plyr')
+library ('readxl')
+library ('tidyverse')
 ```
 
 ## Structural carbon gain for stem sections of the 2017 experiment at Harvard Forest
 
-To determine the structural carbon gain for each stem section, we first quantify the cell wall area of one (or two, when available) thinsections sampled at the end of the growing season (1$^{st}$ of November 2017) using ROXAS [@von_arx_roxas_2014] and RAPTOR [@peters_raptor:_2018]. The sum of cell wall area that was formed in each year from 2015<!--TR I could actually try to go back further in time to try to see what is the oldest ring I can get.--> to 2017 is multiplied with a factor for the cell wall carbon density to obtain the apparent carbon gain from each thinsection. Further, this apparent carbon gain is scaled geometrically to the stem section, assuming that wood formed in the stem section homorgenous aorund the circumference and vertically and the respective thinsection is representative of the formed wood. Thus, we determined the total amount of carbon in each annual ring for each stem section. Finally, the annual structural carbon gain in 2017 is standardized by division with the 2015 annual structural carbon gain. We did not use the 2016 ring because a severe drought happened in 2016, which caused intra-annual density fluctuations in vigorous trees but simply narrower rings in less vigorous trees. These systematic variations in the 2016 structural carbon gain would introduce bias in our results, rathern than standardising the 2017 annual carbon gain. <!-- TR Maybe I should rather use the oldest available ring or at least not a drought year ring (such as 2016, 2012, 2011, 2013)--> 
+Tghe estimation of structural carbon gain for each stem section is based on the determination of cell wall area of one (or two, when available) thinsection images sampled at the end of the growing season (1$^{st}$ of November 2017). The images were analysed using ROXAS [@von_arx_roxas_2014] and outputs are processed below using the RAPTOR [@peters_raptor:_2018] in R [@r_core_team_r:_2019]. 
 
-``` {r }
+``` {r readinputFiles}
 # Source the read.roxas function 
 source ('../data/HF_2017_T1_T4_Rox/Functions/1-read.roxas.R')
 source ('../data/HF_2017_T1_T4_Rox/Functions/2-assign.to.R')
 
 # Read in all ROXAS outputs
 suppressMessages (T2017 <- read.roxas (WD = '../data/HF_2017_T1_T4_Rox/', 
-                                       from = 2000, to = 2018))
+                                       from = 1998, to = 2018,
+                                       PLOT = FALSE))
 
-# Divide each ring into 100 sectors for calculation percent annual structural carbon gain
-cellularData <- assign.to (T2017 [['cell']], method = "SECTOR", NSECTOR <- 100)
-ringData     <- T2017 [['ring']]
-
-# Add treatment and treeID to the cell and ring data
-cellularData [['Treatment']] <- as.numeric (substr (cellularData [['TREE.ID']], 2, 2))
-cellularData [['TREE.ID']]   <- as.numeric (substr (cellularData [['TREE.ID']], 4, 5))
-cellularData [['CWA']]       <- as.numeric (cellularData [['CWA']])
+# Extract ring specific data and add treatment and ID columns
+ringData <- T2017 [['ring']]
 ringData [['Treatment']] <- as.numeric (substr (ringData [['TREE.ID']], 2, 2)) 
 ringData [['TREE.ID']]   <- as.numeric (substr (ringData [['TREE.ID']], 4, 5)) 
 ringData [['year']]      <- as.numeric (ringData [['YEAR']])
 
 # Correction because the last ring in T3 and T4 was incorrectly dated
-condition <- which (cellularData [['Treatment']] == 3 | 
-                    cellularData [['Treatment']] == 4)
-cellularData [['YEAR']] [condition] <- cellularData [['YEAR']] [condition] + 1
 condition <- which (ringData [['Treatment']] == 3 | 
                     ringData [['Treatment']] == 4)
 ringData [['year']] [condition] <- as.numeric (ringData [['YEAR']] [condition]) + 1
-  
+
 # Sum the cell wall area for each ring
-A <- ringData %>%  
-     mutate (CWA = replace (CWA, CWA == -999,  NA)) %>%
-     mutate (CWA = replace (CWA, CWA == -9999, NA)) %>%
-     group_by (SITE, TREE.ID, year, Treatment) %>%
-     dplyr::summarise (CWAsum = sum (CWA, na.rm = T), 
-                       LDradmean  = mean (LDrad,  na.rm = TRUE), 
-                       CWTradmean = mean (CWTrad, na.rm = TRUE)) 
+ringSummary <- ringData %>%  
+               mutate (CWA = replace (CWA, CWA == -999,  NA)) %>%
+               mutate (CWA = replace (CWA, CWA == -9999, NA)) %>%
+               group_by (SITE, TREE.ID, year, Treatment) %>%
+               dplyr::summarise (CWAsum = sum (CWA, na.rm = T), 
+                                 LDradmean  = mean (LDrad,  na.rm = TRUE), 
+                                 CWTradmean = mean (CWTrad, na.rm = TRUE)) 
+```
+
+We first determined the sum of cell wall area and ring width of each annual ring formed in the growing seasons from 2015<!--TR I could actually try to go back further in time to try to see what is the oldest ring I can get.--> to 2017. This total annual cell wall area incerement is further divided into the increments during four distinct periods of (i) pre-treatment, (ii) the first month after the start of the treatment, (iii) second and third month after the start of the treatment and (iv) the remainder of the growing season. For this purpose, we first estimating the fraction of the ring width that has formed in each period ($RW_{p,s}$) from the thinsections taken at the beginning of each period and on the 1$st$ of November 2017 and standardise it for local variations in radial growth by division with the ring width of the 2015 ring ($RW_{2015}$).
+
+```{r}
+# Extract only 2015 to 2017
+ringSummary <- ringSummary %>% filter(year >= 2015)
+```
+
+$$
+f_{p,s} = \frac {RW_{p,s}} {RW_{2017,s}} \times \frac {1} {RW_{2015,s}}
+$$
+
+We did use the 2016 ring because a severe drought in 2016 caused intra-annual density fluctuations in vigorous trees but narrower rings in less vigorous trees. These systematic variations in the 2016 ring width would introduce a systematic bias. Consequently, 2015 was used to correct for local variations in ring width, as it was the youngest year typical growth. In fact, 2015 had similar climatic conditions to 2017. <!-- TR need to double the claim that 2015 and 2017 had similar climate conditions.-->
+<!-- Maybe I should rather use the oldest available ring or at least not a drought year ring (such as 2016, 2012, 2011, 2013)--> 
+
+The fractional ring width was subsequently used to estimate the cell wall area formed in each period. For this purpose, we used the RAPTOR package to divide the final ring into 100 sectors. Each sector was associated with one of the four period, using the fractional ring width as boundaries. Sectors that were split by a period boundary, where fractionally added to both adjacent period.
+
+```{r}
+# Divide each ring into 100 sectors for calculation percent annual structural carbon gain
+cellularData <- assign.to (T2017 [['cell']], method = "SECTOR", NSECTOR = 100)
+
+# Add treatment and treeID to the cell and ring data
+cellularData [['Treatment']] <- as.numeric (substr (cellularData [['TREE.ID']], 2, 2))
+cellularData [['TREE.ID']]   <- as.numeric (substr (cellularData [['TREE.ID']], 4, 5))
+cellularData [['CWA']]       <- as.numeric (cellularData [['CWA']])
+
+
+# Correction because the last ring in T3 and T4 was incorrectly dated
+condition <- which (cellularData [['Treatment']] == 3 | 
+                    cellularData [['Treatment']] == 4)
+cellularData [['YEAR']] [condition] <- cellularData [['YEAR']] [condition] + 1
   
-  # Sum the cell wall area for each sector
+# Sum the cell wall area for each sector
   
 
-A<-T2017TO %>% 
-  filter(YEAR>=2015, CWTrad!=-9999, CWTrad!=-999, !is.na(TO.SECTORS)) %>%
+# A<-T2017TO %>% 
+#   filter(YEAR>=2015, CWTrad!=-9999, CWTrad!=-999, !is.na(TO.SECTORS)) %>%
 # mutate(CWTrad=replace(CWTrad, CWTrad==-999, NA)) %>% 
 #  mutate(CWTrad=replace(CWTrad, is.nan(CWTrad), NA)) %>% 
-  group_by(SITE,TREE.ID,as.factor(YEAR),Treatment,TO.SECTORS)
-```
-The annual structural carbon gain is further divided into the increments during four distinct periods of pre-treatment, the first month after the start of the treatment, second and third month after the start of the treatment and the remainder of the growing season. the fraction of carbon gain for each period is estimated by standardising the ring width of the current year at end of each period from the specific thinsection by division with the 2015 ring width (a similar growing season).
-
-The fraction of achieved over potential growth is then projected on the thinsection from November by separating it into 100 sectors using RAPTOR.
-<!--$$
-r_{w,cz} = (r_c \times 2 \times 0.5 \mu m \times RF_w) + (r_c \times 2 \times 0.5 \mu m \times 7 \mu m)
-$$ 
-<!-- Need to check with Patrick that the 7 \mu m as an radial diameter of the cambial cell, makes sense for our trees.--> 
-``` {r rateOfPrimaryCellFormation}
-# rc <- NA # Need to actually input the rate for each section.
-# RFw <- 7.0 # wdith of the radial files [mu m???]
-# rwcz <- (rc * 2.0 * 0.5 * RFw) + (rc * 2.0 * 0.5 * 7.0) # equation on page 9 of supplementary material of @cuny_woody_2015 
+#  group_by(SITE,TREE.ID,as.factor(YEAR),Treatment,TO.SECTORS)
 ```
 
-<!--The rate of desposition of wall material in the enlarging zone ($r_{w,ez}, \mu m \, day^{-1}$) and wall thickening zone  ($r_{w,wz}, \mu m \, day^{-1}$) are determined according to their equations on page 10.
+The cell wall area increment is scaled geometrically to the stem section's cell wall volume increment in two steps, assuming that wood formed homogenously around the stem in each section and the above estimate is representative of the formed wood for each section and period. Using the stem section's circumference, as measured at the beginning of the experiment ($CBH_{outer, s}$). First, the circumference is reduce assuming a bark thickness of 0.8 $cm$ according to the following equation:
 
 $$
-r_{w,ez} = XSI_{ez} \times 2 \times 0.5\mu m
-$$
-``` {r rateOfWallDepositionInEnlargingZone}
-#XSIez <- sum (rezi)
-#rwez <- XSIez * 2.0 * 0.5
-```
-, where the rate of daily xylem enlargement ($XSI_{ez}$) is simply the sum of the enlargement rates across all $n_{ez}$ cells in the enlarging zone.
-
-$$
-r_{w,zz} = \sum_{i=1}^{n_ez} r_{ez,i} 
+CBH_{s} = CBH_{outer, s} - 0.8 \, cm \times 2 \pi 
 $$
 
-Similarly, the rate of deposition in the wall thickening zone is simply the sum of all (e.g. $n_w$ cells) individual cell rates ($r_{w, i}$).
+Second, the reduced stem section circumference is divided by the radial width of the thinsection ($w_{r,s}$) and multiplied by the cell wall area increment () and the stem section height (here $h = 0.1\,m$) to estimate the total volume of newly formed cell wall in each section and period ($V_{CW,s}$). 
+$$
+V_{CW,s,p} =  \frac {CBH_{s}} {w_{r,s}} \times h_{s}
+$$
+Finally, the cell wall volume of each section is multiplied with a cell wall density ($\rho_{CW}$) of $1.489$ $kg \, m^3$ - a best estimate based on data for comparable softwoods, such as Scots pine, by @plotze_porosity_2011 - and an assumed carbon content of 49.74\% for white pine [@lamlom_reassessment_2003] to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in $g$).
 
 $$
-r_{w,wz} = \sum_{i=1}^{n_w} r_{w,i} 
+M_{s,p} = V_{CW,s,p} \times \rho_{CW} \times 0.5
 $$
-
-``` {r rateOfWallDepositionInWallThickeningZone}
-#rwwz <- sum (rwi) # Might need changing.
-```
-
-Instead of scaling to the entire tree, as Cuny and co-authors did, we estimate the number of radial files in each respective 10 cm stem section by dividing the circumference of the section by the mean width of the radial file. Analogous to their third equation on page 10, we estimated the total daily rate of depostition in a tree ring ($r_{w,tr}, \mu m^2 day{-1}$) as the product of the number of radial files ($n_{rf}$) and the deposition in each file ($r_{w,rf}$).
-
-$$
-r_{w,tr} = r_{w, rf} \times n_{rf}
-$$
-
-In contrast to @cuny_woody_2015, we then scaled this to the stem section assuming that the ring was a cylinder of height $h$, which results in a total daily rate of wall deposition for the stem section ($r_{w,s}, \mu m^3 \, day^{-1}$) of: <!-- TTR We might want to try how much a realistic taper does actually affect the results, but it is only a scalar so should not affect patterns.-->
-
-<!--$$
-r_{w,s} = r_{w,tr} * h
-$$
-In accordance with @cuny_woody_2015, we finally scaled this volume increment to a dry mass and eventually a carbon increment ($C_{inc}, gC \, day^{-1}$) by multiplying with it with a cell wall density of 1.5 $g cm^{-3}$ and a carbon content of 50\%.
-
-$$
-C_{inc} = 1.5 \times r_{w,s} \times \frac {50} {100}
-$$
-
-## Integration across period
-
-Finally, the rate of biomass increment in grams of carbon per day is integrated across the different periods (i.e. before onset of experiment, first month, second and third month, and the the remainder of the growing season) to get a total structural carbon gain per period.
-
+<!--
 ## Alternative simple increment estimations
 
 Assuming a density is constant and simply multiplying it with the radial increment, we can get a simple estimation of the biomass accrued in each period. 
@@ -132,10 +118,7 @@ Compare the simple and more complex method.
 
 ### To-do list and comments
 
-- make table of cambial cell radial diameter and primary wall thickness for each tree and acutally use our means instead of the 7$\mu m$ and 0.5 $\mu m$ used by @cuny_woody_2015.
 - check whether results are robust even with assumed realistic taper of the stem section. I will have to measure the section circumferences and taper first.
-- it remains unclear to me how we get the daily rates of cell production, cell enlargement and cell wall thickening and the cell counts for those. Are they dervied using a GAM?
-- We can do a second independent estimation for the November core from the anatomical ROXAS output for cell wall area scaled to a cylinder.
-- cell wall density and carbon content are known to vary with season [@lamlom_reassessment_2003], check robustness of results with realistic variation.
+- cell wall density and carbon content are known to vary with season [@lamlom_reassessment_2003], check robustness of results with realistic variation.-->
 
 # References

@@ -15,19 +15,19 @@ library ('googlesheets')
 
 ## Calculating nonstructural carbon reserves for the 2017 experiment at Harvard Forest
 
-To estimate changes in soluble sugars (here we refer to only glucose and ) and starch (as glucose equivalent) for various tissue, we scaled the concentrations derived from each tissue using colorimetric assays as described in the methods. Below we describe the scaling assumptions for nonstructural reserves in a stem section, as well as estimates at the organ-level for the stem, roots and leaves. The differences of total values between the four sampling points in turn provide estimates of net gains or losses of soluble sugars and starch for each stem section, organ and tree. To scale concentrations that were derived from measurements, we estimated the dry matter for each stem section, organ and tree and multiplied it by the nonstructural carbon concentration measured for that tissue similar to @furze_whole-tree_2019. Below we provide examples for each tissue.
+To estimate changes in soluble sugars and starch (measured as glucose equivalent) for various tissue, we scaled the concentrations derived using colorimetric assays as described in the methods. Below, we describe the scaling for easily accessible nonstrucutral carbon reserves in stem sections, for entire stem, roots and leaves, as well as the whole-tree reserves. The net differences in reserves over time (i.e., four sampling points) provide estimates of net gains or losses of soluble sugars and starch for each stem section, organ and tree. Generally, scaling involved multiplication of nonstructural carbon concentration by an estimate of tissue dry matter similar to @furze_whole-tree_2019. Below we provideexact methods and examples for each tissue.
 
 ## For stem sections
 
-We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith [@hoch_non-structural_2003;furze_whole-tree_2018], we only consider nonstructural carbon reserves in the first centimeter underlying the bark for each stem section. We limit our estimation to the first centimeter, because deeper reserves are more difficult, and thus less likely, to be accessed on timescales considered here.
+We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith [@hoch_non-structural_2003;furze_whole-tree_2018], we only consider nonstructural carbon reserves in the first centimeter underlying the bark for each stem section. We limit our analysis to these shallow reserves, because deeper reserves are assumed to be more difficult [@REF], and thus less likely, to be accessed on timescales considered here (i.e. months).
 <!-- The decline in @hoch_non-structural_2003 is actually more exponential than linear, but let's start with linear. Morgan might have better data for Pinus strobus that can help me scale more adequately.--> 
 
-Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an average of these reserves, we derive the total amount of nonstructural carbon in sugars and strach ($M_{sugar,i}$ and $M_{starch,i}$, respectively) by multiplying the mass of the hollow cylinder ($M_{i}$) of each stem section $i$ with the section's measured concentrations of sugar and starch ($c_{sugar,i}$ and $c_{starch,i}$, respectively). 
+Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an accurate average of these reserves, we derive the total mass of nonstructural carbon in sugars and strach ($M_{sugar,i}$ and $M_{starch,i}$, respectively) by multiplying the dry matter of the hollow cylinder ($M_{i}$) of each stem section $i$ with the section's measured concentrations of sugar and starch ($c_{sugar,i}$ and $c_{starch,i}$, respectively). For sugar this is expressed as:
 
 $$
  M_{sugar,i} = c_{sugar,i} \times M_{i} = V_{i} \times \rho_w \times c_{sugar,i}
 $$
-The mass of a hollow cylinder representing the outeter most centimeter of material is derived from its volume ($V_{i}$) and an average density of the wood ($\rho_w$). In turn the volume calculated using a height ($h$) of 10 cm and the section's circumference ($cbh_{i}$; in $cm$), which was measured in the field using a tape measure. Here,  289.9$\pm$ 40.4$kg \, m^{-3}$ was used as for the density of wood, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film <!--[@bjoerklund_scientific_2019]--> (REF).
+The mass of a hollow cylinder representing the outeter most centimeter of material is derived from its volume ($V_{i}$) and an average density of the wood ($\rho_w$). In turn the volume calculated using a height ($h$) of 10 cm and the section's circumference ($cbh_{i}$; in $cm$), which was measured in the field using a tape measure. Here, 289.9$\pm$ 40.4$kg \, m^{-3}$ was used as for the density of wood, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film [@bjoerklund_scientific_2019].
 
 $$
 M_{i} = V_{i} \times \rho_{w} =  \pi \times h \times \rho_{w} \Big (\Big (\frac {cbh_{i}}{2 \pi}\Big)^2 - \Big (\frac {cbh_{i}}{2 \pi} - 0.01\Big)^2 \Big)
@@ -68,7 +68,7 @@ predictors <- add_column (predictors,
 ```
 
 ``` {r getSugarConcentration}
-# Read the sugar and starch concentration (means for needles, branches and roots and first centimeter for wood sections)
+# Read the sugar and starch concentration (means for needles and roots and first centimeter for wood sections)
 suppressMessages (source ('processNSCDataForExp2017.R'))
 
 # Create responseVariables tibble
@@ -79,7 +79,8 @@ responseVariables <- tibble (year = 2017,
                              sugarW250 = NA, starchW250 = NA, sugarW200 = NA,	
                              starchW200 = NA,	sugarW150 = NA,	starchW150 = NA,	
                              sugarW100 = NA,	starchW100 = NA, sugarW50 = NA,	
-                             starchW50 = NA)
+                             starchW50 = NA, sugarNeedle = NA, starchNeedle = NA, 
+                             sugarRoot = NA, starchRoot = NA)
 
 # Wrangle data to get sugar and starch concentrations (g kg-1) for each section and 
 # multiply the concentration by the dry mass of the section (kg) to obtain total sugar and 
@@ -87,12 +88,24 @@ responseVariables <- tibble (year = 2017,
 for (r in 1:dim (responseVariables) [1]) {
   treeID <- responseVariables [['tree']] [r]
   iMonth <- responseVariables [['month']] [r]
+  
+  # Tree is in the control group (treatment 1)
   if (unique (stemData [['treatment']] [stemData [['treeID']] == treeID]) == 1) {
+    
+    # Determine sugar reserves
     responseVariables [['sugarW150']] [r] <- 
       predictors [['M150']] [predictors [['tree']] == treeID] * 
       (stemData [['sugar']] [stemData [['treeID']] == treeID & 
                              month (stemData [['date']]) == iMonth] / 100) * 1000
+    # Determine starch reserves
+    responseVariables [['starchW150']] [r] <- 
+      predictors [['M150']] [predictors [['tree']] == treeID] * 
+      (stemData [['starch']] [stemData [['treeID']] == treeID & 
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+  # Tree is in the girled or compressed group (treatment 2 or 3)
   } else if (unique (stemData [['treatment']] [stemData [['treeID']] == responseVariables [['tree']] [r]]) == 2 | unique (stemData [['treatment']] [stemData [['treeID']] == responseVariables [['tree']] [r]]) == 3) {
+    
+    # Determine sugar reserves
     responseVariables [['sugarW100']] [r] <- 
       predictors [['M100']] [predictors [['tree']] == treeID] * 
       (stemData [['sugar']] [stemData [['treeID']] == treeID & 
@@ -103,7 +116,22 @@ for (r in 1:dim (responseVariables) [1]) {
       (stemData [['sugar']] [stemData [['treeID']] == treeID & 
                              stemData [['sampleHeight']] == 2 &
                              month (stemData [['date']]) == iMonth] / 100) * 1000
+    # Determine starch reserves
+    responseVariables [['starchW100']] [r] <- 
+      predictors [['M100']] [predictors [['tree']] == treeID] * 
+      (stemData [['starch']] [stemData [['treeID']] == treeID & 
+                             stemData [['sampleHeight']] == 1 &
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+    responseVariables [['starchW200']] [r] <- 
+      predictors [['M200']] [predictors [['tree']] == treeID] * 
+      (stemData [['starch']] [stemData [['treeID']] == treeID & 
+                             stemData [['sampleHeight']] == 2 &
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+    
+  # Tree is in the double compression group (treatment 4)
   } else if (unique (stemData [['treatment']] [stemData [['treeID']] == responseVariables [['tree']] [r]]) == 4) {
+    
+    # Determine sugar reserves
     responseVariables [['sugarW50']] [r] <- 
       predictors [['M50']] [predictors [['tree']] == treeID] * 
       (stemData [['sugar']] [stemData [['treeID']] == treeID & 
@@ -119,9 +147,26 @@ for (r in 1:dim (responseVariables) [1]) {
       (stemData [['sugar']] [stemData [['treeID']] == treeID & 
                              stemData [['sampleHeight']] == 2.5 &
                              month (stemData [['date']]) == iMonth] / 100) * 1000
+    
+    # Determine starch reserves  
+    responseVariables [['starchW50']] [r] <- 
+      predictors [['M50']] [predictors [['tree']] == treeID] * 
+      (stemData [['starch']] [stemData [['treeID']] == treeID & 
+                             stemData [['sampleHeight']] == 0.5 &
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+    responseVariables [['starchW150']] [r] <- 
+      predictors [['M150']] [predictors [['tree']] == treeID] * 
+      (stemData [['starch']] [stemData [['treeID']] == treeID & 
+                             stemData [['sampleHeight']] == 1.5 &
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+    responseVariables [['starchW250']] [r] <- 
+      predictors [['M250']] [predictors [['tree']] == treeID] * 
+      (stemData [['starch']] [stemData [['treeID']] == treeID & 
+                             stemData [['sampleHeight']] == 2.5 &
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+  
   }
 }
-
 ```
 
 ## Total above ground biomass 
@@ -158,7 +203,7 @@ branMass <- biomass04 * branFraction
 foliMass <- biomass04 * foliFraction
 ```
 
-Branch biomass was calculated as the residual of total aboveground biomass and the three other tissues estimated above. Here, the mean stem, bark, branch and foliage fractions were `r round (mean (stemFraction) * 100.0,1)`%, `r round (mean (barkFraction) * 100.0,1)`%, `r round (mean (branFraction) * 100.0,1)`%, and  `r round (mean (foliFraction) * 100.0,1)`%, respectively.
+Branch biomass was calculated as the residual of total aboveground biomass and the three other organs estimated above. Here, the mean stem, bark, branch and foliage fractions were `r round (mean (stemFraction) * 100.0,1)`%, `r round (mean (barkFraction) * 100.0,1)`%, `r round (mean (branFraction) * 100.0,1)`%, and  `r round (mean (foliFraction) * 100.0,1)`%, respectively.
 
 $$
 f_{branches} = 1.0 - f_{foliage} - f_{stemwood} - f_{bark}
@@ -169,20 +214,39 @@ For each organ and the entire tree we multiplied the respecitve biomass with the
 
 ```{r totalFoliage reserves}
 # Determine tissue sugar reserves
-sugarRoot   <- rootData [['sugar']] * rootMass # TR still missing values
-sugarNeedle <- leafData [['sugar']] * foliMass
+responseVariables [['sugarRoot']]   <- rootData [['sugar']] * rootMass
+responseVariables [['sugarNeedle']] <- leafData [['sugar']] * foliMass
 
 # Determine tissue starch reserves
-starchRoot   <- rootData [['starch']] * rootMass # TR still missing values
-starchNeedle <- leafData [['starch']] * foliMass
-
+responseVariables [['starchRoot']]   <- rootData [['starch']] * rootMass
+responseVariables [['starchNeedle']] <- leafData [['starch']] * foliMass
 # TR I could also calculate sugar in branches and bark in the future with the samples we still have at NAU. Furthermore, I could average the stem section of the control to derive stem values.
+
+
+# Export data if necessary
+WRITE <- FALSE
+if (WRITE) {
+  write_csv (tibble (responseVariables [['sugarNeedle']]),  path = 'sugarNeedles.csv')
+  write_csv (tibble (responseVariables [['starchNeedle']]), path = 'starchNeedles.csv')
+  write_csv (tibble (responseVariables [['sugarRoot']]),    path = 'sugarRoots.csv')
+  write_csv (tibble (responseVariables [['starchRoot']]),   path = 'starchRoots.csv')
+  write_csv (tibble (responseVariables [['sugarW50']]),     path = 'sugarW50.csv')
+  write_csv (tibble (responseVariables [['starchW50']]),    path = 'starchW50.csv')
+  write_csv (tibble (responseVariables [['sugarW100']]),    path = 'sugarW100.csv')
+  write_csv (tibble (responseVariables [['starchW100']]),   path = 'starchW100.csv')
+  write_csv (tibble (responseVariables [['sugarW150']]),    path = 'sugarW150.csv')
+  write_csv (tibble (responseVariables [['starchW150']]),   path = 'starchW150.csv')
+  write_csv (tibble (responseVariables [['sugarW200']]),    path = 'sugarW200.csv')
+  write_csv (tibble (responseVariables [['starchW200']]),   path = 'starchW200.csv')
+  write_csv (tibble (responseVariables [['sugarW250']]),    path = 'sugarW250.csv')
+  write_csv (tibble (responseVariables [['starchW250']]),   path = 'starchW250.csv')
+}
 ```
 
-Finally, the whole-tree nonstructural carbon reserve  ($R_{NSC,t}$) in tree $t$ is the sum of the sugar and starch reserves in all five tissues (i.e. roots, stems, bark, branches, and leaves). 
+<!-- Finally, the whole-tree nonstructural carbon reserve  ($R_{NSC,t}$) in tree $t$ is the sum of the sugar and starch reserves in all five tissues (i.e. roots, stems, bark, branches, and leaves).  -->
 
-$$
-R_{NSC,t} = \sum_{i=1}^{5} (R_{sugar,i} + R_{starch,i})
-$$
+<!-- $$ -->
+<!-- R_{NSC,t} = \sum_{i=1}^{5} (R_{sugar,i} + R_{starch,i}) -->
+<!-- $$ -->
 
 # References
