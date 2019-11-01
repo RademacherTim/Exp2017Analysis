@@ -188,15 +188,15 @@ summary {
 
 <div id="calculating-nonstructural-carbon-reserves-for-the-2017-experiment-at-harvard-forest" class="section level2">
 <h2>Calculating nonstructural carbon reserves for the 2017 experiment at Harvard Forest</h2>
-<p>To estimate changes in soluble sugars (here we refer to only glucose and ) and starch (as glucose equivalent) for various tissue, we scaled the concentrations derived from each tissue using colorimetric assays as described in the methods. Below we describe the scaling assumptions for nonstructural reserves in a stem section, as well as estimates at the organ-level for the stem, roots and leaves. The differences of total values between the four sampling points in turn provide estimates of net gains or losses of soluble sugars and starch for each stem section, organ and tree. To scale concentrations that were derived from measurements, we estimated the dry matter for each stem section, organ and tree and multiplied it by the nonstructural carbon concentration measured for that tissue similar to <span class="citation">Furze <em>et al.</em> (2019)</span>. Below we provide examples for each tissue.</p>
+<p>To estimate changes in soluble sugars and starch (measured as glucose equivalent) for various tissue, we scaled the concentrations derived using colorimetric assays as described in the methods. Below, we describe the scaling for easily accessible nonstrucutral carbon reserves in stem sections, for entire stem, roots and leaves, as well as the whole-tree reserves. The net differences in reserves over time (i.e., four sampling points) provide estimates of net gains or losses of soluble sugars and starch for each stem section, organ and tree. Generally, scaling involved multiplication of nonstructural carbon concentration by an estimate of tissue dry matter similar to <span class="citation">Furze <em>et al.</em> (2019)</span>. Below we provideexact methods and examples for each tissue.</p>
 </div>
 <div id="for-stem-sections" class="section level2">
 <h2>For stem sections</h2>
-<p>We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith [<span class="citation">Hoch, Richter and Körner (2003)</span>;furze_whole-tree_2018], we only consider nonstructural carbon reserves in the first centimeter underlying the bark for each stem section. We limit our estimation to the first centimeter, because deeper reserves are more difficult, and thus less likely, to be accessed on timescales considered here. <!-- The decline in @hoch_non-structural_2003 is actually more exponential than linear, but let's start with linear. Morgan might have better data for Pinus strobus that can help me scale more adequately.--></p>
-<p>Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an average of these reserves, we derive the total amount of nonstructural carbon in sugars and strach (<span class="math inline">\(M_{sugar,i}\)</span> and <span class="math inline">\(M_{starch,i}\)</span>, respectively) by multiplying the mass of the hollow cylinder (<span class="math inline">\(M_{i}\)</span>) of each stem section <span class="math inline">\(i\)</span> with the section’s measured concentrations of sugar and starch (<span class="math inline">\(c_{sugar,i}\)</span> and <span class="math inline">\(c_{starch,i}\)</span>, respectively).</p>
+<p>We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith [<span class="citation">Hoch, Richter and Körner (2003)</span>;furze_whole-tree_2018], we only consider nonstructural carbon reserves in the first centimeter underlying the bark for each stem section. We limit our analysis to these shallow reserves, because deeper reserves are assumed to be more difficult <span class="citation">(<span class="citeproc-not-found" data-reference-id="REF"><strong>???</strong></span>)</span>, and thus less likely, to be accessed on timescales considered here (i.e. months). <!-- The decline in @hoch_non-structural_2003 is actually more exponential than linear, but let's start with linear. Morgan might have better data for Pinus strobus that can help me scale more adequately.--></p>
+<p>Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an accurate average of these reserves, we derive the total mass of nonstructural carbon in sugars and strach (<span class="math inline">\(M_{sugar,i}\)</span> and <span class="math inline">\(M_{starch,i}\)</span>, respectively) by multiplying the dry matter of the hollow cylinder (<span class="math inline">\(M_{i}\)</span>) of each stem section <span class="math inline">\(i\)</span> with the section’s measured concentrations of sugar and starch (<span class="math inline">\(c_{sugar,i}\)</span> and <span class="math inline">\(c_{starch,i}\)</span>, respectively). For sugar this is expressed as:</p>
 <p><span class="math display">\[
  M_{sugar,i} = c_{sugar,i} \times M_{i} = V_{i} \times \rho_w \times c_{sugar,i}
-\]</span> The mass of a hollow cylinder representing the outeter most centimeter of material is derived from its volume (<span class="math inline">\(V_{i}\)</span>) and an average density of the wood (<span class="math inline">\(\rho_w\)</span>). In turn the volume calculated using a height (<span class="math inline">\(h\)</span>) of 10 cm and the section’s circumference (<span class="math inline">\(cbh_{i}\)</span>; in <span class="math inline">\(cm\)</span>), which was measured in the field using a tape measure. Here, 289.9<span class="math inline">\(\pm\)</span> 40.4<span class="math inline">\(kg \, m^{-3}\)</span> was used as for the density of wood, which is the mean <span class="math inline">\(\pm\)</span> standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film <!--[@bjoerklund_scientific_2019]--> (REF).</p>
+\]</span> The mass of a hollow cylinder representing the outeter most centimeter of material is derived from its volume (<span class="math inline">\(V_{i}\)</span>) and an average density of the wood (<span class="math inline">\(\rho_w\)</span>). In turn the volume calculated using a height (<span class="math inline">\(h\)</span>) of 10 cm and the section’s circumference (<span class="math inline">\(cbh_{i}\)</span>; in <span class="math inline">\(cm\)</span>), which was measured in the field using a tape measure. Here, 289.9<span class="math inline">\(\pm\)</span> 40.4<span class="math inline">\(kg \, m^{-3}\)</span> was used as for the density of wood, which is the mean <span class="math inline">\(\pm\)</span> standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film <span class="citation">(<span class="citeproc-not-found" data-reference-id="bjoerklund_scientific_2019"><strong>???</strong></span>)</span>.</p>
 <p><span class="math display">\[
 M_{i} = V_{i} \times \rho_{w} =  \pi \times h \times \rho_{w} \Big (\Big (\frac {cbh_{i}}{2 \pi}\Big)^2 - \Big (\frac {cbh_{i}}{2 \pi} - 0.01\Big)^2 \Big)
 \]</span></p>
@@ -231,7 +231,7 @@ predictors &lt;- add_column (predictors,
                           M150 = predictors [['V150']] * rho_w,
                           M200 = predictors [['V200']] * rho_w,
                           M250 = predictors [['V250']] * rho_w)</code></pre>
-<pre class="r"><code># Read the sugar and starch concentration (means for needles, branches and roots and first centimeter for wood sections)
+<pre class="r"><code># Read the sugar and starch concentration (means for needles and roots and first centimeter for wood sections)
 suppressMessages (source ('processNSCDataForExp2017.R'))</code></pre>
 <pre><code>## Warning in processNSCs(rawData = rawData3, cvLimitSample = 0.25,
 ## cvLimitTube = 0.25, : Warning: There is no LCS Oak for batch 9 analysed on
@@ -245,7 +245,7 @@ suppressMessages (source ('processNSCDataForExp2017.R'))</code></pre>
 <pre><code>## Warning in processNSCs(rawData = rawData3, cvLimitSample = 0.25,
 ## cvLimitTube = 0.25, : Warning: There is no LCS Oak for batch 12 analysed on
 ## the 2019-03-21.</code></pre>
-<pre><code>## Warning in processNSCs(rawData = rawData4, cvLimitSample = 0.25,
+<pre><code>## Warning in processNSCs(rawData = rawData5, cvLimitSample = 0.25,
 ## cvLimitTube = 0.25, : Warning: 2 samples are excluded because their sample
 ## mass is below the threshold of 5 mg.</code></pre>
 <pre class="r"><code># Create responseVariables tibble
@@ -256,7 +256,8 @@ responseVariables &lt;- tibble (year = 2017,
                              sugarW250 = NA, starchW250 = NA, sugarW200 = NA,   
                              starchW200 = NA,   sugarW150 = NA, starchW150 = NA,    
                              sugarW100 = NA,    starchW100 = NA, sugarW50 = NA, 
-                             starchW50 = NA)
+                             starchW50 = NA, sugarNeedle = NA, starchNeedle = NA, 
+                             sugarRoot = NA, starchRoot = NA)
 
 # Wrangle data to get sugar and starch concentrations (g kg-1) for each section and 
 # multiply the concentration by the dry mass of the section (kg) to obtain total sugar and 
@@ -264,12 +265,24 @@ responseVariables &lt;- tibble (year = 2017,
 for (r in 1:dim (responseVariables) [1]) {
   treeID &lt;- responseVariables [['tree']] [r]
   iMonth &lt;- responseVariables [['month']] [r]
+  
+  # Tree is in the control group (treatment 1)
   if (unique (stemData [['treatment']] [stemData [['treeID']] == treeID]) == 1) {
+    
+    # Determine sugar reserves
     responseVariables [['sugarW150']] [r] &lt;- 
       predictors [['M150']] [predictors [['tree']] == treeID] * 
       (stemData [['sugar']] [stemData [['treeID']] == treeID &amp; 
                              month (stemData [['date']]) == iMonth] / 100) * 1000
+    # Determine starch reserves
+    responseVariables [['starchW150']] [r] &lt;- 
+      predictors [['M150']] [predictors [['tree']] == treeID] * 
+      (stemData [['starch']] [stemData [['treeID']] == treeID &amp; 
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+  # Tree is in the girled or compressed group (treatment 2 or 3)
   } else if (unique (stemData [['treatment']] [stemData [['treeID']] == responseVariables [['tree']] [r]]) == 2 | unique (stemData [['treatment']] [stemData [['treeID']] == responseVariables [['tree']] [r]]) == 3) {
+    
+    # Determine sugar reserves
     responseVariables [['sugarW100']] [r] &lt;- 
       predictors [['M100']] [predictors [['tree']] == treeID] * 
       (stemData [['sugar']] [stemData [['treeID']] == treeID &amp; 
@@ -280,7 +293,22 @@ for (r in 1:dim (responseVariables) [1]) {
       (stemData [['sugar']] [stemData [['treeID']] == treeID &amp; 
                              stemData [['sampleHeight']] == 2 &amp;
                              month (stemData [['date']]) == iMonth] / 100) * 1000
+    # Determine starch reserves
+    responseVariables [['starchW100']] [r] &lt;- 
+      predictors [['M100']] [predictors [['tree']] == treeID] * 
+      (stemData [['starch']] [stemData [['treeID']] == treeID &amp; 
+                             stemData [['sampleHeight']] == 1 &amp;
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+    responseVariables [['starchW200']] [r] &lt;- 
+      predictors [['M200']] [predictors [['tree']] == treeID] * 
+      (stemData [['starch']] [stemData [['treeID']] == treeID &amp; 
+                             stemData [['sampleHeight']] == 2 &amp;
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+    
+  # Tree is in the double compression group (treatment 4)
   } else if (unique (stemData [['treatment']] [stemData [['treeID']] == responseVariables [['tree']] [r]]) == 4) {
+    
+    # Determine sugar reserves
     responseVariables [['sugarW50']] [r] &lt;- 
       predictors [['M50']] [predictors [['tree']] == treeID] * 
       (stemData [['sugar']] [stemData [['treeID']] == treeID &amp; 
@@ -296,6 +324,24 @@ for (r in 1:dim (responseVariables) [1]) {
       (stemData [['sugar']] [stemData [['treeID']] == treeID &amp; 
                              stemData [['sampleHeight']] == 2.5 &amp;
                              month (stemData [['date']]) == iMonth] / 100) * 1000
+    
+    # Determine starch reserves  
+    responseVariables [['starchW50']] [r] &lt;- 
+      predictors [['M50']] [predictors [['tree']] == treeID] * 
+      (stemData [['starch']] [stemData [['treeID']] == treeID &amp; 
+                             stemData [['sampleHeight']] == 0.5 &amp;
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+    responseVariables [['starchW150']] [r] &lt;- 
+      predictors [['M150']] [predictors [['tree']] == treeID] * 
+      (stemData [['starch']] [stemData [['treeID']] == treeID &amp; 
+                             stemData [['sampleHeight']] == 1.5 &amp;
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+    responseVariables [['starchW250']] [r] &lt;- 
+      predictors [['M250']] [predictors [['tree']] == treeID] * 
+      (stemData [['starch']] [stemData [['treeID']] == treeID &amp; 
+                             stemData [['sampleHeight']] == 2.5 &amp;
+                             month (stemData [['date']]) == iMonth] / 100) * 1000
+  
   }
 }</code></pre>
 </div>
@@ -324,20 +370,408 @@ stemMass &lt;- biomass04 * stemFraction
 barkMass &lt;- biomass04 * barkFraction
 branMass &lt;- biomass04 * branFraction
 foliMass &lt;- biomass04 * foliFraction</code></pre>
-<p>Branch biomass was calculated as the residual of total aboveground biomass and the three other tissues estimated above. Here, the mean stem, bark, branch and foliage fractions were 62.5%, 11.5%, 19.4%, and 6.6%, respectively.</p>
+<p>Branch biomass was calculated as the residual of total aboveground biomass and the three other organs estimated above. Here, the mean stem, bark, branch and foliage fractions were 62.5%, 11.5%, 19.4%, and 6.6%, respectively.</p>
 <p><span class="math display">\[
 f_{branches} = 1.0 - f_{foliage} - f_{stemwood} - f_{bark}
 \]</span> Root biomass was also estimated as a fraction of total aboveground biomass with an average of 21.7%.</p>
 <p>For each organ and the entire tree we multiplied the respecitve biomass with the average sugar and starch concentration (in <span class="math inline">\(% dry weight\)</span>) derived from colourimetric assays. The total nonstructural carbon estimates are the sum of the mass of sugar and starch.</p>
 <pre class="r"><code># Determine tissue sugar reserves
-#sugarRoot   &lt;- rootData [['sugar']] * rootMass # TR still missing values
-sugarNeedle &lt;- leafData [['sugar']] * foliMass
+responseVariables [['sugarRoot']]   &lt;- rootData [['sugar']] * rootMass
+responseVariables [['sugarNeedle']] &lt;- leafData [['sugar']] * foliMass
 
 # Determine tissue starch reserves
-#starchRoot   &lt;- rootData [['starch']] * rootMass # TR still missing values
-starchNeedle &lt;- leafData [['starch']] * foliMass
-
-# TR I could also calculate sugar in branches and bark in the future with the samples we still have at NAU. Furthermore, I could average the stem section of the control to derive stem values.</code></pre>
+responseVariables [['starchRoot']]   &lt;- rootData [['starch']] * rootMass
+responseVariables [['starchNeedle']] &lt;- leafData [['starch']] * foliMass
+# TR I could also calculate sugar in branches and bark in the future with the samples we still have at NAU. Furthermore, I could average the stem section of the control to derive stem values.
+responseVariables [['sugarNeedle']]</code></pre>
+<pre><code>##   [1]  3514.473  4015.310 11811.801 11323.953  9328.425 15609.121 12634.572
+##   [8] 10798.062  5690.491  9828.397 12695.140 12024.446  8094.153 12288.679
+##  [15]  8106.753 16529.418 16544.169  7635.812 10006.460 10427.287 15202.407
+##  [22] 11842.699  9824.242 23487.238 11274.814 13462.968 11563.533  9092.776
+##  [29]  8593.649  9760.258  8474.114  7084.143  8604.179  8008.183 13730.189
+##  [36]  8831.923 12658.047  7934.643  7294.459 11585.990 15785.967 13519.233
+##  [43]  9458.813  9912.743  8331.257  7939.410  6914.274  7692.648  7293.678
+##  [50]  7642.186  8331.042  2673.589  8999.889        NA  8792.100  7869.896
+##  [57] 13529.768 14874.600  7526.341  8905.913  7191.322 14524.767 10110.000
+##  [64]  8401.299 18316.283 13156.236 10823.958  8873.760  8882.498  8708.552
+##  [71]  9423.125  9402.901  6733.991  7357.346  5910.632 10984.960  4943.069
+##  [78] 10887.719  6435.710  5649.465  9842.661 13455.725 10487.076  9089.733
+##  [85]  6508.934  6724.253  8506.601  6305.486  8531.395  9681.945  5662.507
+##  [92]  6967.494 11692.901  9263.219  7270.529  8572.779 10184.213 17783.056
+##  [99] 12450.052  6507.050 10954.693  6826.491 11302.684  8573.769  9784.742
+## [106]  9593.867  1616.250  9326.730 10216.002  9679.873  8531.008  7474.608
+## [113]  6417.315  2102.296  6656.657  6034.495 14586.252  5900.496  9920.777
+## [120]  5594.537  6354.654 10231.899        NA 13525.146 13557.143 10255.683
+## [127]        NA 11942.148  4051.783  5105.855  8839.492  7419.006  8907.073
+## [134] 14606.572  6957.173  1883.647 11820.021 11278.265        NA 13596.282
+## [141]  1650.699 14519.945  9077.531 16381.567 13113.448 11224.050 22606.920
+## [148]  8097.802 12008.805 10178.442  8443.146  8578.155  8615.505        NA
+## [155]  8162.809  9110.731  9520.204 12197.967  6817.797 12262.502  6760.072
+## [162]  8154.468  9586.711 16479.342</code></pre>
+<pre class="r"><code>responseVariables [['starchNeedle']]</code></pre>
+<pre><code>##   [1]  7123.268243  2905.660666   920.677848  1842.490450   918.203562
+##   [6]  3912.371165  5050.523478  5583.062485   531.548280  3394.677764
+##  [11]  4377.151214  2821.364523  4349.490340  3786.437675  5423.029607
+##  [16]  6862.424836  3588.666254  1897.682531  1853.451499  3679.894640
+##  [21] 11176.027733  2439.762013  3149.891675  6056.940821   915.031214
+##  [26]  5093.829077  3892.051116  5442.825192  1545.874495  1786.000349
+##  [31]  4645.914163   482.004467  1049.757857  5129.330345   772.226673
+##  [36]  1573.971303  6943.882250  3738.206473  1853.656731  4377.162772
+##  [41]  4411.427995   670.362602   412.414058   650.770054   468.093501
+##  [46]   285.311949   846.303672   516.540303  2261.051113   375.709622
+##  [51]  1430.701193  6680.215233   661.087675           NA  1052.827006
+##  [56]  4563.517009  5892.678216  1895.281497  1042.580099   532.715034
+##  [61]  1276.923938  5346.143399  7564.213342   761.435014 12399.565741
+##  [66]  1066.745993   598.151080   794.225953  1262.440992  1076.238952
+##  [71]   643.460443  2337.707641   869.875240   234.865507   426.056688
+##  [76]  2498.883143   705.702428  1312.012024   381.383113   509.503444
+##  [81]   556.787373  2832.105240    13.659134    99.653133    25.492558
+##  [86]    17.098765  1217.851357   121.970420    14.239800  1512.368683
+##  [91]    14.080048    15.915210   291.322191    28.781791    19.943123
+##  [96]     8.105896  2615.309640  5838.288297  3505.980437    29.164858
+## [101]   663.279875   122.260241   213.216810    79.190548   815.097100
+## [106]    94.169770   691.168810   150.051725   191.198204   543.614272
+## [111]   156.741176    69.219637    93.467249    68.677373    75.796269
+## [116]   224.215654  1803.190804    71.044766   601.799983    49.396661
+## [121]   155.836014   868.039532           NA    38.081799   121.563953
+## [126]    87.773551           NA  1322.495752   215.789448    97.297121
+## [131]    53.614730    37.665853    74.872110   745.248203    39.261151
+## [136]   267.002670    42.434341   287.477911           NA    70.738940
+## [141]   175.527787   656.729220   200.341933   312.166975   212.909463
+## [146]   774.388261   224.679428   510.184702   145.428104   108.719167
+## [151]    99.093459    63.508220    63.239998           NA   143.673541
+## [156]   175.237010    95.720117   162.250408    87.816270   155.489168
+## [161]    59.569447   219.433651   574.124611  1637.714590</code></pre>
+<pre class="r"><code>responseVariables [['sugarRoot']]</code></pre>
+<pre><code>##   [1]  4599.617  4285.585  4016.002  3890.493  5365.656  3490.509  2983.968
+##   [8]  4708.948  1896.594  4210.937  7163.989  4630.693  2709.711  3957.119
+##  [15]  3416.839  4144.648  5430.299  5901.864  5571.097  2567.411  5454.360
+##  [22]  3927.444  2730.025  7995.099  5050.912  3717.224  2428.001  3178.979
+##  [29]  3098.703  2202.802  2523.016  3910.010  2411.218  1150.021  5891.397
+##  [36]  2678.463  3722.656  2806.180  1454.757  3619.173  6666.787  5213.420
+##  [43]  6351.341  4285.580  4783.187  4804.041  5229.218  5025.801  4721.476
+##  [50]  3510.838  3183.515        NA  5840.756  3854.733  3828.948        NA
+##  [57]  5971.427 14561.197  6467.630  3357.956  3349.128  9477.496  7634.549
+##  [64]  6414.733 12989.692  5449.187  7483.492  4703.695  2089.115  8102.883
+##  [71]  6134.298  3358.881  8062.310  5526.986  5523.484  6803.192  3124.845
+##  [78]  4914.463  3413.489  3424.302  9189.139  8134.609  6737.246  7460.699
+##  [85]  5076.984  7164.032  5152.635  3988.124  9898.811  5268.786  5337.927
+##  [92] 16630.146 10351.883  5191.342  7764.577  9224.569  4362.904 10045.347
+##  [99]  6897.974  5783.294  7971.057  3522.681  8835.148  5661.028  2202.945
+## [106] 15851.827  7198.634  7053.872  3993.271  1855.953  2361.946  3562.572
+## [113]  4823.305  6915.201  4451.762  4033.469  8544.018  6873.612  7609.792
+## [120]  5090.924  4279.224  6127.492 11219.081  7523.186  8885.336  3838.651
+## [127]  7710.861  4404.521  4831.332  8839.153  4077.356  4301.026  6014.228
+## [134]  5909.436  6197.340  3468.595  6501.180  4700.904  6670.284  6783.713
+## [141]  6424.609  6735.111  3564.025  4602.124  6324.170  4355.684  8959.841
+## [148]  9871.889  5191.941  6839.340  1707.115  4259.686  4194.337  5500.448
+## [155]  6012.788  4437.167  3150.205 13086.343  4469.864  5436.666  4741.754
+## [162]  3104.249  4595.628  6181.078</code></pre>
+<pre class="r"><code>responseVariables [['starchRoot']]</code></pre>
+<pre><code>##   [1]    884.56798   1743.65375   1363.99792   2695.55564   3465.90694
+##   [6]   3254.21823   3994.67449   1106.59669   1006.74503   2740.02429
+##  [11]   5876.33699   1779.23295    865.35767   1181.39949 182858.23449
+##  [16]   2848.57964   1481.67068   3972.99786   6536.48396    951.61830
+##  [21]   1663.14380   2043.86986   2839.81097   4628.64325    808.81929
+##  [26]    275.75215    451.94923   2699.92892   3177.00167  93584.39793
+##  [31]   2127.42179   1042.79129    363.73241     12.18228   5597.11918
+##  [36]   1486.99261    767.97748    587.98241    860.35073   2004.17169
+##  [41]   7874.28363    312.73867    971.66544    768.13464    598.50629
+##  [46]    257.33107   1071.77414    940.30340    352.62041    310.28864
+##  [51]   1561.59845           NA   2690.50855    874.83385   1379.52484
+##  [56]           NA    457.84951    646.07550   1164.16072    435.47970
+##  [61]    570.54874    531.38982    586.44659   3976.10912   2983.58731
+##  [66]    630.59649    572.18547    973.61910    191.60914    301.05327
+##  [71]    345.51543    256.59711    835.12036    443.31060    300.65461
+##  [76]    573.62288    483.73575   1063.36452    320.09830    187.15594
+##  [81]    178.43461   1376.45255   1151.68086    542.42650   1569.99208
+##  [86]   1009.20130    105.67147    510.67502    699.91904    584.04114
+##  [91]    600.59011   1449.16987    429.75765    703.79324  83473.74634
+##  [96] 141621.22912    135.06287    283.88026   1291.61009    834.27499
+## [101]    684.36214    686.88652   1899.15898   1183.82605    165.10351
+## [106]   5877.76227    989.41160    194.70403    194.80104     44.98602
+## [111]     97.32399    314.23734    802.78893   1391.72022    759.61051
+## [116]     75.82620   2111.58627    334.69302    243.55150    648.04481
+## [121]     97.61392     44.93844    414.83856   2900.72983    963.61383
+## [126]   2521.43713   1098.68577    212.51809    280.03672   1682.01633
+## [131]    799.66235   1893.81626   2337.99763    442.25982    956.49058
+## [136]    738.02286   1200.89547    448.09034    240.10144   2574.87844
+## [141]   1974.70981    623.98411    839.42236    188.23379   1563.55069
+## [146]    363.33653   3556.52189   1708.15064    337.25651    649.96151
+## [151]     49.81184     79.30248    583.53278    984.03126   2389.36456
+## [156]    658.63061     86.61169   2751.33837   1000.62661    679.61139
+## [161]    666.24929    200.11579     36.74719    165.79199</code></pre>
+<pre class="r"><code>responseVariables [['sugarW50']]</code></pre>
+<pre><code>##   [1]        NA 1.3913380        NA        NA        NA        NA        NA
+##   [8] 0.9905772        NA        NA        NA        NA        NA 1.3855942
+##  [15]        NA        NA        NA        NA        NA        NA        NA
+##  [22] 1.3688690        NA 2.1724944 1.2459705 1.3821410 1.0170313        NA
+##  [29]        NA        NA        NA        NA        NA 1.1102329        NA
+##  [36]        NA 1.0492892        NA        NA        NA        NA        NA
+##  [43] 1.4142626        NA        NA        NA        NA        NA 1.1910957
+##  [50]        NA        NA        NA        NA        NA 1.6526388        NA
+##  [57]        NA        NA        NA        NA        NA        NA 0.9781352
+##  [64]        NA 2.0756939 1.0925597 1.4982143 1.2577377        NA        NA
+##  [71]        NA        NA        NA        NA 1.1245447        NA        NA
+##  [78] 1.0884641        NA        NA        NA        NA        NA 1.5595833
+##  [85]        NA        NA        NA        NA        NA 1.1179899        NA
+##  [92]        NA        NA        NA        NA 1.3358451        NA        NA
+##  [99]        NA        NA        NA        NA        NA 0.8931688        NA
+## [106] 1.9005409 1.4860812 2.2343971 1.4919914        NA        NA        NA
+## [113]        NA        NA        NA 0.9981196        NA        NA 1.7276047
+## [120]        NA        NA        NA        NA        NA 1.7193610        NA
+## [127]        NA        NA        NA        NA 1.4732326        NA        NA
+## [134]        NA        NA        NA 1.7263229        NA        NA        NA
+## [141]        NA        NA        NA        NA 0.9705986        NA 1.9744214
+## [148] 0.7148848 1.2007588 1.3133310        NA        NA        NA        NA
+## [155]        NA        NA 1.5956625        NA        NA 1.1635119        NA
+## [162]        NA        NA        NA</code></pre>
+<pre class="r"><code>responseVariables [['starchW50']]</code></pre>
+<pre><code>##   [1]         NA 0.57155828         NA         NA         NA         NA
+##   [7]         NA 0.61962289         NA         NA         NA         NA
+##  [13]         NA 1.02521119         NA         NA         NA         NA
+##  [19]         NA         NA         NA 0.99943370         NA 1.76872641
+##  [25] 0.94811054 0.84984516 0.79039253         NA         NA         NA
+##  [31]         NA         NA         NA 0.88738729         NA         NA
+##  [37] 0.91817493         NA         NA         NA         NA         NA
+##  [43] 0.65643805         NA         NA         NA         NA         NA
+##  [49] 0.14818966         NA         NA         NA         NA         NA
+##  [55] 0.58910488         NA         NA         NA         NA         NA
+##  [61]         NA         NA 0.50806449         NA 0.65859385 0.37154296
+##  [67] 0.32504704 0.20964356         NA         NA         NA         NA
+##  [73]         NA         NA 0.58760320         NA         NA 0.33026817
+##  [79]         NA         NA         NA         NA         NA 0.47596258
+##  [85]         NA         NA         NA         NA         NA 0.27977083
+##  [91]         NA         NA         NA         NA         NA 0.36753633
+##  [97]         NA         NA         NA         NA         NA         NA
+## [103]         NA 0.28431668         NA 0.72917908 0.14759058 0.28522098
+## [109] 0.31730739         NA         NA         NA         NA         NA
+## [115]         NA 0.08414458         NA         NA 1.04388980         NA
+## [121]         NA         NA         NA         NA 0.74735113         NA
+## [127]         NA         NA         NA         NA 0.70855299         NA
+## [133]         NA         NA         NA         NA 0.57596033         NA
+## [139]         NA         NA         NA         NA         NA         NA
+## [145] 0.27402252         NA 0.96792516 0.25917387 0.21131368 0.51207022
+## [151]         NA         NA         NA         NA         NA         NA
+## [157] 0.52260750         NA         NA 0.48134954         NA         NA
+## [163]         NA         NA</code></pre>
+<pre class="r"><code>responseVariables [['sugarW100']]</code></pre>
+<pre><code>##   [1]        NA        NA        NA        NA 1.5584732        NA        NA
+##   [8]        NA        NA 0.7103880 1.9131376 1.2599557 0.6389775        NA
+##  [15] 0.8718420 0.9614128 1.2301402        NA 1.3913292 0.7541040 1.3515594
+##  [22]        NA 1.1360763        NA        NA        NA        NA 0.7448793
+##  [29] 1.5771980        NA        NA 0.9870840 1.5163343        NA 2.1560798
+##  [36]        NA        NA 1.0993116 0.6923660 1.0854659 2.9318354        NA
+##  [43]        NA        NA        NA 0.6804043        NA        NA        NA
+##  [50]        NA 1.2469060 1.1235077 1.1848891 0.9723658        NA 0.8441912
+##  [57] 1.2168967 1.4333521        NA 1.7536056 1.1126184 1.5067959        NA
+##  [64] 0.8267895        NA        NA        NA        NA 1.1181739 1.4579986
+##  [71]        NA        NA 1.5632509 1.1007503        NA 1.2790256        NA
+##  [78]        NA 0.9696853 0.1924798 1.0956841        NA        NA        NA
+##  [85]        NA        NA 0.7573117        NA        NA        NA        NA
+##  [92] 1.1005908 0.8222812 1.4378577 0.9949348        NA 0.7088312 1.3620173
+##  [99] 0.9213857        NA 3.0822462 1.2645866 2.1653218        NA 0.9445923
+## [106]        NA        NA        NA        NA 1.1766617 2.1252861        NA
+## [113]        NA 1.0959234 1.2851097        NA 1.4198327        NA        NA
+## [120] 1.8868738 0.3680237 0.8775315 1.6197198        NA        NA        NA
+## [127]        NA 0.6288234        NA        NA        NA        NA 1.0396732
+## [134] 0.7592970 1.5710946 1.1802208        NA 0.6056469 1.1960570 1.3528130
+## [141]        NA 0.9582590 1.0729551 1.4351096        NA 0.9153741        NA
+## [148]        NA        NA        NA 1.5030084 0.8190870        NA        NA
+## [155] 1.0116615 0.9278010        NA 1.7933427        NA        NA 1.5356839
+## [162] 0.9778060 1.0907622 1.2581182</code></pre>
+<pre class="r"><code>responseVariables [['starchW100']]</code></pre>
+<pre><code>##   [1]          NA          NA          NA          NA 1.243806158
+##   [6]          NA          NA          NA          NA 0.380531860
+##  [11] 1.444265593 0.737517537 0.390948614          NA 0.747694660
+##  [16] 1.207785546 0.788303397          NA 1.157354937 0.587577832
+##  [21] 1.030299128          NA 0.974517023          NA          NA
+##  [26]          NA          NA 0.613813213 1.139336392          NA
+##  [31]          NA 0.594201375 0.842266565          NA 0.963954235
+##  [36]          NA          NA 0.557883459 0.908144483 1.221683974
+##  [41] 1.160292546          NA          NA          NA          NA
+##  [46] 0.247635197          NA          NA          NA          NA
+##  [51] 0.451841418 0.331804522 0.917010551 0.276598570          NA
+##  [56] 0.039161069 0.183009970 0.750585525          NA 0.299653893
+##  [61] 0.219177446 0.344108626          NA 0.085196928          NA
+##  [66]          NA          NA          NA 0.113994540 0.080158795
+##  [71]          NA          NA 0.389183793 0.313260493          NA
+##  [76] 0.102649723          NA          NA 0.273159598 0.041929455
+##  [81] 0.066491784          NA          NA          NA          NA
+##  [86]          NA 0.160000509          NA          NA          NA
+##  [91]          NA 0.395631481 0.020519212 0.697000749 0.229424377
+##  [96]          NA 0.039785486 0.159315925 0.619022545          NA
+## [101] 0.480709406 0.312930286 0.798847469          NA 0.133089605
+## [106]          NA          NA          NA          NA 0.020076602
+## [111] 0.030100124          NA          NA 0.727091665 0.318535244
+## [116]          NA 0.938006088          NA          NA 0.283199947
+## [121] 0.047546044 0.053253151 0.044299164          NA          NA
+## [126]          NA          NA 0.100085497          NA          NA
+## [131]          NA          NA 0.489428227 0.080050405 0.486886705
+## [136] 0.257478100          NA 0.094942637 0.279806909 0.869430518
+## [141]          NA 0.520500994 0.639153642 0.683479483          NA
+## [146] 0.283222221          NA          NA          NA          NA
+## [151] 0.007095631 0.097387851          NA          NA 0.273169691
+## [156] 0.559409254          NA 0.056463614          NA          NA
+## [161] 0.356134213 0.058399990 0.251400033 0.216379714</code></pre>
+<pre class="r"><code>responseVariables [['sugarW150']]</code></pre>
+<pre><code>##   [1] 1.8466871 0.7868427 1.7287620 2.7810310        NA 1.8324842 1.6606895
+##   [8] 0.8006032 1.0315891        NA        NA        NA        NA 0.9423562
+##  [15]        NA        NA        NA 1.4358867        NA        NA        NA
+##  [22] 1.4182720        NA 3.0311441 1.0064815 1.2161957 1.2147428        NA
+##  [29]        NA 1.5199555 2.1126865        NA        NA 1.0423181        NA
+##  [36] 0.6122996 1.4004588        NA        NA        NA        NA 1.7908467
+##  [43] 1.7302243 0.9843547 1.5215208        NA 1.9668298 1.8799101 1.0622693
+##  [50] 1.2702705        NA        NA        NA        NA 1.0247944        NA
+##  [57]        NA        NA 1.1785804        NA        NA        NA 0.8404252
+##  [64]        NA 3.1618598 1.3148250 1.9207943 1.2891686        NA        NA
+##  [71] 0.8614684 0.9568425        NA        NA 0.8490461        NA 0.9438596
+##  [78] 1.2454235        NA        NA        NA        NA        NA 1.4892088
+##  [85]        NA 1.7377821        NA 2.4161677 1.5284634 1.6969752 1.2202586
+##  [92]        NA        NA        NA        NA 1.8632973        NA        NA
+##  [99]        NA 0.7620594        NA        NA        NA 1.2471393        NA
+## [106] 1.9584609 1.3379470 4.0286335 2.0438941        NA        NA 1.6049087
+## [113] 1.1004310        NA        NA 1.0286932        NA 1.3822505 1.3568420
+## [120]        NA        NA        NA        NA 1.1401571 2.4924664 1.2255134
+## [127] 1.4286297        NA 1.8903447 1.7805544 1.2050117 1.6545752        NA
+## [134]        NA        NA        NA 1.3271900        NA        NA        NA
+## [141] 0.7513350        NA        NA        NA 1.2346680        NA 2.2293700
+## [148] 1.1197471 1.9439800 1.6260131        NA        NA 1.0106356 0.9104395
+## [155]        NA        NA 0.7230210        NA 1.1138883 1.0043738        NA
+## [162]        NA        NA        NA</code></pre>
+<pre class="r"><code>responseVariables [['starchW150']]</code></pre>
+<pre><code>##   [1] 0.50376917 0.46709704 0.56963167 0.28312804         NA 0.53503846
+##   [7] 0.56865058 0.39253839 0.52569688         NA         NA         NA
+##  [13]         NA 0.73781919         NA         NA         NA 0.63556985
+##  [19]         NA         NA         NA 1.13891932         NA 1.83855562
+##  [25] 1.06363012 0.84667977 0.46776521         NA         NA 0.91429815
+##  [31] 0.23921757         NA         NA 0.80025392         NA 0.07703348
+##  [37] 0.91414328         NA         NA         NA         NA 0.21933822
+##  [43] 0.37740571 0.43907537 0.31948716         NA 0.22179706 0.15046607
+##  [49] 0.28996021 0.27248398         NA         NA         NA         NA
+##  [55] 0.38130799         NA         NA         NA 0.18918372         NA
+##  [61]         NA         NA 0.13882901         NA 0.57919114 0.13678878
+##  [67] 0.34428825 0.42574988         NA         NA 0.49787721 0.25748042
+##  [73]         NA         NA 0.36793067         NA 0.12418368 0.48901462
+##  [79]         NA         NA         NA         NA         NA 0.37861831
+##  [85]         NA 0.32975767         NA 0.13719375 0.23820369 0.38309113
+##  [91] 0.46882464         NA         NA         NA         NA 0.36445779
+##  [97]         NA         NA         NA 0.16058039         NA         NA
+## [103]         NA 0.21053121         NA 0.68376226 0.42691916 0.57800757
+## [109] 0.34648867         NA         NA 0.27871528 0.42571942         NA
+## [115]         NA 0.48412665         NA 0.09857951 0.58096886         NA
+## [121]         NA         NA         NA 0.24807249 0.49490703 0.52918388
+## [127] 0.31743706         NA 0.26911715 0.38343898 0.28190576 0.36202308
+## [133]         NA         NA         NA         NA 0.16930648         NA
+## [139]         NA         NA 0.11811576         NA         NA         NA
+## [145] 0.13363947         NA 0.67384029 0.42209188 0.52560518 0.47826792
+## [151]         NA         NA 0.29997093 0.22526689         NA         NA
+## [157] 0.12007162         NA 0.15898054 0.37908110         NA         NA
+## [163]         NA         NA</code></pre>
+<pre class="r"><code>responseVariables [['sugarW200']]</code></pre>
+<pre><code>##   [1]        NA        NA        NA        NA 1.4214328        NA        NA
+##   [8]        NA        NA 0.9520647 2.1329166 1.0133503 0.7004565        NA
+##  [15] 0.8026654 0.9509590 0.8389470        NA 1.6161663 0.6804408 2.6816185
+##  [22]        NA 1.0182328        NA        NA        NA        NA 0.7699247
+##  [29] 1.5850359        NA        NA 0.7622909 1.2572522        NA 2.0469857
+##  [36]        NA        NA 0.9375896 1.1749855 1.7084923 1.7487184        NA
+##  [43]        NA        NA        NA 1.0029671        NA        NA        NA
+##  [50]        NA 0.9300495 0.9536999 1.0227070 1.5502045        NA 1.0381405
+##  [57] 1.7260146 1.4049012        NA 1.4266566 1.5891452 1.3256723        NA
+##  [64] 1.0344494        NA        NA        NA        NA 1.8483227 1.3819180
+##  [71]        NA        NA 0.8936689 0.9461450        NA 1.1243177        NA
+##  [78]        NA 1.2121193 1.2890384 1.6973293 1.9584675        NA        NA
+##  [85]        NA        NA 1.3864956        NA        NA        NA        NA
+##  [92] 1.1473195 1.4890245 0.8532174 0.9413214        NA 1.4310852 1.4058615
+##  [99] 1.9701082        NA 1.3753095 0.8686729 1.7679189        NA 0.9973775
+## [106]        NA        NA        NA        NA 1.2262342 1.2808332        NA
+## [113]        NA 0.8232200 1.2902690        NA 1.0930489        NA        NA
+## [120] 0.8958320 1.3176499 1.7675278 2.3840534        NA        NA        NA
+## [127]        NA 1.2971316        NA        NA        NA        NA 1.0456656
+## [134] 1.5398631 1.4964942 1.0979666        NA 1.3448087 2.0604096 1.5366389
+## [141]        NA 1.9050035 1.1396686 1.8604879        NA 1.2745852        NA
+## [148]        NA        NA        NA 0.8210496 0.5665634        NA        NA
+## [155] 0.9344724 1.6495031        NA 1.6633741        NA        NA 1.3914585
+## [162] 1.4808032 1.7171535 2.1285475</code></pre>
+<pre class="r"><code>responseVariables [['starchW200']]</code></pre>
+<pre><code>##   [1]        NA        NA        NA        NA 0.7286747        NA        NA
+##   [8]        NA        NA 0.4040118 1.1377726 0.5617426 0.3637567        NA
+##  [15] 0.6144138 1.2922753 0.6462041        NA 0.6234685 0.4076013 0.9982364
+##  [22]        NA 0.9920773        NA        NA        NA        NA 0.4077007
+##  [29] 1.0324963        NA        NA 0.3867412 0.5590607        NA 1.3256248
+##  [36]        NA        NA 0.5156729 1.0556766 1.1429355 0.7868548        NA
+##  [43]        NA        NA        NA 0.3203350        NA        NA        NA
+##  [50]        NA 0.3118490 0.5168106 0.5865643 0.5711382        NA 0.2611015
+##  [57] 0.7562429 0.9827321        NA 0.3786281 0.2927399 0.8588195        NA
+##  [64] 0.4911181        NA        NA        NA        NA 0.2923846 0.1386343
+##  [71]        NA        NA 0.2924605 0.5813567        NA 0.4631259        NA
+##  [78]        NA 0.2054555 0.1951094 0.4763045 0.9849394        NA        NA
+##  [85]        NA        NA 0.7244358        NA        NA        NA        NA
+##  [92] 0.1981988 0.5661089 0.2542514 0.2752181        NA 0.4932700 0.6927039
+##  [99] 0.8462085        NA 0.7582124 0.3913113 0.8819176        NA 0.5816117
+## [106]        NA        NA        NA        NA 0.3220785 0.2266757        NA
+## [113]        NA 0.2555179 0.5461993        NA 0.8248669        NA        NA
+## [120] 0.1272560 0.1955233 0.4071858 1.2241787        NA        NA        NA
+## [127]        NA 0.6617967        NA        NA        NA        NA 0.3805732
+## [134] 0.3849844 0.3222714 0.3332627        NA 0.3556795 0.7950110 0.7998389
+## [141]        NA 0.6669076 0.3633898 0.8670349        NA 0.6392753        NA
+## [148]        NA        NA        NA 0.5713519 0.3815236        NA        NA
+## [155] 0.3179229 0.5294723        NA 0.2638137        NA        NA 0.1778499
+## [162] 0.2189027 0.4630151 1.0750818</code></pre>
+<pre class="r"><code>responseVariables [['sugarW250']]</code></pre>
+<pre><code>##   [1]        NA 0.9299379        NA        NA        NA        NA        NA
+##   [8] 1.6480659        NA        NA        NA        NA        NA 1.3323907
+##  [15]        NA        NA        NA        NA        NA        NA        NA
+##  [22] 1.2589473        NA 2.2245831 1.8875057 1.1869279 0.8780556        NA
+##  [29]        NA        NA        NA        NA        NA 1.2677489        NA
+##  [36]        NA 1.4468185        NA        NA        NA        NA        NA
+##  [43] 1.4486655        NA        NA        NA        NA        NA 1.4869629
+##  [50]        NA        NA        NA        NA        NA 1.4930576        NA
+##  [57]        NA        NA        NA        NA        NA        NA 1.7603116
+##  [64]        NA 1.8092134 1.4518893 1.1574756 1.2564024        NA        NA
+##  [71]        NA        NA        NA        NA 0.7835760        NA        NA
+##  [78] 1.0345708        NA        NA        NA        NA        NA 1.5071344
+##  [85]        NA        NA        NA        NA        NA 1.6210133        NA
+##  [92]        NA        NA        NA        NA 1.2025487        NA        NA
+##  [99]        NA        NA        NA        NA        NA 1.3683777        NA
+## [106] 1.3544944 2.1294037 1.1897229        NA        NA        NA        NA
+## [113]        NA        NA        NA 1.1233122        NA        NA 0.9428936
+## [120]        NA        NA        NA        NA        NA 1.7616494        NA
+## [127]        NA        NA        NA        NA 2.2199858        NA        NA
+## [134]        NA        NA        NA 2.1666947        NA        NA        NA
+## [141]        NA        NA        NA        NA 1.7737114        NA 1.4297753
+## [148] 1.6359709 1.4517857 1.6851055        NA        NA        NA        NA
+## [155]        NA        NA 1.3241131        NA        NA 0.9850360        NA
+## [162]        NA        NA        NA</code></pre>
+<pre class="r"><code>responseVariables [['starchW250']]</code></pre>
+<pre><code>##   [1]        NA 0.3234178        NA        NA        NA        NA        NA
+##   [8] 0.7409909        NA        NA        NA        NA        NA 0.7929627
+##  [15]        NA        NA        NA        NA        NA        NA        NA
+##  [22] 0.7845464        NA 1.7647823 1.3417823 1.0198644 0.2164327        NA
+##  [29]        NA        NA        NA        NA        NA 0.8751104        NA
+##  [36]        NA 0.7875678        NA        NA        NA        NA        NA
+##  [43] 0.5077320        NA        NA        NA        NA        NA 0.3746247
+##  [50]        NA        NA        NA        NA        NA 0.3760378        NA
+##  [57]        NA        NA        NA        NA        NA        NA 0.2054667
+##  [64]        NA 0.5689598 0.2656773 0.3419412 0.3800232        NA        NA
+##  [71]        NA        NA        NA        NA 0.3812861        NA        NA
+##  [78] 0.3688508        NA        NA        NA        NA        NA 0.7382850
+##  [85]        NA        NA        NA        NA        NA 0.6167944        NA
+##  [92]        NA        NA        NA        NA 0.2241947        NA        NA
+##  [99]        NA        NA        NA        NA        NA 0.3431690        NA
+## [106] 0.6408233 0.9243660 0.4927413        NA        NA        NA        NA
+## [113]        NA        NA        NA 0.3601181        NA        NA 0.6688293
+## [120]        NA        NA        NA        NA        NA 0.6049818        NA
+## [127]        NA        NA        NA        NA 0.6966267        NA        NA
+## [134]        NA        NA        NA 0.3480459        NA        NA        NA
+## [141]        NA        NA        NA        NA 0.2608038        NA 0.3433057
+## [148] 0.5034656 0.4757393 0.3857680        NA        NA        NA        NA
+## [155]        NA        NA 0.3263168        NA        NA 1.0379626        NA
+## [162]        NA        NA        NA</code></pre>
+<!-- Finally, the whole-tree nonstructural carbon reserve  ($R_{NSC,t}$) in tree $t$ is the sum of the sugar and starch reserves in all five tissues (i.e. roots, stems, bark, branches, and leaves).  -->
+<!-- $$ -->
+<!-- R_{NSC,t} = \sum_{i=1}^{5} (R_{sugar,i} + R_{starch,i}) -->
+<!-- $$ -->
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>
