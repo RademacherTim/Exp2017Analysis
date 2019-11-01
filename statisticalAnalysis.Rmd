@@ -1,0 +1,17 @@
+---
+title: "SI - statistical analysis"
+author: "Tim T. Rademacher"
+date: "October 22, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Bayesian mixed effects model
+
+To disentangle seasonal the temporal dynamics in wood growth, respiration and nonstructural carbon reserves from treatment effects, we use a Bayesian mixed effects model. The model includes the fixed effects of time, treatment and height of the stem section and the random effects of tree and an error.
+$$
+
+$$
