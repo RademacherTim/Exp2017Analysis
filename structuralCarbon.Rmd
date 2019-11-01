@@ -1,7 +1,7 @@
 ---
-title: "SI - structural carbon gain"
+title: 'SI - structural carbon'
 author: Tim Rademacher
-date: "16/08/2019"
+date: "01/11/2019"
 output: html_document
 bibliography: "/home/trademacehr/projects/NSF-DB\ Plant\ Growth/bib/Exp2017.bib"
 csl: "/home/trademacehr/projects/NSF-DB\ Plant\ Growth/bib/harvard.csl"
@@ -9,18 +9,19 @@ csl: "/home/trademacehr/projects/NSF-DB\ Plant\ Growth/bib/harvard.csl"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library ('RAPTOR')
-library ('zoo')
 library ('plyr')
-library ('readxl')
 library ('tidyverse')
+library ('googlesheets')
+library ('rjson')
+library ('readxl')
+library ('RAPTOR')
 ```
 
-## Structural carbon gain for stem sections of the 2017 experiment at Harvard Forest
+# Structural carbon estimation for stem sections of the 2017 experiment at Harvard Forest
 
-Tghe estimation of structural carbon gain for each stem section is based on the determination of cell wall area of one (or two, when available) thinsection images sampled at the end of the growing season (1$^{st}$ of November 2017). The images were analysed using ROXAS [@von_arx_roxas_2014] and outputs are processed below using the RAPTOR [@peters_raptor:_2018] in R [@r_core_team_r:_2019]. 
+The estimation of structural carbon gain for each stem section is scaled from the cell wall area of one (or two, when available) thinsections sampled at the end of the growing season (1$^{st}$ of November 2017). The cell wall area is scaled to the entire circumference of the stem section and divided into the portions of the ring that formed between sampling dates. To get a cell wall volume we assume that the area is constant along the stem and simply multiply with the height of the stem section (h = 10cm). Once the cell wall volume for each ring portion of the stem section is known, they are multiplied by a fixed cell wall density ($kgDM \, m^{−3}$) and carbon content to estimate the amount of carbon sequestered in structural biomass for each period.
 
-``` {r readinputFiles}
+``` {r}
 # Source the read.roxas function 
 source ('../data/HF_2017_T1_T4_Rox/Functions/1-read.roxas.R')
 source ('../data/HF_2017_T1_T4_Rox/Functions/2-assign.to.R')
@@ -51,23 +52,436 @@ ringSummary <- ringData %>%
                                  CWTradmean = mean (CWTrad, na.rm = TRUE)) 
 ```
 
-We first determined the sum of cell wall area and ring width of each annual ring formed in the growing seasons from 2015<!--TR I could actually try to go back further in time to try to see what is the oldest ring I can get.--> to 2017. This total annual cell wall area incerement is further divided into the increments during four distinct periods of (i) pre-treatment, (ii) the first month after the start of the treatment, (iii) second and third month after the start of the treatment and (iv) the remainder of the growing season. For this purpose, we first estimating the fraction of the ring width that has formed in each period ($RW_{p,s}$) from the thinsections taken at the beginning of each period and on the 1$st$ of November 2017 and standardise it for local variations in radial growth by division with the ring width of the 2015 ring ($RW_{2015}$).
+We used the image analysis software ROXAS (Arx and Carrer, 2014) to estimate the cell wall area, mean cell wall thickness and mean radial lumen diameter from images of thinsections for each stem section from the end of the growing season (1$^{st}$ of November 2017).
 
-```{r}
+To divide the total annual cell wall area incerement into the increments between sampling dates, we had to estimate the proportion of the ring formed for each stem section at each sampling date. We measured the ring widths of images of thinsections for each stem section using the Tree Ring Image Analysis and Database (TRIAD) tool kit. To estimate the fraction of the 2017 ring growth at each sampling date ($f_{2017,i}$) while accounting for local difference in growth, we measured the 2015 and 2017 ring width in each thinsection image for the sampling date $i$ ($RW_{2017,i}$) and adjusted it as follows:
+
+$$
+f_{2017,i} = \frac {rw_{2017,i} \times rw_{2015,Nov}} {rw_{2015,i}} \times \frac{1} {rw_{2017,Nov}}
+$$
+
+, where $rw_{2015,Nov}$ and $rw_{2015,Nov}$ are respectively the 2015 and 2017 ring widths as measured at the end of the growing season in November 2017. This assumes that the ring was fully formed on the 1$^{st}$ of November, which is about two weeks after the typical end of cell wall thickening for white pine at Harvard Forest. Then, $f_{2017,i}$ theoretically varies between 0 and 1 with 0 meaning non of the ring was formed at the sampling date and 1 meaning that the entire ring was already formed.
+
+``` {r getRingWidths}
+# Get the tree measurements of circumference from the googlesheet 
+key <- '1K8Vk9VHRdwNjIa28frc-Zt4uyk07G6CZe1EkJunUll0'
+suppressMessages (predictors <- gs_read (gs_key (key), ws = 'predictors', col_types = cols ()))
+
+# build data frame with ring width measurements for each of the four thinsections
+ringWidths <- tibble (tree = rep (1:41, 4),
+                      treatment = rep (predictors [['treatment']], 4),
+                      month = c (rep (7, 41), rep (8, 41), rep (10, 41), rep (11, 41)),
+                      RW2017at250 = NA, RW2017at200 = NA, RW2017at150 = NA, RW2017at100 = NA, RW2017at050 = NA,
+                      RW2016at250 = NA, RW2016at200 = NA, RW2016at150 = NA, RW2016at100 = NA, RW2016at050 = NA,
+                      RW2015at250 = NA, RW2015at200 = NA, RW2015at150 = NA, RW2015at100 = NA, RW2015at050 = NA,
+                      RW2014at250 = NA, RW2014at200 = NA, RW2014at150 = NA, RW2014at100 = NA, RW2014at050 = NA,
+                      RW2013at250 = NA, RW2013at200 = NA, RW2013at150 = NA, RW2013at100 = NA, RW2013at050 = NA,
+                      RW2012at250 = NA, RW2012at200 = NA, RW2012at150 = NA, RW2012at100 = NA, RW2012at050 = NA,
+                      RW2011at250 = NA, RW2011at200 = NA, RW2011at150 = NA, RW2011at100 = NA, RW2011at050 = NA,
+                      RW2010at250 = NA, RW2010at200 = NA, RW2010at150 = NA, RW2010at100 = NA, RW2010at050 = NA,
+                      RW2009at250 = NA, RW2009at200 = NA, RW2009at150 = NA, RW2009at100 = NA, RW2009at050 = NA,
+                      RW2008at250 = NA, RW2008at200 = NA, RW2008at150 = NA, RW2008at100 = NA, RW2008at050 = NA)
+
+# loop over treatments to get growth for each height for July, August and October
+for (t in 1:4) {
+  
+  # list all json output file from TRIAD
+  jsonFiles <- list.files (path = paste0 ('../microcoreImages/data/T',t,'/'), pattern = '.json')
+
+  # loop over json files
+  for (j in 1: length (jsonFiles)) {
+    # read in TRIAD outputs
+    temp <- fromJSON (file = paste0 ('../microcoreImages/data/T',t,'/',jsonFiles [j])) 
+    treeID <- as.numeric (substr (temp [['sampleID']], 1, 2))
+    sampleDate <- lubridate::month (temp [['sampleDate']])
+    len <- length (temp [['growth']])
+    for (i in 1:len) {
+      if (i  == 1) {
+        types  <- unlist (temp [['growth']] [i]) [6]
+        years  <- unlist (temp [['growth']] [i]) [7] 
+        growth <- unlist (temp [['growth']] [i]) [9]
+      } else {
+        types  <- c (types,  unlist (temp [['growth']] [i]) [6])
+        years  <- c (years,  unlist (temp [['growth']] [i]) [7])
+        growth <- c (growth, unlist (temp [['growth']] [i]) [9])
+      }
+    }
+    growth <- as.numeric (growth [types == 'Normal' & years <= 2017])
+    years  <- as.numeric (years  [types == 'Normal' & years <= 2017])
+    growth <- c (growth, rep (NA, 10-length (growth)))
+    years  <- c (years,  seq (years [length (years)]-1, 2008))
+      
+    if (t == 1) {
+      if (!is.na (growth [years == 2017])) {
+        ringWidths [['RW2017at150']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2017]
+      }
+      if (!is.na (growth [years == 2016])) {
+        ringWidths [['RW2016at150']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2016]
+      }
+      if (!is.na (growth [years == 2015])) {
+        ringWidths [['RW2015at150']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2015]
+      }
+      if (!is.na (growth [years == 2014])) {
+        ringWidths [['RW2014at150']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2014]
+      }
+      if (!is.na (growth [years == 2013])) {
+        ringWidths [['RW2013at150']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2013]
+      }
+      if (!is.na (growth [years == 2012])) {
+        ringWidths [['RW2012at150']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2012]
+      }
+      if (!is.na (growth [years == 2011])) {
+        ringWidths [['RW2011at150']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2011]
+      }
+      if (!is.na (growth [years == 2010])) {
+        ringWidths [['RW2010at150']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2010]
+      }
+      if (!is.na (growth [years == 2009])) {
+        ringWidths [['RW2009at150']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2009]
+      }
+      if (!is.na (growth [years == 2008])) {
+        ringWidths [['RW2008at150']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2008]
+      }
+    } else if (t == 2 | t == 3) {
+      sampleHeight <- substr (temp [['sampleID']], 6, 6)
+      if (sampleHeight == 'A') {
+        if (!is.na (growth [years == 2017])) {
+          ringWidths [['RW2017at200']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2017]
+        }
+        if (!is.na (growth [years == 2016])) {
+          ringWidths [['RW2016at200']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2016]
+        }
+        if (!is.na (growth [years == 2015])) {
+          ringWidths [['RW2015at200']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2015]
+        }
+        if (!is.na (growth [years == 2014])) {
+          ringWidths [['RW2014at200']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2014]
+        }
+        if (!is.na (growth [years == 2013])) {
+          ringWidths [['RW2013at200']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2013]
+        }
+        if (!is.na (growth [years == 2012])) {
+          ringWidths [['RW2012at200']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2012]
+        }
+        if (!is.na (growth [years == 2011])) {
+          ringWidths [['RW2011at200']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2011]
+        }
+        if (!is.na (growth [years == 2010])) {
+          ringWidths [['RW2010at200']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2010]
+        }
+        if (!is.na (growth [years == 2009])) {
+          ringWidths [['RW2009at200']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2009]
+        }
+      } else if (sampleHeight == 'B') {
+        if (!is.na (growth [years == 2017])) {
+          ringWidths [['RW2017at100']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2017]
+        }
+        if (!is.na (growth [years == 2016])) {
+          ringWidths [['RW2016at100']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2016]
+        }
+        if (!is.na (growth [years == 2015])) {
+          ringWidths [['RW2015at100']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2015]
+        }
+        if (!is.na (growth [years == 2014])) {
+          ringWidths [['RW2014at100']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2014]
+        }
+        if (!is.na (growth [years == 2013])) {
+          ringWidths [['RW2013at100']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2013]
+        }
+        if (!is.na (growth [years == 2012])) {
+          ringWidths [['RW2012at100']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2012]
+        }
+        if (!is.na (growth [years == 2011])) {
+          ringWidths [['RW2011at100']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2011]
+        }
+        if (!is.na (growth [years == 2010])) {
+          ringWidths [['RW2010at100']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2010]
+        }
+        if (!is.na (growth [years == 2009])) {
+          ringWidths [['RW2009at100']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2009]
+        }
+      }
+    } else if ( t == 4) {
+      sampleHeight <- substr (temp [['sampleID']], 6, 6)
+      if (sampleHeight == 'A') {
+        if (!is.na (growth [years == 2017])) {
+          ringWidths [['RW2017at250']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2017]
+        }
+        if (!is.na (growth [years == 2016])) {
+          ringWidths [['RW2016at250']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2016]
+        }
+        if (!is.na (growth [years == 2015])) {
+          ringWidths [['RW2015at250']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2015]
+        }  
+        if (!is.na (growth [years == 2014])) {
+          ringWidths [['RW2014at250']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2014]
+        }
+        if (!is.na (growth [years == 2013])) {
+          ringWidths [['RW2013at250']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2013]
+        }
+        if (!is.na (growth [years == 2012])) {
+          ringWidths [['RW2012at250']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2012]
+        }
+        if (!is.na (growth [years == 2011])) {
+          ringWidths [['RW2011at250']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2011]
+        }
+        if (!is.na (growth [years == 2010])) {
+          ringWidths [['RW2010at250']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2010]
+        }
+        if (!is.na (growth [years == 2009])) {
+          ringWidths [['RW2009at250']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2009]
+        }
+      } else if (sampleHeight == 'M') {
+        if (!is.na (growth [years == 2017])) {
+          ringWidths [['RW2017at150']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2017]
+        }
+        if (!is.na (growth [years == 2016])) {
+          ringWidths [['RW2016at150']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2016]
+        }
+        if (!is.na (growth [years == 2015])) {
+          ringWidths [['RW2015at150']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2015]
+        }
+        if (!is.na (growth [years == 2014])) {
+          ringWidths [['RW2014at150']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2014]
+        }
+        if (!is.na (growth [years == 2013])) {
+          ringWidths [['RW2013at150']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2013]
+        }
+        if (!is.na (growth [years == 2012])) {
+          ringWidths [['RW2012at150']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2012]
+        }
+        if (!is.na (growth [years == 2011])) {
+          ringWidths [['RW2011at150']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2011]
+        }
+        if (!is.na (growth [years == 2010])) {
+          ringWidths [['RW2010at150']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2010]
+        }
+        if (!is.na (growth [years == 2009])) {
+          ringWidths [['RW2009at150']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2009]
+        }
+      } else if (sampleHeight == 'B') {
+        if (!is.na (growth [years == 2017])) {
+          ringWidths [['RW2017at050']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2017]
+        }
+        if (!is.na (growth [years == 2016])) {
+          ringWidths [['RW2016at050']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2016]
+        }
+        if (!is.na (growth [years == 2015])) {
+          ringWidths [['RW2015at050']] [ringWidths [['tree']] == treeID &
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2015]
+        }
+        if (!is.na (growth [years == 2014])) {
+          ringWidths [['RW2014at050']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2014]
+        }
+        if (!is.na (growth [years == 2013])) {
+          ringWidths [['RW2013at050']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2013]
+        }
+        if (!is.na (growth [years == 2012])) {
+          ringWidths [['RW2012at050']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2012]
+        }
+        if (!is.na (growth [years == 2011])) {
+          ringWidths [['RW2011at050']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2011]
+        }
+        if (!is.na (growth [years == 2010])) {
+          ringWidths [['RW2010at050']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2010]
+        }
+        if (!is.na (growth [years == 2009])) {
+          ringWidths [['RW2009at050']] [ringWidths [['tree']] == treeID & 
+                                        ringWidths [['month']] == sampleDate] <- growth [years == 2009]
+        }
+      }
+    }
+    
+  } # end json file loop
+} # end treatment loop
+
+# add November ring width to the ringWidths tibble
+for (i in 1:dim (ringData) [1]) {
+  treeID <- ringData [['TREE.ID']] [i]
+  treatment <- ringData [['Treatment']] [i]
+  sampleHeight <- ifelse (substr (ringData [['ID']], 1, 1) == 'T', 
+                          substr (ringData [['ID']], 8, 8),
+                          ifelse (substr (ringData [['ID']], 7, 7) == "0", 
+                                  substr (ringData [['ID']], 5, 5), 
+                                  substr (ringData [['ID']], 4, 4))) [i]
+  sampleDate <- 11
+  year <- ringData [['year']] [i]
+  if (sampleHeight == 'A' & treatment == 4) {
+    height <- '250' 
+  } else if (sampleHeight == 'A' & (treatment == 2 | treatment == 3)) {
+    height <- '200' 
+  } else if (sampleHeight == 'M') {
+    height <- '150'
+  } else if (sampleHeight == 'B' & (treatment == 2 | treatment == 3)) {
+    height <- '100'
+  } else if (sampleHeight == 'B' & treatment == 4) {
+    height <- '050'
+  }
+  xTemp <- paste0 ('RW',year,'at',height)
+  ringWidths [[xTemp]] [ringWidths [['tree']] == treeID & 
+                        ringWidths [['month']] == sampleDate] <- as.numeric (ringData [['MRW']] [i]) * 1.0e-3
+}
+
+# Divide into tibble for each sampling date
+ringWidthsJul <- ringWidths [ringWidths [['month']] == 7, ]
+ringWidthsAug <- ringWidths [ringWidths [['month']] == 8, ]
+ringWidthsOct <- ringWidths [ringWidths [['month']] == 10, ]
+ringWidthsNov <- ringWidths [ringWidths [['month']] == 11, ]
+#max (ringWidths [4:dim (ringWidths) [2]], na.rm = TRUE)
+
+# Compare mean 2017 growth 
+# mean (colMeans (ringWidthsJul [4:8], na.rm = TRUE))
+# mean (colMeans (ringWidthsAug [4:8], na.rm = TRUE))
+# mean (colMeans (ringWidthsOct [4:8], na.rm = TRUE))
+# mean (colMeans (ringWidthsNov [4:8], na.rm = TRUE))
+dJul <- density (unlist (ringWidthsJul [4:8]), na.rm = T)
+dAug <- density (unlist (ringWidthsAug [4:8]), na.rm = T)
+dOct <- density (unlist (ringWidthsOct [4:8]), na.rm = T)
+dNov <- density (unlist (ringWidthsNov [4:8]), na.rm = T)
+
+# Plot density kernels
+layout (matrix (1:3, nrow = 1))
+par (mar = c (5, 5, 5, 1))
+plot (dJul, xlab = 'ring width (mm)', ylab = 'density',
+      xlim = c (0, 5.5), ylim = c (0, 1), main = '2017', 
+      col = '#018571', lwd = 2, las = 1)
+lines (dAug, col = '#80cdc1', lwd = 2)
+lines (dOct, col = '#dfc27d', lwd = 2)
+lines (dNov, col = '#a6611a', lwd = 2)
+legend (x = 2.5, y = 1.02, legend = c ('July','August','October','November'),
+        col = c ('#018571', '#80cdc1', '#dfc27d', '#a6611a'),
+        lwd = 2, box.lty = 0, bg = 'transparent')
+
+# Compare mean 2016 growth 
+# mean (colMeans (ringWidthsJul [9:13], na.rm = TRUE))
+# mean (colMeans (ringWidthsAug [9:13], na.rm = TRUE))
+# mean (colMeans (ringWidthsOct [9:13], na.rm = TRUE))
+# mean (colMeans (ringWidthsNov [9:13], na.rm = TRUE))
+dJul <- density (unlist (ringWidthsJul [9:13]), na.rm = T)
+dAug <- density (unlist (ringWidthsAug [9:13]), na.rm = T)
+dOct <- density (unlist (ringWidthsOct [9:13]), na.rm = T)
+dNov <- density (unlist (ringWidthsNov [9:13]), na.rm = T)
+plot (dJul, xlab = 'ring width (mm)', ylab = 'density',
+      xlim = c (0, 5.5), ylim = c (0, 0.5), main = '2016', 
+      col = '#018571', lwd = 2, las = 1)
+lines (dAug, col = '#80cdc1', lwd = 2)
+lines (dOct, col = '#dfc27d', lwd = 2)
+lines (dNov, col = '#a6611a', lwd = 2)
+legend (x = 2.5, y = 0.51, legend = c ('July','August','October','November'),
+        col = c ('#018571', '#80cdc1', '#dfc27d', '#a6611a'),
+        lwd = 2, box.lty = 0, bg = 'transparent')
+
+# Compare mean 2016 growth 
+# mean (colMeans (ringWidthsJul [14:18], na.rm = TRUE))
+# mean (colMeans (ringWidthsAug [14:18], na.rm = TRUE))
+# mean (colMeans (ringWidthsOct [14:18], na.rm = TRUE))
+# mean (colMeans (ringWidthsNov [14:18], na.rm = TRUE))
+dJul <- density (unlist (ringWidthsJul [14:18]), na.rm = T)
+dAug <- density (unlist (ringWidthsAug [14:18]), na.rm = T)
+dOct <- density (unlist (ringWidthsOct [14:18]), na.rm = T)
+dNov <- density (unlist (ringWidthsNov [14:18]), na.rm = T)
+plot (dJul, xlab = 'ring width (mm)', ylab = 'density',
+      xlim = c (0, 5.5), ylim = c (0, 0.5), main = '2015', 
+      col = '#018571', lwd = 2, las = 1)
+lines (dAug, col = '#80cdc1', lwd = 2)
+lines (dOct, col = '#dfc27d', lwd = 2)
+lines (dNov, col = '#a6611a', lwd = 2)
+legend (x = 2.5, y = 0.51, legend = c ('July','August','October','November'),
+        col = c ('#018571', '#80cdc1', '#dfc27d', '#a6611a'),
+        lwd = 2, box.lty = 0, bg = 'transparent')
+
+# Calculate the fractions of ring formed
+f_Jul <- (ringWidthsJul [4:8] / ringWidthsJul [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
+f_Aug <- (ringWidthsAug [4:8] / ringWidthsAug [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
+f_Oct <- (ringWidthsOct [4:8] / ringWidthsOct [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
+```
+
+On average, `r round (mean (unlist (f_Jul), na.rm = TRUE) * 100.0, 1)`%, `r round (mean (unlist (f_Aug), na.rm = TRUE) * 100.0, 1)`%, and `r round (mean (unlist (f_Oct), na.rm = TRUE) * 100.0, 1)`% of the ring width had respectively grown in July, August and October. Thus, two thirds of the ring widths wee already formed before the start of the treatment and ring width growth had finished by Ocotober.
+
+```{r tableWithNumberOfSamples, echo = FALSE, results = 'asis'}
+# check how many trees with data I have for each year
+numberOfSamples <- colSums (!is.na (ringWidths [,4:dim (ringWidths) [2]]), na.rm = T)
+numberOfSamples <- c (sum (numberOfSamples [1:5]),   sum (numberOfSamples [6:10]),  
+                      sum (numberOfSamples [11:15]), sum (numberOfSamples [16:20]),
+                      sum (numberOfSamples [21:25]), sum (numberOfSamples [26:30]),
+                      sum (numberOfSamples [31:35]), sum (numberOfSamples [36:40]), 
+                      sum (numberOfSamples [41:55], na.rm = T), sum (numberOfSamples [46:50]))
+names (numberOfSamples) <- c (2017:2008)
+
+kable (numberOfSamples, caption = 'Number of measured growth ring widths for all trees out of a potential 328 thinsection images.')
+```
+
+The number of measurements for growth rings drops off strongly after the 2015 growth ring, because the older the ring the less likely it is to be covered by the 15mm microcore, hence visible in the thinsection image. Due to this drop, we wanted to use a recent year to adjust for local growth difference. 2015 was preferred over 2016, because a abnormally dry growing season in 2016, had caused a bimodal distribution of growth in young white pines at Harvard Forest with increased frequency of intra-annual density fluctuations in 2016. 
+
+```{r climateData, echo = FALSE}
+metData <- read_csv (url())
+```
+
+In contrast the 2015 growing season climate was similar to the 2017 growing season climate with a mean annual temperature of `r ` and a total annual precipitation of `r `.
+
+``` {r}
 # Extract only 2015 to 2017
 ringSummary <- ringSummary %>% filter(year >= 2015)
 ```
 
-$$
-f_{p,s} = \frac {RW_{p,s}} {RW_{2017,s}} \times \frac {1} {RW_{2015,s}}
-$$
-
-We did use the 2016 ring because a severe drought in 2016 caused intra-annual density fluctuations in vigorous trees but narrower rings in less vigorous trees. These systematic variations in the 2016 ring width would introduce a systematic bias. Consequently, 2015 was used to correct for local variations in ring width, as it was the youngest year typical growth. In fact, 2015 had similar climatic conditions to 2017. <!-- TR need to double the claim that 2015 and 2017 had similar climate conditions.-->
-<!-- Maybe I should rather use the oldest available ring or at least not a drought year ring (such as 2016, 2012, 2011, 2013)--> 
+We did use the 2016 ring because a severe drought in 2016 caused intra-annual density fluctuations in vigorous trees but narrower rings in less vigorous trees. These systematic variations in the 2016 ring width would introduce a systematic bias. Consequently, 2015 was used to correct for local variations in ring width, as it was the youngest year typical growth. In fact, 2015 had similar climatic conditions to 2017.
 
 The fractional ring width was subsequently used to estimate the cell wall area formed in each period. For this purpose, we used the RAPTOR package to divide the final ring into 100 sectors. Each sector was associated with one of the four period, using the fractional ring width as boundaries. Sectors that were split by a period boundary, where fractionally added to both adjacent period.
 
-```{r}
+``` {r cellularData}
 # Divide each ring into 100 sectors for calculation percent annual structural carbon gain
 cellularData <- assign.to (T2017 [['cell']], method = "SECTOR", NSECTOR = 100)
 
@@ -92,33 +506,22 @@ cellularData [['YEAR']] [condition] <- cellularData [['YEAR']] [condition] + 1
 #  group_by(SITE,TREE.ID,as.factor(YEAR),Treatment,TO.SECTORS)
 ```
 
-The cell wall area increment is scaled geometrically to the stem section's cell wall volume increment in two steps, assuming that wood formed homogenously around the stem in each section and the above estimate is representative of the formed wood for each section and period. Using the stem section's circumference, as measured at the beginning of the experiment ($CBH_{outer, s}$). First, the circumference is reduce assuming a bark thickness of 0.8 $cm$ according to the following equation:
+The cell wall area increment is scaled geometrically to the stem section’s cell wall volume increment in two steps, assuming that wood formed homogenously around the stem in each section and the above estimate is representative of the formed wood for each section and period. Using the stem section’s circumference, as measured at the beginning of the experiment ($CBH_{outer,s}$). First, the circumference is reduce assuming a bark thickness of 0.8 cm according to the following equation:
 
 $$
-CBH_{s} = CBH_{outer, s} - 0.8 \, cm \times 2 \pi 
+CBH_{s} = CBH_{outer,s} − 0.8 cm \times 2 \pi
 $$
 
-Second, the reduced stem section circumference is divided by the radial width of the thinsection ($w_{r,s}$) and multiplied by the cell wall area increment () and the stem section height (here $h = 0.1\,m$) to estimate the total volume of newly formed cell wall in each section and period ($V_{CW,s}$). 
+Second, the reduced stem section circumference is divided by the radial width of the thinsection ($w_{r,s}$) and multiplied by the cell wall area increment () and the stem section height (here h=0.1m) to estimate the total volume of newly formed cell wall in each section and period ($V_{CW,s}$).
+
 $$
-V_{CW,s,p} =  \frac {CBH_{s}} {w_{r,s}} \times h_{s}
+V_{CW,s,p} = \frac {CBH_{s}} {w_{r,s}} \times h_{s}
 $$
-Finally, the cell wall volume of each section is multiplied with a cell wall density ($\rho_{CW}$) of $1.489$ $kg \, m^3$ - a best estimate based on data for comparable softwoods, such as Scots pine, by @plotze_porosity_2011 - and an assumed carbon content of 49.74\% for white pine [@lamlom_reassessment_2003] to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in $g$).
+
+Finally, the cell wall volume of each section is multiplied with a cell wall density ($\rho_{CW}$) of 1.489 $kg m^{3}$ - a best estimate based on data for comparable softwoods, such as Scots pine, by @plotze_porosity_2011 - and an assumed carbon content of 49.74% for white pine [@lamlom_reassessment_2003] to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in g).
 
 $$
 M_{s,p} = V_{CW,s,p} \times \rho_{CW} \times 0.5
 $$
-<!--
-## Alternative simple increment estimations
-
-Assuming a density is constant and simply multiplying it with the radial increment, we can get a simple estimation of the biomass accrued in each period. 
-
-## Comparison of detailed and simple estimations
-
-Compare the simple and more complex method.
-
-### To-do list and comments
-
-- check whether results are robust even with assumed realistic taper of the stem section. I will have to measure the section circumferences and taper first.
-- cell wall density and carbon content are known to vary with season [@lamlom_reassessment_2003], check robustness of results with realistic variation.-->
 
 # References
