@@ -10,6 +10,7 @@ csl: "/home/trademacehr/projects/NSF-DB\ Plant\ Growth/bib/harvard.csl"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library ('plyr')
+library ('knitr')
 library ('tidyverse')
 library ('googlesheets')
 library ('rjson')
@@ -464,13 +465,14 @@ names (numberOfSamples) <- c (2017:2008)
 kable (numberOfSamples, caption = 'Number of measured growth ring widths for all trees out of a potential 328 thinsection images.')
 ```
 
-The number of measurements for growth rings drops off strongly after the 2015 growth ring, because the older the ring the less likely it is to be covered by the 15mm microcore, hence visible in the thinsection image. Due to this drop, we wanted to use a recent year to adjust for local growth difference. 2015 was preferred over 2016, because a abnormally dry growing season in 2016, had caused a bimodal distribution of growth in young white pines at Harvard Forest with increased frequency of intra-annual density fluctuations in 2016. 
-
 ```{r climateData, echo = FALSE}
-metData <- read_csv (url())
+metData <- read_csv (url ('https://harvardforest.fas.harvard.edu/data/p30/hf300/hf300-01-annual-m.csv'), 
+                     col_types = cols ())
 ```
 
-In contrast the 2015 growing season climate was similar to the 2017 growing season climate with a mean annual temperature of `r ` and a total annual precipitation of `r `.
+The number of measurements for growth rings drops off strongly after the 2015 growth ring, because the older the ring the less likely it is to be covered by the 15mm microcore, hence visible in the thinsection image. Due to this drop, we wanted to use a recent year to adjust for local growth difference. 2015 was preferred over 2016, because a abnormally dry growing season in 2016 (total annual precipitation of `r metData [['prec']] [metData [['year']] == 2016]` $mm$, which is `r mean (metData [['prec']]) - metData [['prec']] [metData [['year']] == 2016]` below the long-term average of `r mean (metData [['prec']])` $mm$), had caused a bimodal distribution of growth in young white pines at Harvard Forest with increased frequency of intra-annual density fluctuations in 2016. 
+
+In contrast the 2015 growing season climate was similar to the 2017 growing season climate with a mean annual temperature of `r metData [['airt']] [metData [['year']] == 2015]` $^{\circ}C$ and a total annual precipitation of `r metData [['prec']] [metData [['year']] == 2015]` $mm$.
 
 ``` {r}
 # Extract only 2015 to 2017
