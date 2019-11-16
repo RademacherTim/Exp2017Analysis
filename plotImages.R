@@ -17,7 +17,7 @@ setwd ('/home/trademacehr/projects/NSF-DB Plant Growth/Exp2017/microcoreImages/'
 
 # set treatment (1 = control; 2 = gridling; 3 = compression; 4 = double compression) 
 #----------------------------------------------------------------------------------------
-treatment <- 4
+treatment <- 3
 
 # list image files
 #----------------------------------------------------------------------------------------
@@ -49,9 +49,9 @@ for (i in 1:length (imagesNames)) {
       data <- temp
       break  
     }
-    #print (temp [['sampleDate']])
-    #print (substr (temp [['sampleID']], 1, 2))
-    #print (substr (temp [['sampleID']], 6, 6))
+    print (temp [['sampleDate']])
+    print (substr (temp [['sampleID']], 1, 2))
+    print (substr (temp [['sampleID']], 6, 6))
   }
   rm (temp)  
   print (paste0 ('Found json file:',substr (data [['sampleID']], 1, 2),'.',treatment,

@@ -8,8 +8,8 @@ source ('processNSCDataForExp2017.R')
 
 # Make boxplot of treatments and height
 #----------------------------------------------------------------------------------------
-NSC = 'starch'
-tissue = 'leaf'
+NSC    = 'sugar'                                   # choice is 'sugar' and 'starch'
+tissue = 'stem'                                    # choice is 'root','stem','leaf'
 data = get (paste (tissue, 'Data', sep = ''))
 if (NSC == 'sugar' & tissue == 'stem') {
   yLimit <- c (0, 2.4) 
@@ -32,16 +32,29 @@ if (NSC == 'sugar' & tissue == 'stem') {
 }
 colours <- c ('#8dd3c799','#ffffb399','#bebada99','#fb807299')
 par (mar = c (5, 5, 1, 1))
-boxplot (data [['Sugar']] [data [['treatment']] == 1 &
-                           month (data [['date']]) == 7],
-         xlim = c (0, 38.5),
-         ylim = yLimit,
-         col  = 'white',
-         lty = 0,
-         las = 1,
-         ylab = 'sugar concentration (% dry weight)')
+if (NOTWOOD) { 
+  boxplot (data [[NSC]] [data [['treatment']] == 1 & month (data [['date']]) == 7],
+           xlim = c (0, 20),
+           ylim = yLimit,
+           col  = 'white', 
+           pars = list (outcol = 'white', outpch = 19),
+           lty = 0,
+           las = 1,
+           ylab = paste0 (NSC,' concentration (% dry weight)'))
+} else {
+  boxplot (data [[NSC]] [data [['treatment']] == 1 & month (data [['date']]) == 7],
+           xlim = c (0, 38.5),
+           ylim = yLimit,
+           col  = 'white', 
+           pars = list (outcol = 'white', outpch = 19), 
+           lty = 0,
+           las = 1,
+           ylab = paste0 (NSC,' concentration (% dry weight)'))
+}
+
+# Function to add boxplots
 addBoxplot <- function (data, iTreat, iMon, position, iH = 1.5, NSC = 'Sugar') {
-  months <- c (7,8,10,11)
+  months <- c (7, 8, 10, 11)
   if (is.na (iH)) {
     additional <- 0.0
   } else if (iTreat == 2 & iH == 1.0) {
@@ -66,7 +79,8 @@ addBoxplot <- function (data, iTreat, iMon, position, iH = 1.5, NSC = 'Sugar') {
     boxplot (data [[NSC]] [data [['treatment']] == iTreat & 
                            month (data [['date']]) == iMon], 
              col = colours [iTreat],
-             at  = (which (iMon == months) - 1) * 10 + iTreat + additional,
+             pars = list (outbg = colours [iTreat], outpch = 21), 
+             at  = (which (iMon == months) - 1) * 5 + iTreat + additional,
              add = TRUE,
              axes = FALSE)
     
@@ -75,7 +89,9 @@ addBoxplot <- function (data, iTreat, iMon, position, iH = 1.5, NSC = 'Sugar') {
                            data [['sampleHeight']] == iH &
                            month (data [['date']]) == iMon], 
              col = colours [iTreat],
+             pars = list (outbg = colours [iTreat], outpch = 21),
              at  = (which (iMon == months) - 1) * 10 + iTreat + additional,
+             density = 1, angle = 45,
              add = TRUE,
              axes = FALSE)
   }
@@ -114,8 +130,14 @@ if (NOTWOOD) {
 }
 # Add a reasonable x axis
 #----------------------------------------------------------------------------------------
-axis (side = 1, at = seq (4.6125, 34.6125, by = 10), 
-      label = c ('July', 'August', 'October', 'November'))
-abline (v = c (9.25,19.25,29.25), col = '#99999999')
+if (NOTWOOD) {
+  axis (side = 1, at = seq (4.6125/2, 34.6125/2, by = 5), 
+        label = c ('July', 'August', 'October', 'November'))
+  abline (v = c (9.25/2,19.25/2,29.25/2), col = '#99999999')
+} else {
+  axis (side = 1, at = seq (4.6125, 34.6125, by = 10), 
+        label = c ('July', 'August', 'October', 'November'))
+  abline (v = c (9.25,19.25,29.25), col = '#99999999')
+}
 #========================================================================================
 
