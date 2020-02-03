@@ -1,10 +1,10 @@
 ---
-title: 'SI - structural carbon'
+title: 'Scaling structural carbon (SI 2)'
 author: Tim Rademacher
 date: "01/11/2019"
 output: html_document
-bibliography: "/home/trademacehr/projects/NSF-DB\ Plant\ Growth/bib/Exp2017.bib"
-csl: "/home/trademacehr/projects/NSF-DB\ Plant\ Growth/bib/harvard.csl"
+bibliography: "/home/trademacehr/projects/PlantGrowth/bib/Exp2017.bib"
+csl: "/home/trademacehr/projects/PlantGrowth/bib/harvard.csl"
 ---
 
 ```{r setup, include=FALSE}
@@ -12,68 +12,94 @@ knitr::opts_chunk$set(echo = TRUE)
 library ('plyr')
 library ('knitr')
 library ('tidyverse')
-library ('googlesheets')
-library ('rjson')
 library ('readxl')
+library ('googledrive')
+library ('rjson')
 library ('RAPTOR')
 ```
 
 ## Structural carbon estimation for stem sections of the 2017 experiment at Harvard Forest
 
-The estimation of structural carbon gain for each stem section is scaled from the cell wall area of one (or two, when available) thinsections sampled at the end of the growing season (1$^{st}$ of November 2017). The cell wall area is divided into the portions of the ring that formed between sampling dates (e.g., 3$^{rd}$ of July 2017 to 9$^{th}$ of August 2017) and is subsequently scaled to the entire circumference of the stem section. To convert cell wall area to cell wall volume per stem section, we assume that the area is constant along the stem and simply multiply with the height of the stem section (h = 10cm). Once the cell wall volume for each ring portion of the stem section is known, they are multiplied by a fixed cell wall density ($kgDM \, m^{−3}$) and carbon content to estimate the amount of carbon sequestered in structural biomass for each period.
+``` {r getROXASAndAllometricData, echo = FALSE}
+# Get list of folder on shared PlantGrowth google drive
+GDFolders  <- drive_ls (path = 'https://drive.google.com/drive/u/1/folders/0ABA0-TtlzSLPUk9PVA')
 
-``` {r getROXASData, echo = FALSE}
-# Source the read.roxas function 
-source ('../data/HF_2017_T1_T4_Rox/Functions/1-read.roxas.R')
-source ('../data/HF_2017_T1_T4_Rox/Functions/2-assign.to.R')
+# Get id for data folder on shared PlantGrowth google drive
+GDDataID <- GDFolders [['id']] [GDFolders [['name']] == 'data']
 
-# Read in all ROXAS outputs
-suppressMessages (T2017 <- read.roxas (WD = '../data/HF_2017_T1_T4_Rox/', 
-                                       from = 1998, to = 2018,
-                                       PLOT = FALSE))
+# Get list of folders in data folder
+GDFoldersData <- drive_ls (path = as_id (GDDataID))
 
-# Extract ring specific data and add treatment and ID columns
-ringData <- T2017 [['ring']]
-ringData [['Treatment']] <- as.numeric (substr (ringData [['TREE.ID']], 2, 2)) 
-ringData [['samplingHeight']] <- ifelse (is.na (substr (ringData [['TREE.ID']], 6, 6)) | 
-                                         substr (ringData [['TREE.ID']], 6, 6) == "",
-                                         'M', substr (ringData [['TREE.ID']], 6, 6))
-ringData [['TREE.ID']]   <- as.numeric (substr (ringData [['TREE.ID']], 4, 5)) 
-ringData [['year']]      <- as.numeric (ringData [['YEAR']])
+# Get microcores folder id
+GDmicrocoresID <- GDFoldersData [['id']] [GDFoldersData [['name']] == 'microcores']
 
-# Correction because the last ring in T3 and T4 was incorrectly dated
-condition <- which (ringData [['Treatment']] == 4)
-ringData [['year']] [condition] <- as.numeric (ringData [['YEAR']] [condition]) + 1
+# Get list of folders in micrcores folder
+GDFoldersMicrocores <- drive_ls (path = as_id (GDmicrocoresID))
 
-# Sum the cell wall area for each ring
-ringSummary <- ringData %>%  
-               mutate (CWA = replace (CWA, CWA == -999,  NA)) %>%
-               mutate (CWA = replace (CWA, CWA == -9999, NA)) %>%
-               group_by (SITE, TREE.ID, year, Treatment, samplingHeight) %>%
-               dplyr::summarise (CWAsum = sum (CWA, na.rm = T), 
-                                 LDradmean  = mean (LDrad,  na.rm = TRUE), 
-                                 CWTradmean = mean (CWTrad, na.rm = TRUE)) 
+# Get woodAnatomy folder id
+GDwoodAnatomyID <- GDFoldersMicrocores [['id']] [GDFoldersMicrocores [['name']] == 'woodAnatomy']
+
+# Get list of folders in woodAnatomy folder
+GDFoldersWoodAnatomy <- drive_ls (path = as_id (GDwoodAnatomyID))
+
+# Get Exp2017 folder id
+GDExp2017ID <- GDFoldersWoodAnatomy [['id']] [GDFoldersWoodAnatomy [['name']] == 'Exp2017']
+
+# Get list of files in Exp2017 folder
+GDFilesExp2017 <- drive_ls (path = as_id (GDExp2017ID))
+
+# Get id of file with data for 20 mu band anatomical averages
+GDExp2017FileID <- GDFilesExp2017 [['id']] [GDFilesExp2017 [['name']] == '20muband_ALL.xlsx']
+
+# Identify allometry folder
+GDallometryID <- GDFoldersData [['id']] [GDFoldersData [['name']] == 'allometry']
+
+# List files in allometry folder
+GDFilesAllometry <- drive_ls (path = as_id (GDallometryID))
+
+# Identify id of file with allometry data for the 2017 Experiment
+GDExp2017AllometryFileID <- GDFilesAllometry [['id']] [GDFilesAllometry [['name']] == 'allometricDataExp2017.xlsx']
+
+# Change working directory
+setwd ('/media/TREE/PlantGrowth/data/microcores/woodAnatomy/Exp2017/')
+
+# Download the Exp2017 wood anatomical data file
+fileExp2017 <- drive_download (file = as_id (GDExp2017FileID), verbose = FALSE, overwrite = TRUE)
+rm (fileExp2017)
+
+# Read the data per 20 micron slices
+data <- read_excel (path = paste0 (getwd (),'/20muband_ALL.xlsx'), 
+                    sheet = '20muband_ALL', 
+                    na = "NA")
+
+# Change working directory
+setwd ('/media/TREE/PlantGrowth/data/allometry/')
+
+# Download the Exp2017 allometry data file
+fileExp2017 <- drive_download (file = as_id (GDExp2017AllometryFileID), verbose = FALSE, overwrite = TRUE)
+rm (fileExp2017)
+
+# Read the data per 20 micron slices
+allometryData <- read_excel (path = paste0 (getwd (),'/allometricDataExp2017.xlsx'), 
+                             sheet = 'allometricData', 
+                             na = "NA")
+
+# Reset the working directory
+setwd ('/home/trademacehr/projects/PlantGrowth/Exp2017/Exp2017Analysis/')
 ```
 
-## Estimating cell wall area in the 2017 ring
+The estimation of structural carbon gain for each stem section is scaled from the cell wall area of one thinsection sampled at the end of the growing season (3$^{rd}$ of November 2017) and divided into sections grown in each period (e.g., prior, during and after treatment) by association with the proporation of the ring formed at the end of that period. Where the first thinsection did not fully include the necessary rings or had other quality issues, we cut and processed the second microcore for a thinsection. Between the two microcores, we were able to obtain high-quality image data for 319 out of 320 samples (i.e., 4 dates times 40 trees times on average two sampling heights per tree). Only for one tree (tree id: 37; treament: double compression) both samples collected in October for the middle section did not contain a full 2015 ring. For each image, we identified and divided the ring formed in 2017 into 20 micron-wide discrete zones and derived the average anatomical structure for a cell in each zone using ROXAS [@von_arx_roxas_2014]. In particular, we measured cell wall area, cell wall thickness, and tangential and radial cell width. The ring width of the fully formed ring ranged between `r range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/1000` and `r range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [2] / 1000`mm with a mean of `r mean (unique (data [['MRW']] [data [['YEAR']] == 2017]))/1000`mm. Using 20 micron-wide zones, the rings were divided into, at least, `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/20)` sections.
 
-We used the image analysis software ROXAS (Arx and Carrer, 2014) to estimate the cell wall area, mean cell wall thickness and mean radial lumen diameter from images of thinsections for each stem section from the end of the growing season (1$^{st}$ of November 2017).
-
-## Dividing cell wall area by period of formation
-
-To divide the total annual cell wall area incerement into the increments between sampling dates, we estimated the proportion of the ring formed betweem two sampling date. We measured the ring widths of images of thinsections for each stem section using the Tree Ring Image Analysis and Database (TRIAD) tool kit. To estimate the fraction of the 2017 ring growth at each sampling date ($f_{2017,i}$) while accounting for local difference in growth, we measured the 2015 and 2017 ring width in each thinsection image for the sampling date $i$ ($rw_{2017,i}$) and adjusted it as follows:
+We also identified the 2017 and 2015 ring and measured their width in images taken prior and during the treatment (e.g., 3$^{rd}$ of July 2017, 10$^{th}$ of August 2017, and 9$^{th}$ of October 2017), as well as at the end of the growing season (3$^{rd}$ of November). All ring width measurements were performed with the Tree Ring Image Analysis and Database (TRIAD). The accuracy of TRIAD is limited by the resolution of the uploaded images; here roughly 1.5 micron. The relative ring width of the 2017 ring in comparison to the 2015 ring was used to estimate the proportion of the ring formed at th end of each period. As growth varies locally around the circumference of the stem, we tried to account for local circumferential variations in growth by standardisation with the 2015 ring width from the same image as follows: 
 
 $$
 f_{2017,i} = \frac {rw_{2017,i} \times rw_{2015,Nov}} {rw_{2015,i}} \times \frac{1} {rw_{2017,Nov}}
 $$
-
 , where $rw_{2015,Nov}$ and $rw_{2015,Nov}$ are respectively the 2015 and 2017 ring widths as measured at the end of the growing season in November 2017. This assumes that the ring was fully formed on the 1$^{st}$ of November, which is about two weeks after the typical end of cell wall thickening for white pine at Harvard Forest. Then, $f_{2017,i}$ theoretically varies between 0 and 1 with 0 meaning non of the ring was formed at the sampling date and 1 meaning that the entire ring was already formed.
 
-``` {r getRingWidths, echo = FALSE}
-# Get the tree measurements of circumference from the googlesheet 
-key <- '1K8Vk9VHRdwNjIa28frc-Zt4uyk07G6CZe1EkJunUll0'
-suppressMessages (predictors <- gs_read (gs_key (key), ws = 'predictors', col_types = cols ()))
+We used the 2015 ring rather than the adjacent 2016 ring, because of a drought event that caused intra-annual density fluctuations in the 2016 ring in some trees but not all. In addition, the ring width distribution for our trees was bi-modal in 2016 with trees that had a intraannual density fluctuation having larger rings. In contrast, 2015 did not include any outstading climatological events, which led to systematic bias in growth as observed in 2016.
 
+``` {r getRingWidths, echo = FALSE}
 # build data frame with ring width measurements for each of the four thinsections
 ringWidths <- tibble (tree = rep (1:41, 4),
                       treatment = rep (predictors [['treatment']], 4),
@@ -590,6 +616,14 @@ f_Agg <- rbind (f_Agg, aggregate (f_Oct, mean, by = list (predictors [['treatmen
 f_Agg <- cbind (f_Agg, c(rep (7, 4), rep (8, 4), rep (10,4)))
 names (f_Agg) <- c ('treatment', names (f_Agg [,2:6]),'month')
 ```
+
+After we associated each section with a growth period, we scaled the cell wall area to the entire circumference of the stem section. The ROXAS outputs provide also the average tangential cell width, which is used to scale the average cell wall area to the entire circumference of the stem. To scale the circumeferential cell wall area to a cell wall volume per stem section, we assume that the measured area is representative circumferentially and longitudinally for the stem section. We also assume that tracheids take up ??? % of the volume, hence we can simply multiply the circumferential cell wall area with the height of the stem section (h = 10cm) and a factor to correct for other types of cells (e.g., rays and resin ducts). Once the cell wall volume for each ring portion of the stem section is known, they are multiplied by a fixed cell wall density ($kgDM \, m^{−3}$) and carbon content to estimate the amount of carbon sequestered in structural biomass for each period.
+
+## Dividing cell wall area by period of formation
+
+To associate each 20 micron-wide zone with the ring increments between two sampling dates, we estimated the proportion of the ring formed betweem each set of two sampling dates. We measured the ring widths of images of thinsections for each stem section using the Tree Ring Image Analysis and Database (TRIAD) tool kit. To estimate the fraction of the 2017 ring growth at each sampling date ($f_{2017,i}$) while accounting for local difference in growth, we measured the 2015 and 2017 ring width in each thinsection image for the sampling date $i$ ($rw_{2017,i}$) and adjusted it as follows:
+
+
 
 On average, `r round (mean (unlist (f_Jul), na.rm = TRUE) * 100.0, 1)`%, `r round (mean (unlist (f_Aug), na.rm = TRUE) * 100.0, 1)`%, and `r round (mean (unlist (f_Oct), na.rm = TRUE) * 100.0, 1)`% of the ring width had respectively grown in July, August and October. Thus, two thirds of the ring widths was already formed before the start of the treatment and ring width growth had finished by Ocotober. However, there were substantial differences between treatments and sampling heights.  
 
