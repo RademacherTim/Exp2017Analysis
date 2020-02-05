@@ -9,18 +9,18 @@ csl: "/home/trademacehr/projects/PlantGrowth/bib/harvard.csl"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library ('plyr')
+#library ('plyr')
 library ('knitr')
 library ('tidyverse')
 library ('readxl')
 library ('googledrive')
 library ('rjson')
-library ('RAPTOR')
+#library ('RAPTOR')
 ```
 
 ## Structural carbon estimation for stem sections of the 2017 experiment at Harvard Forest
 
-``` {r getROXASAndAllometricData, echo = FALSE}
+``` {r getData, echo = FALSE}
 # Get list of folder on shared PlantGrowth google drive
 GDFolders  <- drive_ls (path = 'https://drive.google.com/drive/u/1/folders/0ABA0-TtlzSLPUk9PVA')
 
@@ -51,6 +51,12 @@ GDFilesExp2017 <- drive_ls (path = as_id (GDExp2017ID))
 # Get id of file with data for 20 mu band anatomical averages
 GDExp2017FileID <- GDFilesExp2017 [['id']] [GDFilesExp2017 [['name']] == '20muband_ALL.xlsx']
 
+# Get id of folder with ring width measurements from TRIAD
+GDFolderringWidthTRIADID <- GDFilesExp2017 [['id']] [GDFilesExp2017 [['name']] == 'ringWidthTRIAD']
+
+# Get list of ids for all ringwidth measurements
+GDringWidthFilesIDs <- drive_ls (path = as_id (GDFolderringWidthTRIADID))
+
 # Identify allometry folder
 GDallometryID <- GDFoldersData [['id']] [GDFoldersData [['name']] == 'allometry']
 
@@ -73,6 +79,16 @@ data <- read_excel (path = paste0 (getwd (),'/20muband_ALL.xlsx'),
                     na = "NA")
 
 # Change working directory
+setwd ('/media/TREE/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ringWidthTRIAD/')
+
+# Download the files for ring width measurements of the Exp 2017 microcores
+for (i in 1:dim (GDringWidthFilesIDs) [1]) {
+  fileExp2017 <- drive_download (file = as_id (GDringWidthFilesIDs [['id']] [i]), verbose = FALSE, overwrite = TRUE)
+  rm (fileExp2017)
+  print (i)
+}
+
+# Change working directory
 setwd ('/media/TREE/PlantGrowth/data/allometry/')
 
 # Download the Exp2017 allometry data file
@@ -80,9 +96,9 @@ fileExp2017 <- drive_download (file = as_id (GDExp2017AllometryFileID), verbose 
 rm (fileExp2017)
 
 # Read the data per 20 micron slices
-allometryData <- read_excel (path = paste0 (getwd (),'/allometricDataExp2017.xlsx'), 
-                             sheet = 'allometricData', 
-                             na = "NA")
+allometricData <- read_excel (path = paste0 (getwd (),'/allometricDataExp2017.xlsx'), 
+                              sheet = 'allometricData', 
+                              na = "NA")
 
 # Reset the working directory
 setwd ('/home/trademacehr/projects/PlantGrowth/Exp2017/Exp2017Analysis/')
@@ -102,7 +118,7 @@ We used the 2015 ring rather than the adjacent 2016 ring, because of a drought e
 ``` {r getRingWidths, echo = FALSE}
 # build data frame with ring width measurements for each of the four thinsections
 ringWidths <- tibble (tree = rep (1:41, 4),
-                      treatment = rep (predictors [['treatment']], 4),
+                      treatment = rep (allometricData [['treatment']], 4),
                       month = c (rep (7, 41), rep (8, 41), rep (10, 41), rep (11, 41)),
                       RW2017at250 = NA, RW2017at200 = NA, RW2017at150 = NA, RW2017at100 = NA, RW2017at050 = NA,
                       RW2016at250 = NA, RW2016at200 = NA, RW2016at150 = NA, RW2016at100 = NA, RW2016at050 = NA,
@@ -115,46 +131,207 @@ ringWidths <- tibble (tree = rep (1:41, 4),
                       RW2009at250 = NA, RW2009at200 = NA, RW2009at150 = NA, RW2009at100 = NA, RW2009at050 = NA,
                       RW2008at250 = NA, RW2008at200 = NA, RW2008at150 = NA, RW2008at100 = NA, RW2008at050 = NA)
 
-# loop over treatments to get growth for each height for July, August and October
-for (t in 1:4) {
-  
-  # list all json output file from TRIAD
-  jsonFiles <- list.files (path = paste0 ('../microcoreImages/data/T',t,'/'), pattern = '.json')
 
-  # loop over json files
-  for (j in 1: length (jsonFiles)) {
-    # read in TRIAD outputs
-    temp <- fromJSON (file = paste0 ('../microcoreImages/data/T',t,'/',jsonFiles [j])) 
-    treeID <- as.numeric (substr (temp [['sampleID']], 1, 2))
-    sampleDate <- lubridate::month (temp [['sampleDate']])
-    len <- length (temp [['growth']])
-    for (i in 1:len) {
-      if (i  == 1) {
-        types  <- unlist (temp [['growth']] [i]) [6]
-        years  <- unlist (temp [['growth']] [i]) [7] 
-        growth <- unlist (temp [['growth']] [i]) [9]
-      } else {
-        types  <- c (types,  unlist (temp [['growth']] [i]) [6])
-        years  <- c (years,  unlist (temp [['growth']] [i]) [7])
-        growth <- c (growth, unlist (temp [['growth']] [i]) [9])
-      }
+# set working directory to read json files
+setwd ('/media/TREE/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ringWidthTRIAD/')
+
+# list all json output file from TRIAD
+jsonFiles <- list.files (path = './', pattern = '.json')
+
+# loop over json files
+for (j in 1: length (jsonFiles)) {
+  
+  # read in TRIAD outputs
+  temp <- fromJSON (file = jsonFiles [j]) 
+  treeID <- as.numeric (substr (temp [['sampleID']], 1, 2))
+  sampleDate <- lubridate::month (temp [['sampleDate']])
+  len <- length (temp [['growth']])
+  print (j, treeID, sampleDate)
+  for (i in 1:len) {
+    if (i  == 1) {
+      types  <- unlist (temp [['growth']] [i]) [6]
+      years  <- unlist (temp [['growth']] [i]) [7] 
+      growth <- unlist (temp [['growth']] [i]) [9]
+    } else {
+      types  <- c (types,  unlist (temp [['growth']] [i]) [6])
+      years  <- c (years,  unlist (temp [['growth']] [i]) [7])
+      growth <- c (growth, unlist (temp [['growth']] [i]) [9])
     }
-    growth <- as.numeric (growth [types == 'Normal' & years <= 2017])
-    years  <- as.numeric (years  [types == 'Normal' & years <= 2017])
-    growth <- c (growth, rep (NA, 10-length (growth)))
-    years  <- c (years,  seq (years [length (years)]-1, 2008))
+  }
+  growth <- as.numeric (growth [types == 'Normal' & years <= 2017])
+  years  <- as.numeric (years  [types == 'Normal' & years <= 2017])
+  growth <- c (growth, rep (NA, 10-length (growth)))
+  years  <- c (years,  seq (years [length (years)]-1, 2008))
       
-    if (t == 1) {
+  t <- as.numeric (substr (temp [['sampleID']], 4, 4))
+  if (t == 1) {
+    if (!is.na (growth [years == 2017])) {
+      ringWidths [['RW2017at150']] [ringWidths [['tree']] == treeID & 
+                                    ringWidths [['month']] == sampleDate] <- growth [years == 2017]
+    }
+    if (!is.na (growth [years == 2016])) {
+      ringWidths [['RW2016at150']] [ringWidths [['tree']] == treeID & 
+                                    ringWidths [['month']] == sampleDate] <- growth [years == 2016]
+    }
+    if (!is.na (growth [years == 2015])) {
+      ringWidths [['RW2015at150']] [ringWidths [['tree']] == treeID & 
+                                    ringWidths [['month']] == sampleDate] <- growth [years == 2015]
+    }
+    if (!is.na (growth [years == 2014])) {
+      ringWidths [['RW2014at150']] [ringWidths [['tree']] == treeID & 
+                                    ringWidths [['month']] == sampleDate] <- growth [years == 2014]
+    }
+    if (!is.na (growth [years == 2013])) {
+      ringWidths [['RW2013at150']] [ringWidths [['tree']] == treeID & 
+                                    ringWidths [['month']] == sampleDate] <- growth [years == 2013]
+    }
+    if (!is.na (growth [years == 2012])) {
+      ringWidths [['RW2012at150']] [ringWidths [['tree']] == treeID & 
+                                    ringWidths [['month']] == sampleDate] <- growth [years == 2012]
+    }
+    if (!is.na (growth [years == 2011])) {
+      ringWidths [['RW2011at150']] [ringWidths [['tree']] == treeID & 
+                                    ringWidths [['month']] == sampleDate] <- growth [years == 2011]
+    }
+    if (!is.na (growth [years == 2010])) {
+      ringWidths [['RW2010at150']] [ringWidths [['tree']] == treeID & 
+                                    ringWidths [['month']] == sampleDate] <- growth [years == 2010]
+    }
+    if (!is.na (growth [years == 2009])) {
+      ringWidths [['RW2009at150']] [ringWidths [['tree']] == treeID & 
+                                    ringWidths [['month']] == sampleDate] <- growth [years == 2009]
+    }
+    if (!is.na (growth [years == 2008])) {
+      ringWidths [['RW2008at150']] [ringWidths [['tree']] == treeID & 
+                                    ringWidths [['month']] == sampleDate] <- growth [years == 2008]
+    }
+  } else if (t == 2 | t == 3) {
+    sampleHeight <- substr (temp [['sampleID']], 6, 6)
+    if (sampleHeight == 'A') {
       if (!is.na (growth [years == 2017])) {
-        ringWidths [['RW2017at150']] [ringWidths [['tree']] == treeID & 
+        ringWidths [['RW2017at200']] [ringWidths [['tree']] == treeID &
                                       ringWidths [['month']] == sampleDate] <- growth [years == 2017]
       }
       if (!is.na (growth [years == 2016])) {
-        ringWidths [['RW2016at150']] [ringWidths [['tree']] == treeID & 
+        ringWidths [['RW2016at200']] [ringWidths [['tree']] == treeID &
                                       ringWidths [['month']] == sampleDate] <- growth [years == 2016]
       }
       if (!is.na (growth [years == 2015])) {
-        ringWidths [['RW2015at150']] [ringWidths [['tree']] == treeID & 
+        ringWidths [['RW2015at200']] [ringWidths [['tree']] == treeID &
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2015]
+      }
+      if (!is.na (growth [years == 2014])) {
+        ringWidths [['RW2014at200']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2014]
+      }
+      if (!is.na (growth [years == 2013])) {
+        ringWidths [['RW2013at200']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2013]
+      }
+      if (!is.na (growth [years == 2012])) {
+        ringWidths [['RW2012at200']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2012]
+      }
+      if (!is.na (growth [years == 2011])) {
+        ringWidths [['RW2011at200']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2011]
+      }
+      if (!is.na (growth [years == 2010])) {
+        ringWidths [['RW2010at200']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2010]
+      }
+      if (!is.na (growth [years == 2009])) {
+        ringWidths [['RW2009at200']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2009]
+      }
+    } else if (sampleHeight == 'B') {
+      if (!is.na (growth [years == 2017])) {
+        ringWidths [['RW2017at100']] [ringWidths [['tree']] == treeID &
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2017]
+      }
+      if (!is.na (growth [years == 2016])) {
+        ringWidths [['RW2016at100']] [ringWidths [['tree']] == treeID &
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2016]
+      }
+      if (!is.na (growth [years == 2015])) {
+        ringWidths [['RW2015at100']] [ringWidths [['tree']] == treeID &
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2015]
+      }
+      if (!is.na (growth [years == 2014])) {
+        ringWidths [['RW2014at100']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2014]
+      }
+      if (!is.na (growth [years == 2013])) {
+        ringWidths [['RW2013at100']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2013]
+      }
+      if (!is.na (growth [years == 2012])) {
+        ringWidths [['RW2012at100']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2012]
+      }
+      if (!is.na (growth [years == 2011])) {
+        ringWidths [['RW2011at100']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2011]
+      }
+      if (!is.na (growth [years == 2010])) {
+        ringWidths [['RW2010at100']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2010]
+      }
+      if (!is.na (growth [years == 2009])) {
+        ringWidths [['RW2009at100']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2009]
+      }
+    }
+  } else if ( t == 4) {
+    sampleHeight <- substr (temp [['sampleID']], 6, 6)
+    if (sampleHeight == 'A') {
+      if (!is.na (growth [years == 2017])) {
+        ringWidths [['RW2017at250']] [ringWidths [['tree']] == treeID &
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2017]
+      }
+      if (!is.na (growth [years == 2016])) {
+        ringWidths [['RW2016at250']] [ringWidths [['tree']] == treeID &
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2016]
+      }
+      if (!is.na (growth [years == 2015])) {
+        ringWidths [['RW2015at250']] [ringWidths [['tree']] == treeID &
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2015]
+      }  
+      if (!is.na (growth [years == 2014])) {
+        ringWidths [['RW2014at250']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2014]
+      }
+      if (!is.na (growth [years == 2013])) {
+        ringWidths [['RW2013at250']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2013]
+      }
+      if (!is.na (growth [years == 2012])) {
+        ringWidths [['RW2012at250']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2012]
+      }
+      if (!is.na (growth [years == 2011])) {
+        ringWidths [['RW2011at250']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2011]
+      }
+      if (!is.na (growth [years == 2010])) {
+        ringWidths [['RW2010at250']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2010]
+      }
+      if (!is.na (growth [years == 2009])) {
+        ringWidths [['RW2009at250']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2009]
+      }
+    } else if (sampleHeight == 'M') {
+      if (!is.na (growth [years == 2017])) {
+        ringWidths [['RW2017at150']] [ringWidths [['tree']] == treeID &
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2017]
+      }
+      if (!is.na (growth [years == 2016])) {
+        ringWidths [['RW2016at150']] [ringWidths [['tree']] == treeID &
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2016]
+      }
+      if (!is.na (growth [years == 2015])) {
+        ringWidths [['RW2015at150']] [ringWidths [['tree']] == treeID &
                                       ringWidths [['month']] == sampleDate] <- growth [years == 2015]
       }
       if (!is.na (growth [years == 2014])) {
@@ -181,205 +358,46 @@ for (t in 1:4) {
         ringWidths [['RW2009at150']] [ringWidths [['tree']] == treeID & 
                                       ringWidths [['month']] == sampleDate] <- growth [years == 2009]
       }
-      if (!is.na (growth [years == 2008])) {
-        ringWidths [['RW2008at150']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2008]
+    } else if (sampleHeight == 'B') {
+      if (!is.na (growth [years == 2017])) {
+        ringWidths [['RW2017at050']] [ringWidths [['tree']] == treeID &
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2017]
       }
-    } else if (t == 2 | t == 3) {
-      sampleHeight <- substr (temp [['sampleID']], 6, 6)
-      if (sampleHeight == 'A') {
-        if (!is.na (growth [years == 2017])) {
-          ringWidths [['RW2017at200']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2017]
-        }
-        if (!is.na (growth [years == 2016])) {
-          ringWidths [['RW2016at200']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2016]
-        }
-        if (!is.na (growth [years == 2015])) {
-          ringWidths [['RW2015at200']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2015]
-        }
-        if (!is.na (growth [years == 2014])) {
-          ringWidths [['RW2014at200']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2014]
-        }
-        if (!is.na (growth [years == 2013])) {
-          ringWidths [['RW2013at200']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2013]
-        }
-        if (!is.na (growth [years == 2012])) {
-          ringWidths [['RW2012at200']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2012]
-        }
-        if (!is.na (growth [years == 2011])) {
-          ringWidths [['RW2011at200']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2011]
-        }
-        if (!is.na (growth [years == 2010])) {
-          ringWidths [['RW2010at200']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2010]
-        }
-        if (!is.na (growth [years == 2009])) {
-          ringWidths [['RW2009at200']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2009]
-        }
-      } else if (sampleHeight == 'B') {
-        if (!is.na (growth [years == 2017])) {
-          ringWidths [['RW2017at100']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2017]
-        }
-        if (!is.na (growth [years == 2016])) {
-          ringWidths [['RW2016at100']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2016]
-        }
-        if (!is.na (growth [years == 2015])) {
-          ringWidths [['RW2015at100']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2015]
-        }
-        if (!is.na (growth [years == 2014])) {
-          ringWidths [['RW2014at100']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2014]
-        }
-        if (!is.na (growth [years == 2013])) {
-          ringWidths [['RW2013at100']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2013]
-        }
-        if (!is.na (growth [years == 2012])) {
-          ringWidths [['RW2012at100']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2012]
-        }
-        if (!is.na (growth [years == 2011])) {
-          ringWidths [['RW2011at100']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2011]
-        }
-        if (!is.na (growth [years == 2010])) {
-          ringWidths [['RW2010at100']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2010]
-        }
-        if (!is.na (growth [years == 2009])) {
-          ringWidths [['RW2009at100']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2009]
-        }
+      if (!is.na (growth [years == 2016])) {
+        ringWidths [['RW2016at050']] [ringWidths [['tree']] == treeID &
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2016]
       }
-    } else if ( t == 4) {
-      sampleHeight <- substr (temp [['sampleID']], 6, 6)
-      if (sampleHeight == 'A') {
-        if (!is.na (growth [years == 2017])) {
-          ringWidths [['RW2017at250']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2017]
-        }
-        if (!is.na (growth [years == 2016])) {
-          ringWidths [['RW2016at250']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2016]
-        }
-        if (!is.na (growth [years == 2015])) {
-          ringWidths [['RW2015at250']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2015]
-        }  
-        if (!is.na (growth [years == 2014])) {
-          ringWidths [['RW2014at250']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2014]
-        }
-        if (!is.na (growth [years == 2013])) {
-          ringWidths [['RW2013at250']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2013]
-        }
-        if (!is.na (growth [years == 2012])) {
-          ringWidths [['RW2012at250']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2012]
-        }
-        if (!is.na (growth [years == 2011])) {
-          ringWidths [['RW2011at250']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2011]
-        }
-        if (!is.na (growth [years == 2010])) {
-          ringWidths [['RW2010at250']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2010]
-        }
-        if (!is.na (growth [years == 2009])) {
-          ringWidths [['RW2009at250']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2009]
-        }
-      } else if (sampleHeight == 'M') {
-        if (!is.na (growth [years == 2017])) {
-          ringWidths [['RW2017at150']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2017]
-        }
-        if (!is.na (growth [years == 2016])) {
-          ringWidths [['RW2016at150']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2016]
-        }
-        if (!is.na (growth [years == 2015])) {
-          ringWidths [['RW2015at150']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2015]
-        }
-        if (!is.na (growth [years == 2014])) {
-          ringWidths [['RW2014at150']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2014]
-        }
-        if (!is.na (growth [years == 2013])) {
-          ringWidths [['RW2013at150']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2013]
-        }
-        if (!is.na (growth [years == 2012])) {
-          ringWidths [['RW2012at150']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2012]
-        }
-        if (!is.na (growth [years == 2011])) {
-          ringWidths [['RW2011at150']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2011]
-        }
-        if (!is.na (growth [years == 2010])) {
-          ringWidths [['RW2010at150']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2010]
-        }
-        if (!is.na (growth [years == 2009])) {
-          ringWidths [['RW2009at150']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2009]
-        }
-      } else if (sampleHeight == 'B') {
-        if (!is.na (growth [years == 2017])) {
-          ringWidths [['RW2017at050']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2017]
-        }
-        if (!is.na (growth [years == 2016])) {
-          ringWidths [['RW2016at050']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2016]
-        }
-        if (!is.na (growth [years == 2015])) {
-          ringWidths [['RW2015at050']] [ringWidths [['tree']] == treeID &
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2015]
-        }
-        if (!is.na (growth [years == 2014])) {
-          ringWidths [['RW2014at050']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2014]
-        }
-        if (!is.na (growth [years == 2013])) {
-          ringWidths [['RW2013at050']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2013]
-        }
-        if (!is.na (growth [years == 2012])) {
-          ringWidths [['RW2012at050']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2012]
-        }
-        if (!is.na (growth [years == 2011])) {
-          ringWidths [['RW2011at050']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2011]
-        }
-        if (!is.na (growth [years == 2010])) {
-          ringWidths [['RW2010at050']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2010]
-        }
-        if (!is.na (growth [years == 2009])) {
-          ringWidths [['RW2009at050']] [ringWidths [['tree']] == treeID & 
-                                        ringWidths [['month']] == sampleDate] <- growth [years == 2009]
-        }
+      if (!is.na (growth [years == 2015])) {
+        ringWidths [['RW2015at050']] [ringWidths [['tree']] == treeID &
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2015]
+      }
+      if (!is.na (growth [years == 2014])) {
+        ringWidths [['RW2014at050']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2014]
+      }
+      if (!is.na (growth [years == 2013])) {
+        ringWidths [['RW2013at050']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2013]
+      }
+      if (!is.na (growth [years == 2012])) {
+        ringWidths [['RW2012at050']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2012]
+      }
+      if (!is.na (growth [years == 2011])) {
+        ringWidths [['RW2011at050']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2011]
+      }
+      if (!is.na (growth [years == 2010])) {
+        ringWidths [['RW2010at050']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2010]
+      }
+      if (!is.na (growth [years == 2009])) {
+        ringWidths [['RW2009at050']] [ringWidths [['tree']] == treeID & 
+                                      ringWidths [['month']] == sampleDate] <- growth [years == 2009]
       }
     }
-    
-  } # end json file loop
-} # end treatment loop
+  }
+}  # end json file loop
 
 # add November ring width to the ringWidths tibble
 for (i in 1:dim (ringData) [1]) {
