@@ -74,16 +74,18 @@ for (i in 1:length (imagesNames)) {
       as.numeric (treeID) == 33 |
       as.numeric (treeID) == 34 |
       as.numeric (treeID) == 35 |
-      as.numeric (treeID) == 36 |
-      as.numeric (treeID) == 38 |
-      as.numeric (treeID) == 39 |
-      as.numeric (treeID) == 40) {
+      as.numeric (treeID) == 36 #|
+  #     as.numeric (treeID) == 38 |
+  #     as.numeric (treeID) == 39 |
+  #     as.numeric (treeID) == 40
+    ) {
     next
-  } 
-  print (imagesNames [i])
+  }
+  #print (imagesNames [i])
   print (paste0 ('Found:',treeID,'.',treatment,samplingHeight,' ',samplingDate,'.'))
   
   # find appropriate json file with coordinates
+  rm (data) # delete variable to avoid using previous one when no file exists
   for (f in 1:length (jsonFiles)) {
     temp <- fromJSON (file = paste0 (path = '../../../woodAnatomy/Exp2017/ringWidthTRIAD/',jsonFiles [f]))
     if (substr (temp [['sampleID']], 1, 2) == treeID &
@@ -97,8 +99,8 @@ for (i in 1:length (imagesNames)) {
     # print (substr (temp [['sampleID']], 6, 6))
   }
   rm (temp)
-  print (paste0 ('Found json file:',substr (data [['sampleID']], 1, 2),'.',substr (data [['sampleID']], 4, 4),
-                 substr (data [['sampleID']], 6, 6),' ',data [['sampleDate']],'.'))
+  #print (paste0 ('Found json file:',substr (data [['sampleID']], 1, 2),'.',substr (data [['sampleID']], 4, 4),
+  #               substr (data [['sampleID']], 6, 6),' ',data [['sampleDate']],'.'))
   print (paste0 ('json file name: ',jsonFiles [f]))
 
   # get marker coordinates
@@ -107,7 +109,7 @@ for (i in 1:length (imagesNames)) {
   ys <- unlist (data [['ringData']]) [seq (3, len*7, by = 7)]
 
   # open ploting device
-  png (paste0 (substr (imagesNames [i], 1, 18),'_check.png'),
+  png (paste0 ('./checkFigures/',substr (imagesNames [i], 1, 18),'_check.png'),
        width = dim (img) [2],
        height = dim (img) [1])
 
