@@ -15,7 +15,9 @@ library ('tidyverse')
 library ('readxl')
 library ('googledrive')
 library ('rjson')
-#library ('RAPTOR')
+
+# set colour scheme for control, girdled, compressed, double compressed and chilled
+colours <- c ('#91b9a4','#ea7125','#8f2bbc','#d6083b','#0072cf')
 ```
 
 ## Structural carbon estimation for stem sections of the 2017 experiment at Harvard Forest
@@ -104,7 +106,7 @@ allometricData <- read_excel (path = paste0 (getwd (),'/allometricDataExp2017.xl
 setwd ('/home/trademacehr/projects/PlantGrowth/Exp2017/Exp2017Analysis/')
 ```
 
-The estimation of structural carbon gain for each stem section is scaled from the cell wall area of one thinsection sampled at the end of the growing season (3$^{rd}$ of November 2017) and divided into sections grown in each period (e.g., prior, during and after treatment) by association with the proporation of the ring formed at the end of that period. Where the first thinsection did not fully include the necessary rings or had other quality issues, we cut and processed the second microcore for a thinsection. Between the two microcores, we were able to obtain high-quality image data for 319 out of 320 samples (i.e., 4 dates times 40 trees times on average two sampling heights per tree). Only for one tree (tree id: 37; treament: double compression) both samples collected in October for the middle section did not contain a full 2015 ring. For each image, we identified and divided the ring formed in 2017 into 20 micron-wide discrete zones and derived the average anatomical structure for a cell in each zone using ROXAS [@von_arx_roxas_2014]. In particular, we measured cell wall area, cell wall thickness, and tangential and radial cell width. The ring width of the fully formed ring ranged between `r range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/1000` and `r range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [2] / 1000`mm with a mean of `r mean (unique (data [['MRW']] [data [['YEAR']] == 2017]))/1000`mm. Using 20 micron-wide zones, the rings were divided into, at least, `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/20)` sections.
+The estimation of structural carbon gain for each stem section is scaled from the cell wall area of one thinsection sampled at the end of the growing season (3$^{rd}$ of November 2017) and divided into sections grown in each period (e.g., prior, during and after treatment) by association with the proporation of the ring formed at the end of that period. Where the first thinsection did not fully include the necessary rings or had other quality issues, we cut and processed the second microcore for a thinsection. Between the two microcores, we were able to obtain high-quality image data for 239<!-- TR - Image 06.1 M for 2017/08/09 only contains part of the 2017 ring. --> out of 240 samples (i.e., 3 dates <!-- TR - I need to add the 80 images for novemebr to this statistics once I checked them, -->times 40 trees times on average two sampling heights per tree). Only for one tree (tree id: 06; treament: control) both samples collected in October for the middle section did not contain a full 2015 ring. For each image, we identified and divided the ring formed in 2017 into 20 micron-wide discrete zones and derived the average anatomical structure for a cell in each zone using ROXAS [@von_arx_roxas_2014]. In particular, we measured cell wall area, cell wall thickness, and tangential and radial cell width. The ring width of the fully formed ring ranged between `r range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/1000` and `r range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [2] / 1000`mm with a mean of `r mean (unique (data [['MRW']] [data [['YEAR']] == 2017]))/1000`mm. Using 20 micron-wide zones, the rings were divided into, at least, `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/20)` sections.
 
 We also identified the 2017 and 2015 ring and measured their width in images taken prior and during the treatment (e.g., 3$^{rd}$ of July 2017, 10$^{th}$ of August 2017, and 9$^{th}$ of October 2017), as well as at the end of the growing season (3$^{rd}$ of November). All ring width measurements were performed with the Tree Ring Image Analysis and Database (TRIAD). The accuracy of TRIAD is limited by the resolution of the uploaded images; here roughly 1.5 micron. The relative ring width of the 2017 ring in comparison to the 2015 ring was used to estimate the proportion of the ring formed at th end of each period. As growth varies locally around the circumference of the stem, we tried to account for local circumferential variations in growth by standardisation with the 2015 ring width from the same image as follows: 
 
@@ -117,9 +119,9 @@ We used the 2015 ring rather than the adjacent 2016 ring, because of a drought e
 
 ``` {r getRingWidths, echo = FALSE}
 # build data frame with ring width measurements for each of the four thinsections
-ringWidths <- tibble (tree = rep (1:41, 4),
-                      treatment = rep (allometricData [['treatment']], 4),
-                      month = c (rep (7, 41), rep (8, 41), rep (10, 41), rep (11, 41)),
+ringWidths <- tibble (tree = rep (1:40, 4),
+                      treatment = rep (allometricData [['treatment']] [1:40], 4),
+                      month = c (rep (7, 40), rep (8, 40), rep (10, 40), rep (11, 40)),
                       RW2017at250 = NA, RW2017at200 = NA, RW2017at150 = NA, RW2017at100 = NA, RW2017at050 = NA,
                       RW2016at250 = NA, RW2016at200 = NA, RW2016at150 = NA, RW2016at100 = NA, RW2016at050 = NA,
                       RW2015at250 = NA, RW2015at200 = NA, RW2015at150 = NA, RW2015at100 = NA, RW2015at050 = NA,
@@ -138,7 +140,10 @@ setwd ('/media/TREE/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ringWidthTRI
 # list all json output file from TRIAD
 jsonFiles <- list.files (path = './', pattern = '.json')
 
-# loop over json files
+# set loop variable to count files with 2018 year growth
+k <- 0
+
+# loop over json files and read them
 for (j in 1: length (jsonFiles)) {
   
   # read in TRIAD outputs
@@ -146,7 +151,7 @@ for (j in 1: length (jsonFiles)) {
   treeID <- as.numeric (substr (temp [['sampleID']], 1, 2))
   sampleDate <- lubridate::month (temp [['sampleDate']])
   len <- length (temp [['growth']])
-  print (j, treeID, sampleDate)
+  #print (c (j, treeID, sampleDate))
   for (i in 1:len) {
     if (i  == 1) {
       types  <- unlist (temp [['growth']] [i]) [6]
@@ -157,6 +162,12 @@ for (j in 1: length (jsonFiles)) {
       years  <- c (years,  unlist (temp [['growth']] [i]) [7])
       growth <- c (growth, unlist (temp [['growth']] [i]) [9])
     }
+  }
+  if (max (years) == 2017 & growth [years == '2017' & types == 'Normal'] == '0') {
+    print (paste0 ('Error with the year number 2017 for:', jsonFiles [j]))
+  } else if (max (years) >= 2017 & growth [years == '2018' & types == 'Normal'] != '0') {
+    k <- k + 1
+    print (paste0 (jsonFiles [j],' has a 2018, CHECK IT!!!', max (years),' file number ', k))
   }
   growth <- as.numeric (growth [types == 'Normal' & years <= 2017])
   years  <- as.numeric (years  [types == 'Normal' & years <= 2017])
@@ -282,7 +293,7 @@ for (j in 1: length (jsonFiles)) {
                                       ringWidths [['month']] == sampleDate] <- growth [years == 2009]
       }
     }
-  } else if ( t == 4) {
+  } else if (t == 4) {
     sampleHeight <- substr (temp [['sampleID']], 6, 6)
     if (sampleHeight == 'A') {
       if (!is.na (growth [years == 2017])) {
@@ -400,12 +411,12 @@ for (j in 1: length (jsonFiles)) {
 }  # end json file loop
 
 # add November ring width to the ringWidths tibble
-for (i in 1:dim (ringData) [1]) {
-  treeID       <- ringData [['TREE.ID']] [i]
-  treatment    <- ringData [['Treatment']] [i]
-  sampleHeight <- ringData [['samplingHeight']] [i]
+for (i in 1:dim (data) [1]) {
+  treeID       <- as.numeric (substr (data [['TREE']] [i], 1, 2))
+  treatment    <- as.numeric (substr (data [['PLOT']] [i], 2, 2))
+  sampleHeight <- data [['POS']] [i]
   sampleDate <- 11
-  year <- ringData [['year']] [i]
+  year <- data [['YEAR']] [i]
   if (sampleHeight == 'A' & treatment == 4) {
     height <- '250' 
   } else if (sampleHeight == 'A' & (treatment == 2 | treatment == 3)) {
@@ -419,11 +430,8 @@ for (i in 1:dim (ringData) [1]) {
   }
   xTemp <- paste0 ('RW',year,'at',height)
   ringWidths [[xTemp]] [ringWidths [['tree']] == treeID & 
-                        ringWidths [['month']] == sampleDate] <- as.numeric (ringData [['MRW']] [i]) * 1.0e-3
+                        ringWidths [['month']] == sampleDate] <- as.numeric (data [['MRW']] [i]) * 1.0e-3
 }
-
-# Correct for partially measured rings in 2015
-
 
 # Divide into tibble for each sampling date
 ringWidthsJul <- ringWidths [ringWidths [['month']] == 7, ]
@@ -432,11 +440,33 @@ ringWidthsOct <- ringWidths [ringWidths [['month']] == 10, ]
 ringWidthsNov <- ringWidths [ringWidths [['month']] == 11, ]
 #max (ringWidths [4:dim (ringWidths) [2]], na.rm = TRUE)
 
-# Compare mean 2017 growth 
-# mean (colMeans (ringWidthsJul [4:8], na.rm = TRUE))
-# mean (colMeans (ringWidthsAug [4:8], na.rm = TRUE))
-# mean (colMeans (ringWidthsOct [4:8], na.rm = TRUE))
-# mean (colMeans (ringWidthsNov [4:8], na.rm = TRUE))
+# Get mean 2017 growth for each month for all treatments
+mean (colMeans (ringWidthsJul [4:8], na.rm = TRUE))
+mean (colMeans (ringWidthsAug [4:8], na.rm = TRUE))
+mean (colMeans (ringWidthsOct [4:8], na.rm = TRUE))
+mean (colMeans (ringWidthsNov [4:8], na.rm = TRUE))
+
+# Get mean growth per treatment for each month
+colMeans (ringWidthsJul [ringWidthsJul [['treatment']] == 1, 4:8], na.rm = TRUE)
+colMeans (ringWidthsJul [ringWidthsJul [['treatment']] == 2, 4:8], na.rm = TRUE)
+colMeans (ringWidthsJul [ringWidthsJul [['treatment']] == 3, 4:8], na.rm = TRUE)
+colMeans (ringWidthsJul [ringWidthsJul [['treatment']] == 4, 4:8], na.rm = TRUE)
+
+colMeans (ringWidthsAug [ringWidthsAug [['treatment']] == 1, 4:8], na.rm = TRUE)
+colMeans (ringWidthsAug [ringWidthsAug [['treatment']] == 2, 4:8], na.rm = TRUE)
+colMeans (ringWidthsAug [ringWidthsAug [['treatment']] == 3, 4:8], na.rm = TRUE)
+colMeans (ringWidthsAug [ringWidthsAug [['treatment']] == 4, 4:8], na.rm = TRUE)
+
+colMeans (ringWidthsOct [ringWidthsOct [['treatment']] == 1, 4:8], na.rm = TRUE)
+colMeans (ringWidthsOct [ringWidthsOct [['treatment']] == 2, 4:8], na.rm = TRUE)
+colMeans (ringWidthsOct [ringWidthsOct [['treatment']] == 3, 4:8], na.rm = TRUE)
+colMeans (ringWidthsOct [ringWidthsOct [['treatment']] == 4, 4:8], na.rm = TRUE)
+
+colMeans (ringWidthsNov [ringWidthsNov [['treatment']] == 1, 4:8], na.rm = TRUE)
+colMeans (ringWidthsNov [ringWidthsNov [['treatment']] == 2, 4:8], na.rm = TRUE)
+colMeans (ringWidthsNov [ringWidthsNov [['treatment']] == 3, 4:8], na.rm = TRUE)
+colMeans (ringWidthsNov [ringWidthsNov [['treatment']] == 4, 4:8], na.rm = TRUE)
+
 dJul <- density (unlist (ringWidthsJul [4:8]), na.rm = T)
 dAug <- density (unlist (ringWidthsAug [4:8]), na.rm = T)
 dOct <- density (unlist (ringWidthsOct [4:8]), na.rm = T)
@@ -511,12 +541,13 @@ dNov4M <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 4, 6]
 dNov4B <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 4, 8] / 
                            ringWidthsNov [ringWidthsNov [['treatment']] == 4, 18]), na.rm = T)
 
+# Plot density kernel of ring widths in 2017 and 2015 by treatment
 par (mar = c (5,5,3,1))
 layout (matrix (1:4, nrow = 2), height = c (1.5, 1, 1.5, 1))
 plot (dNov1M, col = colours [1], lwd = 2, ylim = c (0, 2), las = 1,
       xlab = 'ring width (mm)',
       ylab = 'density', main = '2017',
-      xlim = c (0, 6))
+      xlim = c (0, 3))
 lines (dNov2A, col = colours [2], lwd = 2)
 lines (dNov2B, col = colours [2], lwd = 2, lty = 2)
 lines (dNov3A, col = colours [3], lwd = 2)
@@ -526,7 +557,7 @@ lines (dNov4B, col = colours [4], lwd = 2, lty = 2)
 lines (dNov4M, col = colours [4], lwd = 2, lty = 3)
 boxplot (at = 6, x = ringWidthsNov [ringWidthsNov [['treatment']] == 1, 6] / 
                            ringWidthsNov [ringWidthsNov [['treatment']] == 1, 16], 
-         col = colours [1], xlim = c (0, 7), ylim = c (0, 6),
+         col = colours [1], xlim = c (0, 7), ylim = c (0, 3),
          axes = FALSE, horizontal = TRUE)
 boxplot (at = 5, x = ringWidthsNov [ringWidthsNov [['treatment']] == 2, 5] / 
                            ringWidthsNov [ringWidthsNov [['treatment']] == 2, 15], 
@@ -608,42 +639,24 @@ f_Jul <- (ringWidthsJul [4:8] / ringWidthsJul [14:18]) * ringWidthsNov [14:18] /
 f_Aug <- (ringWidthsAug [4:8] / ringWidthsAug [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
 f_Oct <- (ringWidthsOct [4:8] / ringWidthsOct [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
 
-# Correct the samples with only a partial 2015 ring to use 2016
-# Alternatively, I could set these to NAs
-# TR - I need to deal with November samples that only have a partial measurement of the 2015 ring (06.1M, 11.2A, 24.4A, 24.4B, 41.2A, 41.2B) or are completely incorrect (tree 01.1M and 24.4A) 
-for (iTree in c (8, 35, 41)) {
-  if (iTree == 8) {iCol <- 1} else if (iTree == 35) {iCol <- 4} else if (iTree == 41) {iCol <- c (2, 4)}
-  f_Jul [iTree, iCol] <- (ringWidthsJul [iTree, 3+iCol] / ringWidthsJul [iTree, 8+iCol]) * 
-                          ringWidthsNov [iTree, 8+iCol] / ringWidthsNov [iTree, 3+iCol] 
-}
-for (iTree in c (4, 37, 41)) {
-  if (iTree == 4) {iCol <- 3} else if (iTree == 37) {iCol <- 5} else if (iTree == 41) {iCol <- 2}
-  f_Aug [iTree, iCol] <- (ringWidthsAug [iTree, 3+iCol] / ringWidthsAug [iTree, 8+iCol]) * 
-                          ringWidthsNov [iTree, 8+iCol] / ringWidthsNov [iTree, 3+iCol]
-}
-for (iTree in c (6, 24, 37, 41)) {
-  if (iTree == 6) {iCol <- 3} else if (iTree == 24) {iCol <- c (1, 3, 5)} else if (iTree == 37) {iCol <- c (3, 5)} else if (iTree == 41) {iCol <- c (2, 4)}
-  f_Oct [iTree, iCol] <- (ringWidthsOct [iTree, 3+iCol] / ringWidthsOct [iTree, 8+iCol]) * 
-                          ringWidthsNov [iTree, 8+iCol] / ringWidthsNov [iTree, 3+iCol]
-}
+# Samples with only a partial 2015 ring are currently set to NAs
+# TR - I need to deal with November samples that only have a partial measurement of the 2015 ring (06.1M, 11.2A, 24.4A, 24.4B)
 
 # Aggregate the fractional growth by treatment
-f_Agg <- aggregate (f_Jul, mean, by = list (predictors [['treatment']]), na.rm = TRUE)
-f_Agg <- rbind (f_Agg, aggregate (f_Aug, mean, by = list (predictors [['treatment']]), na.rm = TRUE))
-f_Agg <- rbind (f_Agg, aggregate (f_Oct, mean, by = list (predictors [['treatment']]), na.rm = TRUE))
+f_Agg <- aggregate (f_Jul, mean, by = list (allometricData [['treatment']] [1:40]), na.rm = TRUE)
+f_Agg <- rbind (f_Agg, aggregate (f_Aug, mean, by = list (allometricData [['treatment']] [1:40]), na.rm = TRUE))
+f_Agg <- rbind (f_Agg, aggregate (f_Oct, mean, by = list (allometricData [['treatment']] [1:40]), na.rm = TRUE))
 f_Agg <- cbind (f_Agg, c(rep (7, 4), rep (8, 4), rep (10,4)))
 names (f_Agg) <- c ('treatment', names (f_Agg [,2:6]),'month')
 ```
 
-After we associated each section with a growth period, we scaled the cell wall area to the entire circumference of the stem section. The ROXAS outputs provide also the average tangential cell width, which is used to scale the average cell wall area to the entire circumference of the stem. To scale the circumeferential cell wall area to a cell wall volume per stem section, we assume that the measured area is representative circumferentially and longitudinally for the stem section. We also assume that tracheids take up ??? % of the volume, hence we can simply multiply the circumferential cell wall area with the height of the stem section (h = 10cm) and a factor to correct for other types of cells (e.g., rays and resin ducts). Once the cell wall volume for each ring portion of the stem section is known, they are multiplied by a fixed cell wall density ($kgDM \, m^{−3}$) and carbon content to estimate the amount of carbon sequestered in structural biomass for each period.
+After we associated each 20-micron wide zone with a growth period, we scaled the cell wall area to the entire circumference of the stem section. Using ROXAS we also measured the average tangential cell width, which is used to scale the average cell wall area to the entire circumference of the stem. To scale the circumeferential cell wall area to a cell wall volume per stem section, we assume that the measured area is representative circumferentially and taraplas for the stem section. We also assume that tracheids take up ??? % of the volume, hence we can simply multiply the circumferential cell wall area with the height of the stem section (h = 10cm) and a factor to correct for other types of cells (e.g., rays and resin ducts). Once the cell wall volume for each ring portion of the stem section is known, they are multiplied by a fixed cell wall density (1.489 $kgDM \, m^{−3}$) and carbon content of 49.74% for white pine [@lamlom_reassessment_2003] to estimate the amount of carbon sequestered in structural biomass for each period.
 
 ## Dividing cell wall area by period of formation
 
 To associate each 20 micron-wide zone with the ring increments between two sampling dates, we estimated the proportion of the ring formed betweem each set of two sampling dates. We measured the ring widths of images of thinsections for each stem section using the Tree Ring Image Analysis and Database (TRIAD) tool kit. To estimate the fraction of the 2017 ring growth at each sampling date ($f_{2017,i}$) while accounting for local difference in growth, we measured the 2015 and 2017 ring width in each thinsection image for the sampling date $i$ ($rw_{2017,i}$) and adjusted it as follows:
 
-
-
-On average, `r round (mean (unlist (f_Jul), na.rm = TRUE) * 100.0, 1)`%, `r round (mean (unlist (f_Aug), na.rm = TRUE) * 100.0, 1)`%, and `r round (mean (unlist (f_Oct), na.rm = TRUE) * 100.0, 1)`% of the ring width had respectively grown in July, August and October. Thus, two thirds of the ring widths was already formed before the start of the treatment and ring width growth had finished by Ocotober. However, there were substantial differences between treatments and sampling heights.  
+On average, `r round (mean (unlist (f_Jul), na.rm = TRUE) * 100.0, 1)`%, `r round (mean (unlist (f_Aug), na.rm = TRUE) * 100.0, 1)`%, and `r round (mean (unlist (f_Oct), na.rm = TRUE) * 100.0, 1)`% of the ring width had respectively grown in July, August and October. Thus, two thirds of the ring widths was already formed before the start of the treatment and ring width growth had <i>de facto</i> finished by Ocotober. However, there were substantial differences between treatments and sampling heights.  
 
 ```{r tableWithNumberOfSamples, echo = FALSE, results = 'asis'}
 # check how many trees with data I have for each year
