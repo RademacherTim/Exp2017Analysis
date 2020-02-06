@@ -780,7 +780,7 @@ data <- add_column (data, zonalCWA = NA)
 for (i in 1:dim (data) [1]) {
     
   # if not 2017, skip
-  if (data [['YEAR']] != 2017) next
+  if (data [['YEAR']] [i] != 2017) next
   
   # get treeID, treatment and sample height
   treeID <- as.numeric (substr (data [['TREE']] [i], 1, 2))
@@ -803,7 +803,7 @@ for (i in 1:dim (data) [1]) {
     if (sampleHeight == 'A') {
       circumference <- allometricData [['cbh250']] [allometricData [['tree']] == treeID] * 1.0e4  
     } else if (sampleHeight == 'B') {
-      circumference <- allometricData [['cbh050']] [allometricData [['tree']] == treeID] * 1.0e4
+      circumference <- allometricData [['cbh50']] [allometricData [['tree']] == treeID] * 1.0e4
     }
   }
   
@@ -817,15 +817,73 @@ for (i in 1:dim (data) [1]) {
 ```
 
 ```{r sumZonalCWA, echo = FALSE}
+# create circumferential cell wall area tibble 
+circumferentialData <- tibble (tree = rep (1:40, 4),
+                               period = c (rep (as_date ('2017-07-03'), 40), 
+                                           rep (as_date ('2017-08-09'), 40), 
+                                           rep (as_date ('2017-10-09'), 40), 
+                                           rep (as_date ('2017-11-03'), 40)),
+                               CWAat050 = NA, CWAat100 = NA, CWAat150 = NA, CWAat200 = NA, CWAat250 = NA) 
+
 # loop over trees
 for (iTree in 1:40) {
   
+  # get treatment
+  treatment <- unique (as.numeric (substr (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree], 2, 2)))
+  
   # loop over periods
-  for (date in as_date (c ('','','',''))) {
+  for (iDate in as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03'))) {
     
-    # sum zonal cell wall area for each period
-    sum (data [['zonalCWA']] [data [['TREE']]], na.rm = T)
-    
+    # check which treatment to make sure we get the height right
+    if (treatment == 1) {
+      
+      # condition for only height
+      con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & data [['period']] == iDate
+      
+      # sum zonal cell wall area for each period
+      circumferentialData [['CWAat150']] [circumferentialData [['tree']] == iTree] <- sum (data [['zonalCWA']] [con], na.rm = T)
+    } else if (treatment == 2 | treatment == 3) {
+
+      # condition for above
+      con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
+             data [['period']] == iDate &
+             data [['POS']] == 'A'
+     
+      # sum zonal cell wall area for each period
+      circumferentialData [['CWAat200']] [circumferentialData [['tree']] == iTree] <- sum (data [['zonalCWA']] [con], na.rm = T)
+      
+      # condition for above
+      con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
+             data [['period']] == iDate &
+             data [['POS']] == 'B'
+      
+      # sum zonal cell wall area for each period
+      circumferentialData [['CWAat100']] [circumferentialData [['tree']] == iTree] <- sum (data [['zonalCWA']] [con], na.rm = T)
+    } else if (treatment == 4) {
+      # condition for above
+      con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
+             data [['period']] == iDate &
+             data [['POS']] == 'A'
+     
+      # sum zonal cell wall area for each period
+      circumferentialData [['CWAat250']] [circumferentialData [['tree']] == iTree] <- sum (data [['zonalCWA']] [con], na.rm = T)
+      
+      # condition for middle
+      con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
+             data [['period']] == iDate &
+             data [['POS']] == 'M'
+      
+      # sum zonal cell wall area for each period
+      circumferentialData [['CWAat150']] [circumferentialData [['tree']] == iTree] <- sum (data [['zonalCWA']] [con], na.rm = T)
+      
+      # condition for above
+      con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
+             data [['period']] == iDate &
+             data [['POS']] == 'B'
+      
+      # sum zonal cell wall area for each period
+      circumferentialData [['CWAat150']] [circumferentialData [['tree']] == iTree] <- sum (data [['zonalCWA']] [con], na.rm = T)
+    }
   }
 }
 ```
