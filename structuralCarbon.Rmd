@@ -769,7 +769,18 @@ for (i in 1:dim (data) [1]) {
 
 ### Scaling measured cell wall area to stem section 
 
-After we associated each zone with a growth period, we scaled up from the zone cell dimensions and characteristics to the entire circumference of the stem section. Indeed, we multiplied the mean zonal cell wall area by the number of times the average zonal tangential cell width fitted into the entire circumference of each stem section. To further scale the total circumferential cell wall area to a cell wall volume per stem section, we assume that the measured cell wall area is representative taraplas for the stem section, hence we can simply multiply it with the height of the stem section (h = 10cm). The assumptions circumferential and taraplas representativeness of zonal averages derived from tracheids do not account for other types of tissue than tracheids, such as rays and resin ducts. However, since there was no clear treatment effect on the occurance of resin ducts or rays cells, this assumption may only cause a slight over-estimation of structural carbon but not bias difference in carbon sequestration in strucutre between treatments. 
+After we associated each zone with a growth period, we scaled up from the zone cell dimensions and characteristics to the entire circumference of the stem section. Indeed, we multiplied the mean zonal cell wall area by the number of times the average zonal tangential cell width ($w_{t,s}$) fitted into the entire circumference of each stem section. To account for the bark (average bark thickness of 0.8 cm) we reduced the circumference, as measured at the beginning of the experiment ($CBH_{outer,s}$) according to the following equation:
+
+$$
+CBH_{s} = CBH_{outer,s} − 0.8 cm \times 2 \pi
+$$
+To further scale the total circumferential cell wall area to a cell wall volume per stem section, we assume that the measured cell wall area ($CWA_{s,p}$) is representative taraplas for the stem section, hence we can simply multiply it with the height of the stem section (h = 10cm). 
+
+$$
+V_{CW,s,p} = \frac {CBH_{s}} {w_{t,s}} \times h_{s} \times \bar {CWA}
+$$
+
+The assumptions circumferential and taraplas representativeness of zonal averages derived from tracheids do not account for other types of tissue than tracheids, such as rays and resin ducts. However, since there was no clear treatment effect on the occurance of resin ducts or rays cells, this assumption may only cause a slight over-estimation of structural carbon but not bias difference in carbon sequestration in strucutre between treatments. 
 
 ``` {r scalingToCircumference , echo = FALSE}
 # add cell width column to data
@@ -837,75 +848,120 @@ for (iTree in 1:40) {
     # check which treatment to make sure we get the height right
     if (treatment == 1) {
       
-      # condition for only height
-      con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & data [['period']] == iDate
+      # condition for only height being "M"
+      con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
+             data [['period']]                           == iDate & 
+             data [['YEAR']]                             == 2017
       
-      # sum zonal cell wall area for each period
-      circumferentialData [['CWAat150']] [circumferentialData [['tree']] == iTree] <- sum (data [['zonalCWA']] [con], na.rm = T)
+      # sum zonal cell wall area (mm2) for each period
+      circumferentialData [['CWAat150']] [circumferentialData [['tree']]   == iTree &
+                                          circumferentialData [['period']] == iDate] <- sum (data [['zonalCWA']] [con], na.rm = T) / 1.0e6
     } else if (treatment == 2 | treatment == 3) {
 
       # condition for above
       con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
-             data [['period']] == iDate &
-             data [['POS']] == 'A'
+             data [['period']]                           == iDate &
+             data [['POS']]                              == 'A'   & 
+             data [['YEAR']]                             == 2017
      
-      # sum zonal cell wall area for each period
-      circumferentialData [['CWAat200']] [circumferentialData [['tree']] == iTree] <- sum (data [['zonalCWA']] [con], na.rm = T)
+      # sum zonal cell wall area (mm2) for each period
+      circumferentialData [['CWAat200']] [circumferentialData [['tree']]   == iTree &
+                                          circumferentialData [['period']] == iDate] <- sum (data [['zonalCWA']] [con], na.rm = T) / 1.0e6
       
       # condition for above
       con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
-             data [['period']] == iDate &
-             data [['POS']] == 'B'
+             data [['period']]                           == iDate &
+             data [['POS']]                              == 'B'   & 
+             data [['YEAR']]                             == 2017
       
-      # sum zonal cell wall area for each period
-      circumferentialData [['CWAat100']] [circumferentialData [['tree']] == iTree] <- sum (data [['zonalCWA']] [con], na.rm = T)
+      # sum zonal cell wall area (mm2) for each period
+      circumferentialData [['CWAat100']] [circumferentialData [['tree']]   == iTree &
+                                          circumferentialData [['period']] == iDate] <- sum (data [['zonalCWA']] [con], na.rm = T) / 1.0e6
     } else if (treatment == 4) {
       # condition for above
       con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
-             data [['period']] == iDate &
-             data [['POS']] == 'A'
+             data [['period']]                           == iDate &
+             data [['POS']]                              == 'A'   & 
+             data [['YEAR']]                             == 2017
      
-      # sum zonal cell wall area for each period
-      circumferentialData [['CWAat250']] [circumferentialData [['tree']] == iTree] <- sum (data [['zonalCWA']] [con], na.rm = T)
+      # sum zonal cell wall area (mm2) for each period
+      circumferentialData [['CWAat250']] [circumferentialData [['tree']]   == iTree &
+                                          circumferentialData [['period']] == iDate] <- sum (data [['zonalCWA']] [con], na.rm = T) / 1.0e6
       
       # condition for middle
       con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
-             data [['period']] == iDate &
-             data [['POS']] == 'M'
+             data [['period']]                           == iDate &
+             data [['POS']]                              == 'M'   & 
+             data [['YEAR']]                             == 2017
       
-      # sum zonal cell wall area for each period
-      circumferentialData [['CWAat150']] [circumferentialData [['tree']] == iTree] <- sum (data [['zonalCWA']] [con], na.rm = T)
+      # sum zonal cell wall area (mm2) for each period
+      circumferentialData [['CWAat150']] [circumferentialData [['tree']]   == iTree &
+                                          circumferentialData [['period']] == iDate] <- sum (data [['zonalCWA']] [con], na.rm = T) / 1.0e6
       
       # condition for above
       con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
-             data [['period']] == iDate &
-             data [['POS']] == 'B'
+             data [['period']]                           == iDate &
+             data [['POS']]                              == 'B'   & 
+             data [['YEAR']]                             == 2017
       
-      # sum zonal cell wall area for each period
-      circumferentialData [['CWAat150']] [circumferentialData [['tree']] == iTree] <- sum (data [['zonalCWA']] [con], na.rm = T)
+      # sum zonal cell wall area (mm2) for each period
+      circumferentialData [['CWAat150']] [circumferentialData [['tree']]   == iTree &
+                                          circumferentialData [['period']] == iDate] <- sum (data [['zonalCWA']] [con], na.rm = T) / 1.0e6
     }
   }
 }
+
+# stem section height (m)
+h <- 0.1
+
+# create tibble for volume data
+volumeData <- tibble (tree = rep (1:40, 4),
+                      period = c (rep (as_date ('2017-07-03'), 40), 
+                                  rep (as_date ('2017-08-09'), 40), 
+                                  rep (as_date ('2017-10-09'), 40), 
+                                  rep (as_date ('2017-11-03'), 40)),
+                      CWVat050 = NA, CWVat100 = NA, CWVat150 = NA, CWVat200 = NA, CWVat250 = NA)
+
+# cell wall volume (mm3)
+volumeData [3:7] <- circumferentialData [3:7] * h * 1000
 ```
 
-Finally, the cell wall volume for each ring portion of the stem section is known, they are multiplied by a fixed cell wall density (1.489 $kgDM \, m^{−3}$ Scots pine from @plotze_porosity_2011) and carbon content of 49.74% for white pine [@lamlom_reassessment_2003] to estimate the amount of carbon sequestered in structural biomass for each period.
-
-The cell wall area increment is scaled geometrically to the stem section’s cell wall volume increment in two steps, assuming that wood formed homogenously around the stem in each section and the above estimate is representative of the formed wood for each section and period. Using the stem section’s circumference, as measured at the beginning of the experiment ($CBH_{outer,s}$). First, the circumference is reduce assuming a bark thickness of 0.8 cm according to the following equation:
+Finally, the cell wall volume for each ring portion of the stem section ($V_{CW,s,p}$) is multiplied by a fixed cell wall density ($\rho_{CW}$) and carbon content () to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in g). Here, we use a cell wall density of `r rhoCW` $kgDM \, m^{−3}$ (measured for Scots pine by @plotze_porosity_2011) and carbon content of 49.74% for white pine [@lamlom_reassessment_2003].
 
 $$
-CBH_{s} = CBH_{outer,s} − 0.8 cm \times 2 \pi
+M_{s,p} = V_{CW,s,p} \times \rho_{CW} \times 49.74\%
 $$
 
-Second, the reduced stem section circumference is divided by the radial width of the thinsection ($w_{r,s}$) and multiplied by the cell wall area increment () and the stem section height (here h=0.1m) to estimate the total volume of newly formed cell wall in each section and period ($V_{CW,s}$).
+``` {r dryMatterAndCarbonContent, echo = FALSE}
+# create tibble for dry matter in stem section
+dryMatterData <- tibble (tree = rep (1:40, 4),
+                         period = c (rep (as_date ('2017-07-03'), 40), 
+                                     rep (as_date ('2017-08-09'), 40), 
+                                     rep (as_date ('2017-10-09'), 40), 
+                                     rep (as_date ('2017-11-03'), 40)),
+                         DMat050 = NA, DMat100 = NA, DMat150 = NA, DMat200 = NA, DMat250 = NA)
 
-$$
-V_{CW,s,p} = \frac {CBH_{s}} {w_{r,s}} \times h_{s}
-$$
+# cell wall density (kg m-3)
+rhoCW <- 1.489
 
-Finally, the cell wall volume of each section is multiplied with a cell wall density ($\rho_{CW}$) of 1.489 $kg m^{3}$ - a best estimate based on data for comparable softwoods, such as Scots pine, by @plotze_porosity_2011 - and an assumed carbon content of 49.74% for white pine [@lamlom_reassessment_2003] to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in g).
+# estimate dry matter
+dryMatterData [3:7] <- (volumeData [3:7] / 1.0e9) * rhoCW * 1.0e3
 
-$$
-M_{s,p} = V_{CW,s,p} \times \rho_{CW} \times 0.5
-$$
+# create tibble for dry matter in stem section
+carbonContentData <- tibble (tree = rep (1:40, 4),
+                             period = c (rep (as_date ('2017-07-03'), 40), 
+                                         rep (as_date ('2017-08-09'), 40), 
+                                         rep (as_date ('2017-10-09'), 40), 
+                                         rep (as_date ('2017-11-03'), 40)),
+                             structuralCGainat050 = NA, structuralCGainat100 = NA, 
+                             structuralCGainat150 = NA, structuralCGainat200 = NA, 
+                             structuralCGainat250 = NA)
+
+# Carbon content of white pine wood (%)
+CC <- 49.74
+
+# estimate dry matter
+carbonContentData [3:7] <- dryMatterData [3:7] * CC / 100.0
+```
 
 # References
