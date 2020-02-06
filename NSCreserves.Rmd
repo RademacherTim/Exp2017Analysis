@@ -1,5 +1,5 @@
 ---
-title: 'SI - nonstructural carbon reserves'
+title: 'Scaling nonstructural carbon reserves'
 author: Tim Rademacher
 date: "06/09/2019"
 output: html_document
