@@ -780,11 +780,12 @@ $$
 V_{CW,s,p} = \frac {CBH_{s}} {w_{t,s}} \times h_{s} \times \bar {CWA}
 $$
 
-The assumptions circumferential and taraplas representativeness of zonal averages derived from tracheids do not account for other types of tissue than tracheids, such as rays and resin ducts. However, since there was no clear treatment effect on the occurance of resin ducts or rays cells, this assumption may only cause a slight over-estimation of structural carbon but not bias difference in carbon sequestration in strucutre between treatments. 
+The assumptions circumferential and taraplas representativeness of zonal averages derived from tracheids do not account for other types of tissue than tracheids, such as rays and resin ducts. Tracheids make up 93% of the volume of wood in white pines with resin ducts and rays  accounting for 1% and 6%, respectively [@brown_textbook_1948]. However, since there was no clear treatment effect on the occurance of resin ducts or rays cells, this assumption may only cause a slight over-estimation of structural carbon but not bias difference in carbon sequestration in strucutre between treatments. 
 
 ``` {r scalingToCircumference , echo = FALSE}
 # add cell width column to data
-data <- add_column (data, cellWidth = NA)
+data <- add_column (data, cellRadWidth = NA)
+data <- add_column (data, cellTanWidth = NA)
 data <- add_column (data, zonalCWA = NA)
 
 # find multiplication factor for each radial band
@@ -798,8 +799,9 @@ for (i in 1:dim (data) [1]) {
   sampleHeight <- substr (data [['TREE']] [i], 3, 3)
   treatment <- as.numeric (substr (data [['PLOT']] [i], 2, 2))
 
-  # calculate zonal average tangential cell width
-  data [['cellWidth']] [i] <- data [['DRAD']] [i] + 2 * data [['CWTTAN']] [i] 
+  # calculate zonal average tangential and radial cell width
+  data [['cellTanWidth']] [i] <- data [['DRAD']] [i] + 2 * data [['CWTTAN']] [i] 
+  data [['cellRadWidth']] [i] <- data [['DTAN']] [i] + 2 * data [['CWTRAD']] [i] 
   
   # get circumference (microns) of the appropriate stem section
   if (sampleHeight == 'M') {
@@ -819,7 +821,7 @@ for (i in 1:dim (data) [1]) {
   }
   
   # determine multiplier
-  multiplier <- circumference / data [['cellWidth']] [i]
+  multiplier <- circumference / data [['cellTanWidth']] [i]
   
   # calculate new zonal cell wall area (microns2)
   data [['zonalCWA']] [i] <- data [['CWA']] [i] * multiplier
@@ -905,7 +907,7 @@ for (iTree in 1:40) {
              data [['YEAR']]                             == 2017
       
       # sum zonal cell wall area (mm2) for each period
-      circumferentialData [['CWAat150']] [circumferentialData [['tree']]   == iTree &
+      circumferentialData [['CWAat050']] [circumferentialData [['tree']]   == iTree &
                                           circumferentialData [['period']] == iDate] <- sum (data [['zonalCWA']] [con], na.rm = T) / 1.0e6
     }
   }
