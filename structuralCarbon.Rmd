@@ -16,6 +16,8 @@ library ('lubridate')
 library ('readxl')
 library ('googledrive')
 library ('rjson')
+library ('plotrix')
+library ('zoo')
 
 # Specify the user:
 options (gargle_oauth_email = "tr625@nau.edu")
@@ -700,7 +702,6 @@ numberOfSamples [3, ] <- round (numberOfSamples [3, ], 2)
 kable (numberOfSamples, caption = 'Number of measured growth ring widths for all trees out of a potential 320 thinsection images.')
 ```
 
-
 On average, `r round (mean (unlist (f_Jul), na.rm = TRUE) * 100.0, 1)`%, `r round (mean (unlist (f_Aug), na.rm = TRUE) * 100.0, 1)`%, and `r round (mean (unlist (f_Oct), na.rm = TRUE) * 100.0, 1)`% of the ring width had respectively grown in July, August and October. Thus, a bit more than half of the ring widths was already formed before the start of the treatment and ring width growth had <i>de facto</i> finished by Ocotober. However, there were substantial differences between treatments and sampling heights for August and October.  
 
 ### Associate cell wall area in final ring with period
@@ -748,17 +749,14 @@ for (i in 1:dim (data) [1]) {
       fOct <- f_Oct [treeID, 5]
     }
   }
-  
-  # calculate the zones fractional position in the ring
-  fractionOfRing <- data [['RADDISTR.BAND']] [i] / data [['MRW']] [i]
-  
+
   # associate fractional position with a period
   if (!is.na (fJul) & !is.na (fAug) & !is.na (fOct)) {
-    if (fractionOfRing <= fJul) {
+    if (data [['RRADDISTR']] [i] <= fJul) {
       data [['period']] [i] <- as_date ('2017-07-03')
-    } else if (fractionOfRing <= fAug) {
+    } else if (data [['RRADDISTR']] [i]  <= fAug) {
       data [['period']] [i] <- as_date ('2017-08-09')
-    } else if (fractionOfRing <= fOct) {
+    } else if (data [['RRADDISTR']] [i]  <= fOct) {
       data [['period']] [i] <- as_date ('2017-10-09')
     } else {
       data [['period']] [i] <- as_date ('2017-11-03')
@@ -780,7 +778,7 @@ $$
 V_{CW,s,p} = \frac {CBH_{s}} {w_{t,s}} \times h_{s} \times \bar {CWA}
 $$
 
-The assumptions circumferential and taraplas representativeness of zonal averages derived from tracheids do not account for other types of tissue than tracheids, such as rays and resin ducts. Tracheids make up 93% of the volume of wood in white pines with resin ducts and rays  accounting for 1% and 6%, respectively [@brown_textbook_1948]. However, since there was no clear treatment effect on the occurance of resin ducts or rays cells, this assumption may only cause a slight over-estimation of structural carbon but not bias difference in carbon sequestration in strucutre between treatments. 
+The assumptions circumferential and taraplas representativeness of zonal averages derived from tracheids do not account for other types of tissue than tracheids, such as rays and resin ducts. Tracheids make up 93% of the volume of wood in white pines with resin ducts and rays  accounting for 1% and 6%, respectively [@brown_textbook_1948]. However, since there was no clear treatment effect on the occurance of resin ducts or rays cells, this assumption may only cause a slight over-estimation of structural carbon but no bias in carbon sequestration in strucutre between treatments. 
 
 ``` {r scalingToCircumference , echo = FALSE}
 # add cell width column to data
@@ -964,6 +962,216 @@ CC <- 49.74
 
 # estimate dry matter
 carbonContentData [3:7] <- dryMatterData [3:7] * CC / 100.0
+```
+
+### Treatment effects on anatomy
+
+``` {r plotCWT, echo= FALSE}
+# add new column to data
+data <- add_column (data, formationDate = NA)
+
+# set window for rolling mean
+window <- 100
+
+# estimate date of formation for each zone
+for (iDate in as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03'))) {
+  
+  # loop over trees
+  for (iTree in 1:40) {
+    
+    # get treatment and determine heights
+    if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T1') {
+      heights <-  c ('M')
+    } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T2' |
+               unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T3' ) {
+      heights <-  c ('A', 'B')
+    } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T4') {
+      heights <-  c ('A', 'M', 'B')
+    }
+    
+    # loop over sampling heights
+    for (iHeight in heights) {
+      
+      if (iTree < 10) {
+        treeID <- paste0 ('0',iTree,iHeight)
+      } else {
+        treeID <- paste0 (iTree, iHeight)
+      }
+      # determine number of zones associated with each date
+      condition <- data [['YEAR']] == 2017 & data [['TREE']] == treeID & data [['period']] == iDate
+      numberOfZones <- sum (condition, na.rm = TRUE)
+      
+      # Divide period into equally into numberOfZones and associate a date of formation with each
+      if (as_date (iDate) == '2017-07-03') {
+        startDate <- as_date ('2017-03-01')
+      } else if (as_date (iDate) == '2017-08-09') {
+        startDate <- as_date ('2017-07-04')
+      } else if (as_date (iDate) == '2017-10-09') {
+        startDate <- as_date ('2017-08-10')
+      } else if (as_date (iDate) == '2017-11-03') {
+        startDate <- as_date ('2017-10-10')
+      }
+      if (numberOfZones > 0) {
+        incr <- as.numeric (as_date (iDate) - startDate) / (numberOfZones - 1)
+        data [['formationDate']] [condition] <- seq (startDate, as_date (iDate), by = incr)
+      }  
+    } # close height loop
+    
+  } # close tree loop
+  
+} # close period loop
+
+# plot CWT of the 2017 ring for each period and tree
+par (mar = c (5,5,1,1))
+par (mfrow = c (1, 2))
+plot (x = as_date (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] == '01M']),
+      y = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] == '01M'],
+      las = 1, col = 'white', typ = 'l',
+      ylab = 'cell wall thickness (microns)',
+      xlab = 'time',
+      xlim = as_date (c ('2017-03-01','2017-11-03')),
+      ylim = c (2, 6))
+# plot all control trees
+treeLabels <- c ('01M','03M','04M','06M','07M','09M','18M','30M','31M','36M')
+controlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                          by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                          mean)
+lines (x = as_date (controlMean [, 1]),
+       y = rollmean (controlMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [1], lwd = 2)
+# above the girld 
+treeLabels <- c ('05A','11A','15A','16A','19A','23A','29A','35A','39A','40A')
+aboveGirdlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                             by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                             mean)
+lines (x = as_date (aboveGirdlMean [, 1]),
+       y = rollmean (aboveGirdlMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [2], lwd = 2)
+# below the girld 
+treeLabels <- c ('05B','11B','15B','16B','19B','23B','29B','35B','39B','40B')
+belowGirdlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                             by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                             mean)
+lines (x = as_date (belowGirdlMean [, 1]),
+       y = rollmean (belowGirdlMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [2], lwd = 2, lty = 2)
+# above the compression
+treeLabels <- c ('10A','12A','13A','17A','20A','21A','28A','32A','33A','38A')
+aboveComprMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                             by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                             mean)
+lines (x = as_date (aboveComprMean [, 1]),
+       y = rollmean (aboveComprMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [3], lwd = 2)
+# below the compression
+treeLabels <- c ('10B','12B','13B','17B','20B','21B','28B','32B','33B','38B')
+belowComprMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                             by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                             mean)
+lines (x = as_date (belowComprMean [, 1]),
+       y = rollmean (belowComprMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [3], lwd = 2, lty = 2)
+# above the doublecompression
+treeLabels <- c ('02A','08A','14A','22A','24A','25A','26A','27A','34A','37A')
+aboveDCompMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                              by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                              mean)
+lines (x = as_date (aboveDCompMean [, 1]),
+       y = rollmean (aboveDCompMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [4], lwd = 2)
+# between the double compression
+treeLabels <- c ('02M','08M','14M','22M','24M','25M','26M','27M','34M','37M')
+betweenDCompMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                               by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                               mean)
+lines (x = as_date (betweenDCompMean [, 1]),
+       y = rollmean (betweenDCompMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [4], lwd = 2, lty = 3)
+# below the double compression
+treeLabels <- c ('02B','08B','14B','22B','24B','25B','26B','27B','34B','37B')
+belowDCompMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                              by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                              mean)
+lines (x = as_date (belowDCompMean [, 1]),
+       y = rollmean (belowDCompMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [4], lwd = 2, lty = 2)
+legend (x = as_date ('2017-04-01'), lty = 1, lwd = 2,
+        y = 6, box.lty = 0, bg = 'transparent', col = colours, legend = c ('control','girdled','compressed','double compression'))
+legend (x = as_date ('2017-03-01'), lty = 2, lwd = 2,
+        y = 6, box.lty = 0, bg = 'transparent', col = colours, legend = c ('','','',''))
+text (x = as_date (c ('2017-03-15','2017-04-15')), 
+      y = 6, labels = c ('below','above'))
+
+# plot cell size of the 2017 ring for each period and tree
+par (mar = c (5,5,1,1))
+plot (x = as_date (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] == '01M']),
+      y = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] == '01M'],
+      las = 1, col = 'white', typ = 'l',
+      ylab = 'radial cell width (microns)',
+      xlab = 'time',
+      xlim = as_date (c ('2017-03-01','2017-11-03')),
+      ylim = c (10, 50))
+# plot all control trees
+treeLabels <- c ('01M','03M','04M','06M','07M','09M','18M','30M','31M','36M')
+controlMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                          by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                          mean)
+lines (x = as_date (controlMean [, 1]),
+       y = rollmean (controlMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [1], lwd = 2)
+# above the girld 
+treeLabels <- c ('05A','11A','15A','16A','19A','23A','29A','35A','39A','40A')
+aboveGirdlMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                             by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                             mean)
+lines (x = as_date (aboveGirdlMean [, 1]),
+       y = rollmean (aboveGirdlMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [2], lwd = 2)
+# below the girld 
+treeLabels <- c ('05B','11B','15B','16B','19B','23B','29B','35B','39B','40B')
+belowGirdlMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                             by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                             mean)
+lines (x = as_date (belowGirdlMean [, 1]),
+       y = rollmean (belowGirdlMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [2], lwd = 2, lty = 2)
+# above the compression
+treeLabels <- c ('10A','12A','13A','17A','20A','21A','28A','32A','33A','38A')
+aboveComprMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                             by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                             mean)
+lines (x = as_date (aboveComprMean [, 1]),
+       y = rollmean (aboveComprMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [3], lwd = 2)
+# below the compression
+treeLabels <- c ('10B','12B','13B','17B','20B','21B','28B','32B','33B','38B')
+belowComprMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                             by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                             mean)
+lines (x = as_date (belowComprMean [, 1]),
+       y = rollmean (belowComprMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [3], lwd = 2, lty = 2)
+# above the doublecompression
+treeLabels <- c ('02A','08A','14A','22A','24A','25A','26A','27A','34A','37A')
+aboveDCompMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                              by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                              mean)
+lines (x = as_date (aboveDCompMean [, 1]),
+       y = rollmean (aboveDCompMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [4], lwd = 2)
+# between the double compression
+treeLabels <- c ('02M','08M','14M','22M','24M','25M','26M','27M','34M','37M')
+betweenDCompMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                               by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                               mean)
+lines (x = as_date (betweenDCompMean [, 1]),
+       y = rollmean (betweenDCompMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [4], lwd = 2, lty = 3)
+# below the double compression
+treeLabels <- c ('02B','08B','14B','22B','24B','25B','26B','27B','34B','37B')
+belowDCompMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                              by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                              mean)
 ```
 
 # References
