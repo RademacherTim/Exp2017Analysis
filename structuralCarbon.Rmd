@@ -23,7 +23,8 @@ library ('zoo')
 options (gargle_oauth_email = "tr625@nau.edu")
 
 # set colour scheme for control, girdled, compressed, double compressed and chilled
-colours <- c ('#91b9a4','#ea7125','#8f2bbc','#d6083b','#0072cf')
+colours <- c ('#91b9a4','#C0334D','#F18904','#5C4A72','#23345C')
+#colours <- c ('','#ea7125','#8f2bbc','#d6083b','#0072cf')
 ```
 
 ## Structural carbon estimation for stem sections of the 2017 experiment at Harvard Forest
@@ -452,7 +453,7 @@ metData <- read_csv (url ('https://harvardforest.fas.harvard.edu/data/p30/hf300/
 
 The number of measurements for growth rings drops off strongly after the 2015 growth ring (table 1), because the older rings are further away from the bark, hence they are less likely within the 15mm reach of the trephor tool [@rossi_trephor:_2006] used to collect the thinsections. Among the recent years with high replication, 2015 was preferred over 2016, because of an abnormally dry growing season in 2016 (total annual precipitation of `r metData [['prec']] [metData [['year']] == 2016]` $mm$, which is `r round (mean (metData [['prec']]) - metData [['prec']] [metData [['year']] == 2016])` below the long-term average of `r round (mean (metData [['prec']]))` $mm$). In contrast the 2015 growing season climate was similar to the 2017 growing season climate with a mean annual temperature of `r metData [['airt']] [metData [['year']] == 2015]` $^{\circ}C$ and a total annual precipitation of `r metData [['prec']] [metData [['year']] == 2015]` $mm$. In fact, about three quraters of trees included in this study showed a intra-annual density fluctuation in 2016 due to the dry growing season and the remaining quarter of trees had a relatively narrower ring. Consequently, standardisation by the 2016 ring would introduce a systematic bias based on the bi-modal ring width distribution in 2016. In contrast, 2015 did not include any outstading climatological events or resulting systematic bias in growth.
 
-``` {r plotBasicRingStats, echo = FALSE}
+``` {r plotBasicRingStats, echo = FALSE, fig.width = 11}
 # Divide into tibble for each sampling date
 ringWidthsJul <- ringWidths [ringWidths [['month']] == 7, ]
 ringWidthsAug <- ringWidths [ringWidths [['month']] == 8, ]
@@ -576,7 +577,7 @@ lines (dNov3B, col = colours [3], lwd = 2, lty = 2)
 lines (dNov4A, col = colours [4], lwd = 2)
 lines (dNov4B, col = colours [4], lwd = 2, lty = 2)
 lines (dNov4M, col = colours [4], lwd = 2, lty = 3)
-legend (x = 1.4, y = 2, legend = c ('control','gridling','compression','double compression'),
+legend (x = 1.35, y = 2, legend = c ('control','gridling','compression','double compression'),
         col = colours,
         lwd = 2, box.lty = 0, bg = 'transparent')
 # boxplot (at = 6, x = ringWidthsNov [ringWidthsNov [['treatment']] == 1, 6] / 
@@ -716,7 +717,7 @@ data <- add_column (data, period = NA)
 for (i in 1:dim (data) [1]) {
   
   # if not 2017, skip
-  if (data [['YEAR']] != 2017) next
+  if (data [['YEAR']] [i] != 2017) next
   
   # get tree ID, treatment and sample height of the sample
   treeID <- as.numeric (substr (data [['TREE']] [i], 1, 2))
@@ -751,15 +752,31 @@ for (i in 1:dim (data) [1]) {
   }
 
   # associate fractional position with a period
-  if (!is.na (fJul) & !is.na (fAug) & !is.na (fOct)) {
-    if (data [['RRADDISTR']] [i] <= fJul) {
-      data [['period']] [i] <- as_date ('2017-07-03')
-    } else if (data [['RRADDISTR']] [i]  <= fAug) {
-      data [['period']] [i] <- as_date ('2017-08-09')
-    } else if (data [['RRADDISTR']] [i]  <= fOct) {
-      data [['period']] [i] <- as_date ('2017-10-09')
-    } else {
-      data [['period']] [i] <- as_date ('2017-11-03')
+  if (!is.na (data [['RRADDISTR']] [i])) {
+    if (!is.na (fJul) & !is.na (fAug) & !is.na (fOct)) {
+      if (data [['RRADDISTR']] [i] / 100 <= fJul) {
+        data [['period']] [i] <- as_date ('2017-07-03')
+      } else if (data [['RRADDISTR']] [i] / 100 <= fAug) {
+        data [['period']] [i] <- as_date ('2017-08-09')
+      } else if (data [['RRADDISTR']] [i] / 100 <= fOct) {
+        data [['period']] [i] <- as_date ('2017-10-09')
+      } else {
+        data [['period']] [i] <- as_date ('2017-11-03')
+      }
+    }
+  } else {
+    fraction <- data [['RADDISTR.BAND']] [i] / data [['MRW']] [i]
+    #print (c (fraction,treeID))
+    if (!is.na (fJul) & !is.na (fAug) & !is.na (fOct)) {
+      if (fraction <= fJul) {
+        data [['period']] [i] <- as_date ('2017-07-03')
+      } else if (fraction  <= fAug) {
+        data [['period']] [i] <- as_date ('2017-08-09')
+      } else if (fraction  <= fOct) {
+        data [['period']] [i] <- as_date ('2017-10-09')
+      } else {
+        data [['period']] [i] <- as_date ('2017-11-03')
+      }
     }
   }
 }
@@ -778,7 +795,7 @@ $$
 V_{CW,s,p} = \frac {CBH_{s}} {w_{t,s}} \times h_{s} \times \bar {CWA}
 $$
 
-The assumptions circumferential and taraplas representativeness of zonal averages derived from tracheids do not account for other types of tissue than tracheids, such as rays and resin ducts. Tracheids make up 93% of the volume of wood in white pines with resin ducts and rays  accounting for 1% and 6%, respectively [@brown_textbook_1948]. However, since there was no clear treatment effect on the occurance of resin ducts or rays cells, this assumption may only cause a slight over-estimation of structural carbon but no bias in carbon sequestration in strucutre between treatments. 
+The assumptions circumferential and taraplas representativeness of zonal averages derived from tracheids do not account for other types of tissue than tracheids, such as rays and resin ducts. Tracheids make up 93% of the volume of wood in white pines with resin ducts and rays  accounting for 1% and 6%, respectively [@brown_textbook_1949]. However, since there was no clear treatment effect on the occurance of resin ducts or rays cells, this assumption may only cause a slight over-estimation of structural carbon but no bias in carbon sequestration in strucutre between treatments. 
 
 ``` {r scalingToCircumference , echo = FALSE}
 # add cell width column to data
@@ -926,12 +943,6 @@ volumeData <- tibble (tree = rep (1:40, 4),
 volumeData [3:7] <- circumferentialData [3:7] * h * 1000
 ```
 
-Finally, the cell wall volume for each ring portion of the stem section ($V_{CW,s,p}$) is multiplied by a fixed cell wall density ($\rho_{CW}$) and carbon content () to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in g). Here, we use a cell wall density of `r rhoCW` $kgDM \, m^{−3}$ (measured for Scots pine by @plotze_porosity_2011) and carbon content of 49.74% for white pine [@lamlom_reassessment_2003].
-
-$$
-M_{s,p} = V_{CW,s,p} \times \rho_{CW} \times 49.74\%
-$$
-
 ``` {r dryMatterAndCarbonContent, echo = FALSE}
 # create tibble for dry matter in stem section
 dryMatterData <- tibble (tree = rep (1:40, 4),
@@ -964,14 +975,17 @@ CC <- 49.74
 carbonContentData [3:7] <- dryMatterData [3:7] * CC / 100.0
 ```
 
+Finally, the cell wall volume for each ring portion of the stem section ($V_{CW,s,p}$) is multiplied by a fixed cell wall density ($\rho_{CW}$) and carbon content () to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in g). Here, we use a cell wall density of `r rhoCW` $kgDM \, m^{−3}$ (measured for Scots pine by @plotze_porosity_2011) and carbon content of 49.74% for white pine [@lamlom_reassessment_2003].
+
+$$
+M_{s,p} = V_{CW,s,p} \times \rho_{CW} \times 49.74\%
+$$
+
 ### Treatment effects on anatomy
 
-``` {r plotCWT, echo= FALSE}
+``` {r plotCWT, echo= FALSE, fig.width = 11}
 # add new column to data
 data <- add_column (data, formationDate = NA)
-
-# set window for rolling mean
-window <- 100
 
 # estimate date of formation for each zone
 for (iDate in as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03'))) {
@@ -1021,16 +1035,41 @@ for (iDate in as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03')))
   
 } # close period loop
 
+# set window for rolling mean
+window <- 61
+
+# function to plot mean and standard deviation of the end of the growing season
+plotEndOfGrowingSeason <- function (y, treeLabels, colour, symbol) {
+  
+  # determine the last day of growth for each tree in the treatment
+  lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                          by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                          max, na.rm = TRUE)
+  lastDates [is.infinite (lastDates [, 2]), 2] <- NA
+  
+  # determine mean and standard deviation for the last day
+  meanDate <- mean (lastDates [, 2], na.rm = TRUE)
+  sdDate   <- sd   (lastDates [, 2], na.rm = TRUE)
+  
+  # and arrow bar for the standard deviation
+  arrows (x0 = meanDate - sdDate, y0 = y, x1 = meanDate + sdDate, y1 = y, 
+          code = 3, col = colour, 
+          lwd = 2, angle = 90, lty = symbol - 18,
+          length = 0.05)
+  # plot point for mean date
+  points (x = meanDate, y = y, pch = symbol, col = colour, bg = 'white', lwd = 2)
+}
+
 # plot CWT of the 2017 ring for each period and tree
+layout (matrix (1:3, nrow = 1), widths = c (1.6, 1.6, 1))
 par (mar = c (5,5,1,1))
-par (mfrow = c (1, 2))
 plot (x = as_date (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] == '01M']),
       y = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] == '01M'],
       las = 1, col = 'white', typ = 'l',
       ylab = 'cell wall thickness (microns)',
       xlab = 'time',
-      xlim = as_date (c ('2017-03-01','2017-11-03')),
-      ylim = c (2, 6))
+      xlim = as_date (c ('2017-03-01','2017-11-30')),
+      ylim = c (1.4, 5))
 # plot all control trees
 treeLabels <- c ('01M','03M','04M','06M','07M','09M','18M','30M','31M','36M')
 controlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -1039,6 +1078,7 @@ controlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data
 lines (x = as_date (controlMean [, 1]),
        y = rollmean (controlMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [1], lwd = 2)
+plotEndOfGrowingSeason (y = 2.3, treeLabels = treeLabels, colour = colours [1], symbol = 19)
 # above the girld 
 treeLabels <- c ('05A','11A','15A','16A','19A','23A','29A','35A','39A','40A')
 aboveGirdlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -1047,6 +1087,7 @@ aboveGirdlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & d
 lines (x = as_date (aboveGirdlMean [, 1]),
        y = rollmean (aboveGirdlMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [2], lwd = 2)
+plotEndOfGrowingSeason (y = 2.1, treeLabels = treeLabels, colour = colours [2], symbol = 19)
 # below the girld 
 treeLabels <- c ('05B','11B','15B','16B','19B','23B','29B','35B','39B','40B')
 belowGirdlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -1055,6 +1096,7 @@ belowGirdlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & d
 lines (x = as_date (belowGirdlMean [, 1]),
        y = rollmean (belowGirdlMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [2], lwd = 2, lty = 2)
+plotEndOfGrowingSeason (y = 2.05, treeLabels = treeLabels, colour = colours [2], symbol = 21)
 # above the compression
 treeLabels <- c ('10A','12A','13A','17A','20A','21A','28A','32A','33A','38A')
 aboveComprMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -1063,6 +1105,7 @@ aboveComprMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & d
 lines (x = as_date (aboveComprMean [, 1]),
        y = rollmean (aboveComprMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [3], lwd = 2)
+plotEndOfGrowingSeason (y = 1.90, treeLabels = treeLabels, colour = colours [3], symbol = 19)
 # below the compression
 treeLabels <- c ('10B','12B','13B','17B','20B','21B','28B','32B','33B','38B')
 belowComprMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -1071,7 +1114,8 @@ belowComprMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & d
 lines (x = as_date (belowComprMean [, 1]),
        y = rollmean (belowComprMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [3], lwd = 2, lty = 2)
-# above the doublecompression
+plotEndOfGrowingSeason (y = 1.80, treeLabels = treeLabels, colour = colours [3], symbol = 21)
+# above the double compression
 treeLabels <- c ('02A','08A','14A','22A','24A','25A','26A','27A','34A','37A')
 aboveDCompMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                               by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
@@ -1079,6 +1123,7 @@ aboveDCompMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & d
 lines (x = as_date (aboveDCompMean [, 1]),
        y = rollmean (aboveDCompMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [4], lwd = 2)
+plotEndOfGrowingSeason (y = 1.60, treeLabels = treeLabels, colour = colours [4], symbol = 19)
 # between the double compression
 treeLabels <- c ('02M','08M','14M','22M','24M','25M','26M','27M','34M','37M')
 betweenDCompMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -1087,23 +1132,18 @@ betweenDCompMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 &
 lines (x = as_date (betweenDCompMean [, 1]),
        y = rollmean (betweenDCompMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [4], lwd = 2, lty = 3)
+plotEndOfGrowingSeason (y = 1.5, treeLabels = treeLabels, colour = colours [4], symbol = 22)
 # below the double compression
 treeLabels <- c ('02B','08B','14B','22B','24B','25B','26B','27B','34B','37B')
 belowDCompMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
-                              by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
-                              mean)
+                             by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                             mean)
+plotEndOfGrowingSeason (y = 1.4, treeLabels = treeLabels, colour = colours [4], symbol = 21)
 lines (x = as_date (belowDCompMean [, 1]),
        y = rollmean (belowDCompMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [4], lwd = 2, lty = 2)
-legend (x = as_date ('2017-04-01'), lty = 1, lwd = 2,
-        y = 6, box.lty = 0, bg = 'transparent', col = colours, legend = c ('control','girdled','compressed','double compression'))
-legend (x = as_date ('2017-03-01'), lty = 2, lwd = 2,
-        y = 6, box.lty = 0, bg = 'transparent', col = colours, legend = c ('','','',''))
-text (x = as_date (c ('2017-03-15','2017-04-15')), 
-      y = 6, labels = c ('below','above'))
 
 # plot cell size of the 2017 ring for each period and tree
-par (mar = c (5,5,1,1))
 plot (x = as_date (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] == '01M']),
       y = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] == '01M'],
       las = 1, col = 'white', typ = 'l',
@@ -1172,6 +1212,84 @@ treeLabels <- c ('02B','08B','14B','22B','24B','25B','26B','27B','34B','37B')
 belowDCompMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                               by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                               mean)
+lines (x = as_date (belowDCompMean [, 1]),
+       y = rollmean (belowDCompMean [, 2], window, na.pad = TRUE, na.rm = T),
+       col = colours [4], lwd = 2, lty = 2)
+legend (x = as_date ('2017-04-25'), lty = 1, lwd = 2,
+        y = 25, box.lty = 0, bg = 'transparent', col = colours, legend = c ('control','girdled','compressed','double compression'))
+legend (x = as_date ('2017-03-01'), lty = 2, lwd = 2,
+        y = 22.7, box.lty = 0, bg = 'transparent', col = colours [2:4], legend = c ('','',''))
+legend (x = as_date ('2017-03-30'), lty = 3, lwd = 2,
+        y = 18.1, box.lty = 0, bg = 'transparent', col = colours [4], legend = '')
+text (x = as_date (c ('2017-03-15','2017-04-15','2017-05-15')), 
+      y = 25, labels = c ('below','middle', 'above'), cex = 0.9)
+
+# create tibble with cell numbers per ring
+cellNumber <- tibble (tree = NA, treatment = NA, height = NA, n = NA)
+
+# determine the approximate number of cells in each ring
+for (iTree in 1:40) { # loop over trees
+  
+  # get treatment and determine heights
+  if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T1') {
+    heights <-  c ('M')
+    treatment <- 1
+  } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T2') {
+    heights <-  c ('A', 'B')
+    treatment <- 2
+  } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T3') {
+    heights <-  c ('A', 'B')
+    treatment <- 3
+  } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T4') {
+    heights <-  c ('A', 'M', 'B')
+    treatment <- 4
+  }
+  
+  # loop over sampling heights
+  for (iHeight in heights) {
+    
+    if (iTree < 10) {
+      treeID <- paste0 ('0',iTree,iHeight)
+    } else {
+      treeID <- paste0 (iTree, iHeight)
+    }
+    
+    # determine average number of cells in sector and sum them
+    condition <- data [['YEAR']] == 2017 & data [['TREE']] == treeID
+    nCells <- floor (sum (20 / data [['cellTanWidth']] [condition], na.rm = TRUE))
+    cellNumber <- add_row (cellNumber, tree = iTree, treatment = treatment, height = iHeight, n = nCells)
+      
+  } # end height loop
+} # end tree loop
+
+# delete first row, which is empty and 06.1M because data is no good
+cellNumber <- cellNumber [-1, ]
+cellNumber [cellNumber [['tree']] == 6, ] <- NA 
+
+# mean and standard deviation of cell number by treatment and height 
+cellNMeans <- aggregate (cellNumber [['n']], by = c (list (cellNumber [['height']]), list (cellNumber [['treatment']])), FUN = mean)
+cellNSD  <- aggregate (cellNumber [['n']], by = c (list (cellNumber [['height']]), list (cellNumber [['treatment']])), FUN = sd)
+
+# plot box plot of number of cell per ring in each treatment
+xPositions <- c (1.3, 1.5, 1.6, 1.8, 1.9, 2.1, 2.2, 2.3)
+plot (x = xPositions, 
+      y = cellNMeans [[3]] [c (1:6, 8, 7)], typ = 'p',
+      col = c (colours [1], rep (colours [2], 2), rep (colours [3], 2), rep (colours [4], 3)),
+      pch = c (19, 19, 21, 19, 21, 19, 21, 22),
+      xlab = '', ylab = 'number of cells', las = 1, 
+      xlim = c (1, 2.5), ylim = c (10, 80), xaxt = 'n', cex = 2.0)
+axis (side = 1, at = xPositions, labels = c ('M','A','B','A','B','A','M','B'), tick = 0)
+arrows (x0 = xPositions, 
+        y0 = cellNMeans [[3]] [c (1:6, 8, 7)] - cellNSD [[3]] [c (1:6, 8, 7)] / sqrt (10), 
+        y1 = cellNMeans [[3]] [c (1:6, 8, 7)] + cellNSD [[3]] [c (1:6, 8, 7)] / sqrt (10), 
+        col = c (colours [1], rep (colours [2], 2), rep (colours [3], 2), rep (colours [4], 3)), 
+        lwd = 2, lty = c (1, 1, 2, 1, 2, 1, 3, 2), code = 3, 
+        angle = 90, length = 0.07)
+points (x = xPositions, 
+        y = cellNMeans [[3]] [c (1:6, 8, 7)],
+        col = c (colours [1], rep (colours [2], 2), rep (colours [3], 2), rep (colours [4], 3)),
+        pch = c (19, 19, 21, 19, 21, 19, 22, 21), lwd = 2, bg = 'white', cex = 2.0)
 ```
+
 
 # References
