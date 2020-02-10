@@ -975,6 +975,12 @@ CC <- 49.74
 
 # estimate dry matter
 carbonContentData [3:7] <- dryMatterData [3:7] * CC / 100.0
+
+# Export data if necessary
+WRITE <- FALSE
+if (WRITE) {
+  write_csv (carbonContentData,  path = 'structuralCarbonData.csv')
+}
 ```
 
 Finally, the cell wall volume for each ring portion of the stem section ($V_{CW,s,p}$) is multiplied by a fixed cell wall density ($\rho_{CW}$) and carbon content () to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in g). Here, we use a cell wall density of `r rhoCW` $kgDM \, m^{−3}$ (measured for Scots pine by @plotze_porosity_2011) and carbon content of 49.74% for white pine [@lamlom_reassessment_2003].
@@ -983,7 +989,7 @@ $$
 M_{s,p} = V_{CW,s,p} \times \rho_{CW} \times 49.74\%
 $$
 
-### Treatment effects on anatomy
+### Treatment effects on wood anatomy
 
 ``` {r plotCWT, echo= FALSE, fig.width = 11}
 #========================================================================================

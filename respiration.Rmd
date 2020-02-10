@@ -13,6 +13,9 @@ library ('tidyverse')
 library ('readxl')
 library ('lubridate')
 library ('googledrive')
+
+# set colour scheme for control, girdled, compressed, double compressed and chilled
+colours <- c ('#91b9a4','#C0334D','#F18904','#5C4A72','#23345C')
 ```
 
 ## Estimating respiratory losses for stem sections
@@ -204,7 +207,7 @@ plot (x = tmp150 [['month']] [tmp150 [['treatment']] == 1],
       y = tmp150 [['mean']] [tmp150 [['treatment']] == 1],
       xlab = 'month', ylab  = 'respiratory loss (gC)', las = 1,
       typ = 'l', lwd = 2,
-      col = '#91b9a4',
+      col = colours [1],
       ylim =  c (0, 30))
 polygon (x = c (tmp150 [['month']] [tmp150 [['treatment']] == 1], 
                 rev (tmp150 [['month']] [tmp150 [['treatment']] == 1])),
@@ -215,67 +218,67 @@ plot (x = tmp100 [['month']] [tmp100 [['treatment']] == 2],
        y = tmp100 [['mean']]  [tmp100 [['treatment']] == 2],
       xlab = 'month', ylab  = 'respiratory loss (gC)', las = 1,
       typ = 'l', lwd = 2, lty = 2,
-      col = '#106470',
+      col = colours [2],
       ylim =  c (0, 30))
 polygon (x = c (tmp100 [['month']] [tmp100 [['treatment']] == 2], 
                 rev (tmp100 [['month']] [tmp100 [['treatment']] == 2])),
         y = c (tmp100 [['max']] [tmp100 [['treatment']] == 2], 
                rev (tmp100 [['min']] [tmp100 [['treatment']] == 2])),
-        col = '#10647033', lty = 0)
+        col = '#C0334D33', lty = 0)
 lines (x = tmp200 [['month']] [tmp200 [['treatment']] == 2],
        y = tmp200 [['mean']]  [tmp200 [['treatment']] == 2],
-       lty = 1, lwd = 2, col = '#106470')
+       lty = 1, lwd = 2, col = colours [2])
 polygon (x = c (tmp200 [['month']] [tmp200 [['treatment']] == 2], 
                 rev (tmp200 [['month']] [tmp200 [['treatment']] == 2])),
         y = c (tmp200 [['max']] [tmp200 [['treatment']] == 2], 
                rev (tmp200 [['min']] [tmp200 [['treatment']] == 2])),
-        col = '#10647033', lty = 0)
+        col = '#C0334D33', lty = 0)
 plot (x = tmp100 [['month']] [tmp100 [['treatment']] == 3],
        y = tmp100 [['mean']]  [tmp100 [['treatment']] == 3],
       xlab = 'month', ylab  = 'respiratory loss (gC)', las = 1,
       typ = 'l', lwd = 2, lty = 2,
-      col = '#c90016',
+      col = colours [3],
       ylim =  c (0, 30))
 polygon (x = c (tmp100 [['month']] [tmp100 [['treatment']] == 3], 
                 rev (tmp100 [['month']] [tmp100 [['treatment']] == 3])),
         y = c (tmp100 [['max']] [tmp100 [['treatment']] == 3], 
                rev (tmp100 [['min']] [tmp100 [['treatment']] == 3])),
-        col = '#c9001633', lty = 0)
+        col = '#F1890433', lty = 0)
 lines (x = tmp200 [['month']] [tmp200 [['treatment']] == 3],
        y = tmp200 [['mean']]  [tmp200 [['treatment']] == 3],
-       lty = 1, lwd = 2, col = '#c90016')
+       lty = 1, lwd = 2, col = colours [3])
 polygon (x = c (tmp200 [['month']] [tmp200 [['treatment']] == 3], 
                 rev (tmp200 [['month']] [tmp200 [['treatment']] == 3])),
         y = c (tmp200 [['max']] [tmp200 [['treatment']] == 3], 
                rev (tmp200 [['min']] [tmp200 [['treatment']] == 3])),
-        col = '#c9001633', lty = 0)
+        col = '#F1890433', lty = 0)
 plot (x = tmp50 [['month']] [tmp50 [['treatment']] == 4],
        y = tmp50 [['mean']]  [tmp50 [['treatment']] == 4],
       xlab = 'month', ylab  = 'respiratory loss (gC)', las = 1,
       typ = 'l', lwd = 2, lty = 2,
-      col = 'darkgrey',
+      col = colours [4],
       ylim =  c (0, 30))
 polygon (x = c (tmp50 [['month']] [tmp50 [['treatment']] == 4], 
                 rev (tmp50 [['month']] [tmp50 [['treatment']] == 4])),
         y = c (tmp50 [['max']] [tmp50 [['treatment']] == 4], 
                rev (tmp50 [['min']] [tmp50 [['treatment']] == 4])),
-        col = '#33333333', lty = 0)
+        col = '#5C4A7233', lty = 0)
 lines (x = tmp150 [['month']] [tmp150 [['treatment']] == 4],
        y = tmp150 [['mean']]  [tmp150 [['treatment']] == 4],
-      col = 'darkgrey', lwd = 2, lty = 3)
+      col = colours [4], lwd = 2, lty = 3)
 polygon (x = c (tmp150 [['month']] [tmp150 [['treatment']] == 4], 
                 rev (tmp150 [['month']] [tmp150 [['treatment']] == 4])),
         y = c (tmp150 [['max']] [tmp150 [['treatment']] == 4], 
                rev (tmp150 [['min']] [tmp150 [['treatment']] == 4])),
-        col = '#33333333', lty = 0)
+        col = '#5C4A7233', lty = 0)
 lines (x = tmp250 [['month']] [tmp250 [['treatment']] == 4],
        y = tmp250 [['mean']]  [tmp250 [['treatment']] == 4],
-      col = 'darkgrey', lwd = 2, lty = 1)
+      col = colours [4], lwd = 2, lty = 1)
 polygon (x = c (tmp250 [['month']] [tmp250 [['treatment']] == 4], 
                 rev (tmp150 [['month']] [tmp250 [['treatment']] == 4])),
         y = c (tmp250 [['max']] [tmp250 [['treatment']] == 4], 
                rev (tmp250 [['min']] [tmp250 [['treatment']] == 4])),
-        col = '#33333333', lty = 0)
+        col = '#5C4A7233', lty = 0)
 ```
 
 ### To-do list and comments
