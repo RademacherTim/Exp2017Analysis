@@ -10,6 +10,7 @@ csl: "/home/trademacehr/projects/PlantGrowth/bib/harvard.csl"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library ('tidyverse')
+library ('readxl')
 library ('lubridate')
 library ('googledrive')
 ```
@@ -29,9 +30,10 @@ $$
 
 The stem respiration rate over this surface area was then determined by multiplication of the instanteanous respiration flux (in $g \, m^{-2} \,day^{-1}$) by the surface area to get the respiration rate (in $g \, day_{-1}$).
 ```{r integrateAcrossSpace}
-# Get the tree measurements of circumference from the googlesheet 
-key <- '1K8Vk9VHRdwNjIa28frc-Zt4uyk07G6CZe1EkJunUll0'
-suppressMessages (predictors <- gs_read (gs_key (key), ws = 'predictors', col_types = cols ()))
+# Get the tree measurements of circumference from spreadsheet
+allometricData <- read_excel (path = '/media/TREE/PlantGrowth/data/allometry/allometricDataExp2017.xlsx', 
+                              sheet = 'allometricData', 
+                              na = "NA")
 
 # Define height of the section (h; in m)
 h <- 0.1
@@ -57,26 +59,26 @@ for (r in 1:dim (responseVariables) [1]) {
   iTree <- responseVariables [['tree']] [r]
   
   # Check whether this tree has only one chamber (i.e. control group)
-  if (predictors [['treatment']] [predictors [['tree']] == iTree] == 1) {
+  if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 1) {
     responseVariables [['A150']] [r] <- 
-      predictors [['cbh150']] [predictors [['tree']] == iTree] / 100.0 * h
+      allometricData [['cbh150']] [allometricData [['tree']] == iTree] / 100.0 * h
 
   # Check whether this tree has two chambers (i.e. gridled or single compression)
-  } else if (predictors [['treatment']] [predictors [['tree']] == iTree] == 2 | 
-             predictors [['treatment']] [predictors [['tree']] == iTree] == 3) {
+  } else if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 2 | 
+             allometricData [['treatment']] [allometricData [['tree']] == iTree] == 3) {
     responseVariables [['A100']] [r] <- 
-      predictors [['cbh100']] [predictors [['tree']] == iTree] / 100.0 * h
+      allometricData [['cbh100']] [allometricData [['tree']] == iTree] / 100.0 * h
     responseVariables [['A200']] [r] <- 
-      predictors [['cbh200']] [predictors [['tree']] == iTree] / 100.0 * h
+      allometricData [['cbh200']] [allometricData [['tree']] == iTree] / 100.0 * h
 
   # Check whether this tree has three chambers (i.e. double compression)
-  } else if (predictors [['treatment']] [predictors [['tree']] == iTree] == 4) {
+  } else if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 4) {
     responseVariables [['A50']]  [r] <- 
-      predictors [['cbh50']]  [predictors [['tree']] == iTree] / 100.0 * h
+      allometricData [['cbh50']]  [allometricData [['tree']] == iTree] / 100.0 * h
     responseVariables [['A150']] [r] <- 
-      predictors [['cbh150']] [predictors [['tree']] == iTree] / 100.0 * h
+      allometricData [['cbh150']] [allometricData [['tree']] == iTree] / 100.0 * h
     responseVariables [['A250']] [r] <- 
-      predictors [['cbh250']] [predictors [['tree']] == iTree] / 100.0 * h
+      allometricData [['cbh250']] [allometricData [['tree']] == iTree] / 100.0 * h
   }
 }
 
@@ -89,10 +91,10 @@ respRates2017 <- respRates2017 [-1, ]
 respRates2017 <- add_column (respRates2017, flux_g_day = NA)
 for (iTree in 1:41) {
   # Check whether this tree has only one chamber (i.e. control group)
-  if (predictors [['treatment']] [predictors [['tree']] == iTree] == 1) {
+  if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 1) {
     respRates2017 [['flux_g_day']] [respRates2017 [['tree']] == iTree] <- respRates2017 [['flux_g']] [respRates2017 [['tree']] == iTree] * unique (responseVariables [['A150']] [responseVariables [['tree']] == iTree])
-  } else if (predictors [['treatment']] [predictors [['tree']] == iTree] == 2 |
-             predictors [['treatment']] [predictors [['tree']] == iTree] == 3) {
+  } else if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 2 |
+             allometricData [['treatment']] [allometricData [['tree']] == iTree] == 3) {
     condition <- respRates2017 [['tree']] == iTree & respRates2017 [['chamber']] == 1
     respRates2017 [['flux_g_day']] [condition] <- 
       respRates2017 [['flux_g']] [condition] * 
@@ -102,7 +104,7 @@ for (iTree in 1:41) {
     respRates2017 [['flux_g_day']] [condition] <- 
       respRates2017 [['flux_g']] [condition] * 
       unique (responseVariables [['A200']] [responseVariables [['tree']] == iTree])
-  } else if (predictors [['treatment']] [predictors [['tree']] == iTree] == 4) {
+  } else if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 4) {
     condition <- respRates2017 [['tree']] == iTree & respRates2017 [['chamber']] == 1
     respRates2017 [['flux_g_day']] [condition] <- 
       respRates2017 [['flux_g']] [condition] * 
@@ -164,15 +166,15 @@ for (period in 1:4) {
   for (iTree in 1:41){
     condition <- responseVariables [['month']] == month (boundaries [period]) &
                  responseVariables [['tree']]  == iTree
-    if (predictors [['treatment']] [iTree] == 1) {
+    if (allometricData [['treatment']] [iTree] == 1) {
       responseVariables [['resp150']] [condition] <- tmpResp [['totalResp']] [tmpResp [['tree']] == iTree] 
-    } else if (predictors [['treatment']] [iTree] == 2 | 
-               predictors [['treatment']] [iTree] == 3) {
+    } else if (allometricData [['treatment']] [iTree] == 2 | 
+               allometricData [['treatment']] [iTree] == 3) {
       responseVariables [['resp100']] [condition] <- 
         tmpResp [['totalResp']] [tmpResp [['tree']] == iTree & tmpResp [['chamber']] == 1]
       responseVariables [['resp200']] [condition] <- 
         tmpResp [['totalResp']] [tmpResp [['tree']] == iTree & tmpResp [['chamber']] == 2]
-    } else if (predictors [['treatment']] [iTree] == 4) {
+    } else if (allometricData [['treatment']] [iTree] == 4) {
       responseVariables [['resp50']]  [condition] <- 
         tmpResp [['totalResp']] [tmpResp [['tree']] == iTree & tmpResp [['chamber']] == 1]
       responseVariables [['resp150']] [condition] <- 
@@ -187,7 +189,7 @@ for (period in 1:4) {
 
 ``` {r plotResp}
 # add treatments to the responseVariables
-responseVariables <- add_column (responseVariables, treatment = rep (predictors [['treatment']], 4))
+responseVariables <- add_column (responseVariables, treatment = rep (allometricData [['treatment']], 4))
 
 # calculate mean
 suppressWarnings (tmp50  <- responseVariables %>% group_by (month, treatment) %>% summarise (mean = mean (resp50, na.rm = T), min = min (resp50, na.rm = T), max = max (resp50, na.rm = T)))

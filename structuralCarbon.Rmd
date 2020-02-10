@@ -1,5 +1,5 @@
 ---
-title: 'Scaling structural carbon (SI 2)'
+title: 'Scaling structural carbon (SI 1)'
 author: Tim Rademacher
 date: "01/11/2019"
 output: html_document
@@ -25,6 +25,8 @@ options (gargle_oauth_email = "tr625@nau.edu")
 # set colour scheme for control, girdled, compressed, double compressed and chilled
 colours <- c ('#91b9a4','#C0334D','#F18904','#5C4A72','#23345C')
 #colours <- c ('','#ea7125','#8f2bbc','#d6083b','#0072cf')
+
+options (warn = -1)
 ```
 
 ## Structural carbon estimation for stem sections of the 2017 experiment at Harvard Forest
@@ -104,7 +106,7 @@ setwd ('/media/TREE/PlantGrowth/data/allometry/')
 # fileExp2017 <- drive_download (file = as_id (GDExp2017AllometryFileID), verbose = FALSE, overwrite = TRUE)
 # rm (fileExp2017)
 
-# Read the data per 20 micron slices
+# Read the allometric data
 allometricData <- read_excel (path = paste0 (getwd (),'/allometricDataExp2017.xlsx'), 
                               sheet = 'allometricData', 
                               na = "NA")
@@ -984,6 +986,21 @@ $$
 ### Treatment effects on anatomy
 
 ``` {r plotCWT, echo= FALSE, fig.width = 11}
+#========================================================================================
+# Script to make Figure X
+# 
+# Manuscript: 
+#
+#
+#
+# Figure caption:
+#   Wood anatomical properties of the 2017 and 2015 growing season. (a) Radial cell wall 
+#   thickness, (b) cell lumen diameter and (c) number of cells are show for each sector 
+#   and treatment (colour) of the growth ring for 2017 (solid lines) and 2015 (dashed 
+#   lines). Each line represents the treatment mean (n = 10) with the standard deviation 
+#   displayed as shading. 
+#----------------------------------------------------------------------------------------
+
 # add new column to data
 data <- add_column (data, formationDate = NA)
 
@@ -1215,12 +1232,12 @@ belowDCompMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 20
 lines (x = as_date (belowDCompMean [, 1]),
        y = rollmean (belowDCompMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [4], lwd = 2, lty = 2)
-legend (x = as_date ('2017-04-25'), lty = c (0, rep (1), 3), lwd = 2,
+legend (x = as_date ('2017-04-25'), lty = c (0, rep (1, 3)), lwd = 2,
         y = 25, box.lty = 0, bg = 'transparent', col = colours, legend = c ('control','girdled','compressed','double compression'))
-legend (x = as_date ('2017-03-01'), lty = c (0, rep (2), 3), lwd = 2,
-        y = 25, box.lty = 0, bg = 'transparent', col = colours [2:4], legend = c ('','',''))
+legend (x = as_date ('2017-03-01'), lty = c (0, rep (2, 3)), lwd = 2,
+        y = 25, box.lty = 0, bg = 'transparent', col = colours, legend = c ('','','',''))
 legend (x = as_date ('2017-03-30'), lty = c (1, 0, 0, 3), lwd = 2,
-        y = 25, box.lty = 0, bg = 'transparent', col = colours [4], legend = '')
+        y = 25, box.lty = 0, bg = 'transparent', col = colours, legend = c ('','','',''))
 text (x = as_date (c ('2017-03-15','2017-04-15','2017-05-15')), 
       y = 25, labels = c ('below','middle', 'above'), cex = 0.9)
 
