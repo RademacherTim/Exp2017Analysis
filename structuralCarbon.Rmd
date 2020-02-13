@@ -9,7 +9,6 @@ csl: "/home/trademacehr/projects/PlantGrowth/bib/harvard.csl"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-#library ('plyr')
 library ('knitr')
 library ('tidyverse')
 library ('lubridate')
@@ -566,7 +565,7 @@ dNov4B <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 4, 8]
                            ringWidthsNov [ringWidthsNov [['treatment']] == 4, 18]), na.rm = T)
 
 # Plot density kernel of ring widths in 2017 and 2015 by treatment
-par (mar = c (5,5,3,1))
+par (mar = c (5, 5, 3, 1))
 #layout (matrix (1:4, nrow = 2), height = c (1.5, 1, 1.5, 1))
 plot (dNov1M, col = colours [1], lwd = 2, ylim = c (0, 2), las = 1,
       xlab = 'ring width (mm)',
@@ -665,15 +664,22 @@ legend (x = 1.35, y = 2, legend = c ('control','gridling','compression','double 
 f_Jul <- (ringWidthsJul [4:8] / ringWidthsJul [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
 f_Aug <- (ringWidthsAug [4:8] / ringWidthsAug [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
 f_Oct <- (ringWidthsOct [4:8] / ringWidthsOct [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
-
 # Samples with only a partial 2015 ring are currently set to NAs
 # TR - I need to deal with November samples that only have a partial measurement of the 2015 ring (06.1M, 11.2A, 24.4A, 24.4B)
+
+# standardised ring width at the end of the season
+standardisedRW2017 <- ringWidthsNov [4:8] / ringWidthsNov [14:18]
+  
+WRITE <- FALSE
+if (WRITE) {
+  write_csv (standardisedRW2017,  path = 'standardisedRW2017.csv')
+}
 
 # Aggregate the fractional growth by treatment
 f_Agg <- aggregate (f_Jul, mean, by = list (allometricData [['treatment']] [1:40]), na.rm = TRUE)
 f_Agg <- rbind (f_Agg, aggregate (f_Aug, mean, by = list (allometricData [['treatment']] [1:40]), na.rm = TRUE))
 f_Agg <- rbind (f_Agg, aggregate (f_Oct, mean, by = list (allometricData [['treatment']] [1:40]), na.rm = TRUE))
-f_Agg <- cbind (f_Agg, c(rep (7, 4), rep (8, 4), rep (10,4)))
+f_Agg <- cbind (f_Agg, c (rep (7, 4), rep (8, 4), rep (10,4)))
 names (f_Agg) <- c ('treatment', names (f_Agg [,2:6]),'month')
 ```
 
@@ -820,6 +826,9 @@ for (i in 1:dim (data) [1]) {
   data [['cellTanWidth']] [i] <- data [['DRAD']] [i] + 2 * data [['CWTTAN']] [i] 
   data [['cellRadWidth']] [i] <- data [['DTAN']] [i] + 2 * data [['CWTRAD']] [i] 
   
+  # factor to substract bark thickness
+  
+  
   # get circumference (microns) of the appropriate stem section
   if (sampleHeight == 'M') {
     circumference <- allometricData [['cbh150']] [allometricData [['tree']] == treeID] * 1.0e4
@@ -957,7 +966,7 @@ dryMatterData <- tibble (tree = rep (1:40, 4),
 # cell wall density (kg m-3)
 rhoCW <- 1.489
 
-# estimate dry matter
+# estimate dry matter (g)
 dryMatterData [3:7] <- (volumeData [3:7] / 1.0e9) * rhoCW * 1.0e3
 
 # create tibble for dry matter in stem section
@@ -966,14 +975,14 @@ carbonContentData <- tibble (tree = rep (1:40, 4),
                                          rep (as_date ('2017-08-09'), 40), 
                                          rep (as_date ('2017-10-09'), 40), 
                                          rep (as_date ('2017-11-03'), 40)),
-                             structuralCGainat050 = NA, structuralCGainat100 = NA, 
-                             structuralCGainat150 = NA, structuralCGainat200 = NA, 
-                             structuralCGainat250 = NA)
+                             structuralCarbonat050 = NA, structuralCarbonat100 = NA, 
+                             structuralCarbonat150 = NA, structuralCarbonat200 = NA, 
+                             structuralCarbonat250 = NA)
 
 # Carbon content of white pine wood (%)
 CC <- 49.74
 
-# estimate dry matter
+# estimate carbon content (g)
 carbonContentData [3:7] <- dryMatterData [3:7] * CC / 100.0
 
 # Export data if necessary
@@ -991,7 +1000,7 @@ $$
 
 ### Treatment effects on wood anatomy
 
-``` {r plotCWT, echo= FALSE, fig.width = 11}
+``` {r plotAnatomy, echo= FALSE, fig.width = 11, fig.height = 11}
 #========================================================================================
 # Script to make Figure X
 # 
@@ -1034,6 +1043,9 @@ for (iDate in as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03')))
       } else {
         treeID <- paste0 (iTree, iHeight)
       }
+
+      #curve to the four data points to estimate date of formation for any   
+      
       # determine number of zones associated with each date
       condition <- data [['YEAR']] == 2017 & data [['TREE']] == treeID & data [['period']] == iDate
       numberOfZones <- sum (condition, na.rm = TRUE)
@@ -1062,7 +1074,7 @@ for (iDate in as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03')))
 window <- 61
 
 # function to plot mean and standard deviation of the end of the growing season
-plotEndOfGrowingSeason <- function (y, treeLabels, colour, symbol) {
+plotEndOfGrowingSeason <- function (xPosition, treeLabels, colour, symbol) {
   
   # determine the last day of growth for each tree in the treatment
   lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -1070,29 +1082,24 @@ plotEndOfGrowingSeason <- function (y, treeLabels, colour, symbol) {
                           max, na.rm = TRUE)
   lastDates [is.infinite (lastDates [, 2]), 2] <- NA
   
-  # determine mean and standard deviation for the last day
-  meanDate <- mean (lastDates [, 2], na.rm = TRUE)
-  sdDate   <- sd   (lastDates [, 2], na.rm = TRUE)
-  
-  # and arrow bar for the standard deviation
-  arrows (x0 = meanDate - sdDate, y0 = y, x1 = meanDate + sdDate, y1 = y, 
-          code = 3, col = colour, 
-          lwd = 2, angle = 90, lty = symbol - 18,
-          length = 0.05)
-  # plot point for mean date
-  points (x = meanDate, y = y, pch = symbol, col = colour, bg = 'white', lwd = 2)
+  # boxplot
+  boxplot (at = xPosition,
+           x = lastDates [[2]], xlab = 'estimated end of growth', ylab = '', horizontal = TRUE,
+           col = colour)
 }
 
 # plot CWT of the 2017 ring for each period and tree
-layout (matrix (1:3, nrow = 1), widths = c (1.6, 1.6, 1))
+layout (matrix (1:4, ncol = 2, byrow = TRUE))
 par (mar = c (5,5,1,1))
 plot (x = as_date (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] == '01M']),
       y = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] == '01M'],
       las = 1, col = 'white', typ = 'l',
       ylab = 'cell wall thickness (microns)',
-      xlab = 'time',
+      xlab = 'estimated time of formation',
       xlim = as_date (c ('2017-03-01','2017-11-30')),
       ylim = c (1.4, 5))
+# draw sampling dates
+abline (v = as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03')), col = '#99999999', lwd = 2)
 # plot all control trees
 treeLabels <- c ('01M','03M','04M','06M','07M','09M','18M','30M','31M','36M')
 controlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -1101,7 +1108,7 @@ controlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data
 lines (x = as_date (controlMean [, 1]),
        y = rollmean (controlMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [1], lwd = 2)
-plotEndOfGrowingSeason (y = 2.3, treeLabels = treeLabels, colour = colours [1], symbol = 19)
+#plotEndOfGrowingSeason (y = 2.3, treeLabels = treeLabels, colour = colours [1], symbol = 19)
 # above the girld 
 treeLabels <- c ('05A','11A','15A','16A','19A','23A','29A','35A','39A','40A')
 aboveGirdlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -1110,8 +1117,8 @@ aboveGirdlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & d
 lines (x = as_date (aboveGirdlMean [, 1]),
        y = rollmean (aboveGirdlMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [2], lwd = 2)
-plotEndOfGrowingSeason (y = 2.1, treeLabels = treeLabels, colour = colours [2], symbol = 19)
-# below the girld 
+#plotEndOfGrowingSeason (y = 2.1, treeLabels = treeLabels, colour = colours [2], symbol = 19)
+# below the girdl 
 treeLabels <- c ('05B','11B','15B','16B','19B','23B','29B','35B','39B','40B')
 belowGirdlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                              by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
@@ -1119,7 +1126,7 @@ belowGirdlMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & d
 lines (x = as_date (belowGirdlMean [, 1]),
        y = rollmean (belowGirdlMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [2], lwd = 2, lty = 2)
-plotEndOfGrowingSeason (y = 2.05, treeLabels = treeLabels, colour = colours [2], symbol = 21)
+#plotEndOfGrowingSeason (y = 2.05, treeLabels = treeLabels, colour = colours [2], symbol = 21)
 # above the compression
 treeLabels <- c ('10A','12A','13A','17A','20A','21A','28A','32A','33A','38A')
 aboveComprMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -1128,7 +1135,7 @@ aboveComprMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & d
 lines (x = as_date (aboveComprMean [, 1]),
        y = rollmean (aboveComprMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [3], lwd = 2)
-plotEndOfGrowingSeason (y = 1.90, treeLabels = treeLabels, colour = colours [3], symbol = 19)
+#plotEndOfGrowingSeason (y = 1.90, treeLabels = treeLabels, colour = colours [3], symbol = 19)
 # below the compression
 treeLabels <- c ('10B','12B','13B','17B','20B','21B','28B','32B','33B','38B')
 belowComprMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -1137,7 +1144,7 @@ belowComprMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & d
 lines (x = as_date (belowComprMean [, 1]),
        y = rollmean (belowComprMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [3], lwd = 2, lty = 2)
-plotEndOfGrowingSeason (y = 1.80, treeLabels = treeLabels, colour = colours [3], symbol = 21)
+#plotEndOfGrowingSeason (y = 1.80, treeLabels = treeLabels, colour = colours [3], symbol = 21)
 # above the double compression
 treeLabels <- c ('02A','08A','14A','22A','24A','25A','26A','27A','34A','37A')
 aboveDCompMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -1146,7 +1153,7 @@ aboveDCompMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & d
 lines (x = as_date (aboveDCompMean [, 1]),
        y = rollmean (aboveDCompMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [4], lwd = 2)
-plotEndOfGrowingSeason (y = 1.60, treeLabels = treeLabels, colour = colours [4], symbol = 19)
+#plotEndOfGrowingSeason (y = 1.60, treeLabels = treeLabels, colour = colours [4], symbol = 19)
 # between the double compression
 treeLabels <- c ('02M','08M','14M','22M','24M','25M','26M','27M','34M','37M')
 betweenDCompMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -1155,25 +1162,27 @@ betweenDCompMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 &
 lines (x = as_date (betweenDCompMean [, 1]),
        y = rollmean (betweenDCompMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [4], lwd = 2, lty = 3)
-plotEndOfGrowingSeason (y = 1.5, treeLabels = treeLabels, colour = colours [4], symbol = 22)
+#plotEndOfGrowingSeason (y = 1.5, treeLabels = treeLabels, colour = colours [4], symbol = 22)
 # below the double compression
 treeLabels <- c ('02B','08B','14B','22B','24B','25B','26B','27B','34B','37B')
 belowDCompMean <- aggregate (x  = data [['CWTALL']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                              by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                              mean)
-plotEndOfGrowingSeason (y = 1.4, treeLabels = treeLabels, colour = colours [4], symbol = 21)
+#plotEndOfGrowingSeason (y = 1.4, treeLabels = treeLabels, colour = colours [4], symbol = 21)
 lines (x = as_date (belowDCompMean [, 1]),
        y = rollmean (belowDCompMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [4], lwd = 2, lty = 2)
 
 # plot cell size of the 2017 ring for each period and tree
 plot (x = as_date (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] == '01M']),
-      y = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] == '01M'],
+      y = data [['DRAD']] [data [['YEAR']] == 2017 & data [['TREE']] == '01M'],
       las = 1, col = 'white', typ = 'l',
-      ylab = 'radial cell width (microns)',
-      xlab = 'time',
+      ylab = 'lumen diameter (microns)',
+      xlab = 'estimated time of formation',
       xlim = as_date (c ('2017-03-01','2017-11-03')),
-      ylim = c (15, 50))
+      ylim = c (5, 50))
+# draw sampling dates
+abline (v = as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03')), col = '#99999999', lwd = 2)
 # plot all control trees
 treeLabels <- c ('01M','03M','04M','06M','07M','09M','18M','30M','31M','36M')
 controlMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -1239,13 +1248,13 @@ lines (x = as_date (belowDCompMean [, 1]),
        y = rollmean (belowDCompMean [, 2], window, na.pad = TRUE, na.rm = T),
        col = colours [4], lwd = 2, lty = 2)
 legend (x = as_date ('2017-04-25'), lty = c (0, rep (1, 3)), lwd = 2,
-        y = 25, box.lty = 0, bg = 'transparent', col = colours, legend = c ('control','girdled','compressed','double compression'))
+        y = 28, box.lty = 0, bg = 'transparent', col = colours, legend = c ('control','girdled','compressed','double compression'))
 legend (x = as_date ('2017-03-01'), lty = c (0, rep (2, 3)), lwd = 2,
-        y = 25, box.lty = 0, bg = 'transparent', col = colours, legend = c ('','','',''))
+        y = 28, box.lty = 0, bg = 'transparent', col = colours, legend = c ('','','',''))
 legend (x = as_date ('2017-03-30'), lty = c (1, 0, 0, 3), lwd = 2,
-        y = 25, box.lty = 0, bg = 'transparent', col = colours, legend = c ('','','',''))
+        y = 28, box.lty = 0, bg = 'transparent', col = colours, legend = c ('','','',''))
 text (x = as_date (c ('2017-03-15','2017-04-15','2017-05-15')), 
-      y = 25, labels = c ('below','middle', 'above'), cex = 0.9)
+      y = 28, labels = c ('below','middle', 'above'), cex = 0.9)
 
 # create tibble with cell numbers per ring
 cellNumber <- tibble (tree = NA, treatment = NA, height = NA, n = NA)
@@ -1293,26 +1302,187 @@ cellNumber [cellNumber [['tree']] == 6, ] <- NA
 cellNMeans <- aggregate (cellNumber [['n']], by = c (list (cellNumber [['height']]), list (cellNumber [['treatment']])), FUN = mean)
 cellNSD  <- aggregate (cellNumber [['n']], by = c (list (cellNumber [['height']]), list (cellNumber [['treatment']])), FUN = sd)
 
+# plot box plot of the estimated end time of growth in each treatment
+xPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
+
+# determine the last day of growth for control trees
+
+par (mar = c (5,5,1,1))
+treeLabels <- c ('01M','03M','04M','06M','07M','09M','18M','30M','31M','36M')
+lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                        by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                        max, na.rm = TRUE)
+lastDates [is.infinite (lastDates [, 2]), 2] <- NA
+# boxplot of control trees
+boxplot (at = xPositions [1],
+         x = as_date (lastDates [[2]]), xlab = 'estimated end of growth', ylab = 'treatment and sampling height', horizontal = TRUE,
+         col = colours [1], las = 1, 
+         xlim = c (0, 6), ylim = as_date (c ('2017-03-01','2017-11-15')), 
+         lty = 1, pars = list (outbg = colours [1], outpch = 21))
+
+# determine the last day of growth for below the girdl
+treeLabels <- c ('05B','11B','15B','16B','19B','23B','29B','35B','39B','40B')
+lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                        by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                        max, na.rm = TRUE)
+lastDates [is.infinite (lastDates [, 2]), 2] <- NA
+# boxplot for below the girdl
+boxplot (at = xPositions [2],
+         x = as_date (lastDates [[2]]), xlab = '', ylab = '', horizontal = TRUE, axes = FALSE, add = TRUE,
+         border = colours [2], col = 'white', 
+         lty = 1)
+# determine the last day of growth for above the girdl
+treeLabels <- c ('05A','11A','15A','16A','19A','23A','29A','35A','39A','40A')
+lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                        by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                        max, na.rm = TRUE)
+lastDates [is.infinite (lastDates [, 2]), 2] <- NA
+# boxplot above the girdl
+boxplot (at = xPositions [3],
+         x = as_date (lastDates [[2]]), xlab = '', ylab = '', horizontal = TRUE,axes = FALSE, add = TRUE,
+         col = colours [2],  
+         lty = 1, pars = list (outbg = colours [2], outpch = 21))
+axis (side = 2, at = xPositions, 
+      labels = c ('1 M','2 B','2 A','3 B','3 A','4 B','4 M','4 A'), 
+      tick = 1, las = 1)
+
+# determine the last day of growth for below the compression
+treeLabels <- c ('10B','12B','13B','17B','20B','21B','28B','32B','33B','38B')
+lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                        by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                        max, na.rm = TRUE)
+lastDates [is.infinite (lastDates [, 2]), 2] <- NA
+# boxplot for below the compression
+boxplot (at = xPositions [4],
+         x = as_date (lastDates [[2]]), xlab = '', ylab = '', horizontal = TRUE, axes = FALSE, add = TRUE,
+         border = colours [3], col = 'white', 
+         lty = 1)
+# determine the last day of growth for above the compression
+treeLabels <- c ('10A','12A','13A','17A','20A','21A','28A','32A','33A','38A')
+lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                        by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                        max, na.rm = TRUE)
+lastDates [is.infinite (lastDates [, 2]), 2] <- NA
+# boxplot above the compression
+boxplot (at = xPositions [5],
+         x = as_date (lastDates [[2]]), xlab = '', ylab = '', horizontal = TRUE,axes = FALSE, add = TRUE,
+         col = colours [3],  
+         lty = 1, pars = list (outbg = colours [3], outpch = 21))
+# determine the last day of growth for below the double compression
+treeLabels <- c ('02B','08B','14B','22B','24B','25B','26B','27B','34B','37B')
+lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                        by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                        max, na.rm = TRUE)
+lastDates [is.infinite (lastDates [, 2]), 2] <- NA
+# boxplot for below the double compression
+boxplot (at = xPositions [6],
+         x = as_date (lastDates [[2]]), xlab = '', ylab = '', horizontal = TRUE, axes = FALSE, add = TRUE,
+         border = colours [4], col = 'white', 
+         lty = 1)
+# determine the last day of growth for below the double compression
+treeLabels <- c ('02M','08M','14M','22M','24M','25M','26M','27M','34M','37M')
+lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                        by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                        max, na.rm = TRUE)
+lastDates [is.infinite (lastDates [, 2]), 2] <- NA
+# boxplot for below the double compression
+boxplot (at = xPositions [7],
+         x = as_date (lastDates [[2]]), xlab = '', ylab = '', horizontal = TRUE, axes = FALSE, add = TRUE,
+         border = colours [4], col = '#666666', 
+         lty = 1)
+# determine the last day of growth for above the double compression
+treeLabels <- c ('02A','08A','14A','22A','24A','25A','26A','27A','34A','37A')
+lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+                        by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+                        max, na.rm = TRUE)
+lastDates [is.infinite (lastDates [, 2]), 2] <- NA
+# boxplot above the double compression
+boxplot (at = xPositions [8],
+         x = as_date (lastDates [[2]]), xlab = '', ylab = '', horizontal = TRUE,axes = FALSE, add = TRUE,
+         col = colours [4],  
+         lty = 1, pars = list (outbg = colours [4], outpch = 21))
+
+axis (side = 2, at = xPositions, 
+      labels = c ('1 M','2 B','2 A','3 B','3 A','4 B','4 M','4 A'), 
+      tick = 1, las = 1)
+
+
 # plot box plot of number of cell per ring in each treatment
-xPositions <- c (1.3, 1.5, 1.6, 1.8, 1.9, 2.1, 2.2, 2.3)
-plot (x = xPositions, 
-      y = cellNMeans [[3]] [c (1:6, 8, 7)], typ = 'p',
-      col = c (colours [1], rep (colours [2], 2), rep (colours [3], 2), rep (colours [4], 3)),
-      pch = c (19, 19, 21, 19, 21, 19, 21, 22),
-      xlab = '', ylab = 'number of cells', las = 1, 
-      xlim = c (1, 2.5), ylim = c (10, 80), xaxt = 'n', cex = 2.0)
-axis (side = 1, at = xPositions, labels = c ('M','A','B','A','B','A','M','B'), tick = 0)
-arrows (x0 = xPositions, 
-        y0 = cellNMeans [[3]] [c (1:6, 8, 7)] - cellNSD [[3]] [c (1:6, 8, 7)] / sqrt (10), 
-        y1 = cellNMeans [[3]] [c (1:6, 8, 7)] + cellNSD [[3]] [c (1:6, 8, 7)] / sqrt (10), 
-        col = c (colours [1], rep (colours [2], 2), rep (colours [3], 2), rep (colours [4], 3)), 
-        lwd = 2, lty = c (1, 1, 2, 1, 2, 1, 3, 2), code = 3, 
-        angle = 90, length = 0.07)
-points (x = xPositions, 
-        y = cellNMeans [[3]] [c (1:6, 8, 7)],
-        col = c (colours [1], rep (colours [2], 2), rep (colours [3], 2), rep (colours [4], 3)),
-        pch = c (19, 19, 21, 19, 21, 19, 22, 21), lwd = 2, bg = 'white', cex = 2.0)
+par (mar = c (5,5,1,1))
+xPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
+boxplot (at = xPositions [1], x = cellNumber [['n']] [cellNumber [['treatment']] == 1],
+         col = colours [1], xlab = 'number of cells', ylab = '', las = 1, yax = 'n',
+         xlim = c (0, tail(xPositions, n = 1)+head(xPositions, n = 1)), ylim = c (0, 100), horizontal = TRUE, lty = 1)
+boxplot (at = xPositions [2], x = cellNumber [['n']] [cellNumber [['treatment']] == 2 & cellNumber [['height']] == 'B'],
+         border = colours [2], bg = 'white', add = TRUE, axes = FALSE, horizontal = TRUE, lty = 1)
+boxplot (at = xPositions [3], x = cellNumber [['n']] [cellNumber [['treatment']] == 2 & cellNumber [['height']] == 'A'],
+         col = colours [2], add = TRUE, axes = FALSE, horizontal = TRUE, lty = 1)
+boxplot (at = xPositions [4], x = cellNumber [['n']] [cellNumber [['treatment']] == 3 & cellNumber [['height']] == 'B'],
+         border = colours [3], bg = 'white', add = TRUE, axes = FALSE, horizontal = TRUE, lty = 1)
+boxplot (at = xPositions [5], x = cellNumber [['n']] [cellNumber [['treatment']] == 3 & cellNumber [['height']] == 'A'],
+         col = colours [3], add = TRUE, axes = FALSE, horizontal = TRUE, pars = list (outbg = colours [3], outpch = 21), lty = 1)
+boxplot (at = xPositions [6], x = cellNumber [['n']] [cellNumber [['treatment']] == 4 & cellNumber [['height']] == 'B'],
+         border = colours [4], bg = 'white', add = TRUE, axes = FALSE, horizontal = TRUE, lty = 1)
+boxplot (at = xPositions [7], x = cellNumber [['n']] [cellNumber [['treatment']] == 4 & cellNumber [['height']] == 'M'],
+         border = colours [4], col = '#666666', add = TRUE, axes = FALSE, horizontal = TRUE, lty = 1)
+boxplot (at = xPositions [8], x = cellNumber [['n']] [cellNumber [['treatment']] == 4 & cellNumber [['height']] == 'A'],
+         col = colours [4], add = TRUE, axes = FALSE, horizontal = TRUE, pars = list (outbg = colours [4], outpch = 21), lty = 1)
 ```
 
+
+```{r testDifferencesInWoodAnatomy, echo = FALSE}
+# create long format tibble with ring width, carbon content, cell number, CWT and lumen diameter
+woodAnatomy <-  tibble (tree = 1, treatment = 1, position = 'M', RW2017 = NA, CC = NA, n = NA, CWA = NA, CWT = NA, LD = NA)
+
+for (iTree in 1:40) { # loop over trees
+  
+  # get treatment and determine heights
+  treatment <- allometricData [['treatment']] [iTree]
+  if (treatment == 1 & iTree != 6) {
+    iPos <- 'M'
+    iRW  <- as.numeric (standardisedRW2017 [iTree, 3])
+    iCC  <- as.numeric (carbonContentData  [iTree, 5])
+    iN   <- cellNumber [['n']] [cellNumber [['tree']] == iTree & cellNumber [['height']] == 'M' & !is.na (cellNumber [['n']])]
+    iCWA <- max (data [['CWAACC']] [as.numeric (substr (data [['TREE']], 1, 2)) == treatment], na.rm = T)
+    iCWT <- mean (data [['CWTALL']] [as.numeric (substr (data [['TREE']], 1, 2)) == treatment], na.rm = T)
+    iLD  <- mean (data [['DRAD']] [as.numeric (substr (data [['TREE']], 1, 2)) == treatment], na.rm = T)
+  } else if (treatment == 2 | treatment == 3) {
+    iPos <- c ('A','B')
+    iRW  <- as.numeric (standardisedRW2017 [iTree, c (2, 4)])
+    iCC  <- as.numeric (carbonContentData  [iTree, c (6, 4)])
+    iN   <- cellNumber [['n']] [cellNumber [['tree']] == iTree & cellNumber [['height']] %in% c ('A','B') & !is.na (cellNumber [['n']])]
+    iCWA <- aggregate (data [['CWAACC']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree], 
+                       by = list (data [['POS']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]), max, na.rm = T) [[2]]
+    iCWT <- aggregate (data [['CWTALL']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree], 
+                       by = list (data [['POS']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]), mean, na.rm = T) [[2]]
+    iLD  <- aggregate (data [['DRAD']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree], 
+                       by = list (data [['POS']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]), mean, na.rm = T) [[2]]
+  } else if (treatment == 4) {
+    iPos <- c ('A','B','M')
+    iRW  <- as.numeric (standardisedRW2017 [iTree, c (1, 5, 3)])
+    iCC  <- as.numeric (carbonContentData  [iTree, c (7, 5, 3)])
+    iN   <- cellNumber [['n']] [cellNumber [['tree']] == iTree & cellNumber [['height']] %in% c ('A','B','M') & !is.na (cellNumber [['n']])]
+    iCWA <- aggregate (data [['CWAACC']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree], 
+                       by = list (data [['POS']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]), max, na.rm = T) [[2]]
+    iCWT <- aggregate (data [['CWTALL']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree], 
+                       by = list (data [['POS']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]), mean, na.rm = T) [[2]]
+    iLD  <- aggregate (data [['DRAD']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree], 
+                       by = list (data [['POS']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]), mean, na.rm = T) [[2]]
+  }
+  
+  # add rows for tree
+  woodAnatomy <- add_row (woodAnatomy, tree = iTree, treatment = treatment, position = iPos, 
+                          RW2017 = iRW, CC = iCC, n = iN, CWA = iCWA, CWT = iCWT, LD = iLD)  
+
+  } # close height loop
+  
+} # close tree loop
+
+# delete first row
+woodAnatomy <- woodAnatomy [-1, ]
+
+# test for difference in RW2017
+
+```
 
 # References
