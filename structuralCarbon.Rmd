@@ -823,8 +823,8 @@ for (i in 1:dim (data) [1]) {
   treatment <- as.numeric (substr (data [['PLOT']] [i], 2, 2))
 
   # calculate zonal average tangential and radial cell width
-  data [['cellTanWidth']] [i] <- data [['DRAD']] [i] + 2 * data [['CWTTAN']] [i] 
-  data [['cellRadWidth']] [i] <- data [['DTAN']] [i] + 2 * data [['CWTRAD']] [i] 
+  data [['cellRadWidth']] [i] <- data [['DRAD']] [i] + 2 * data [['CWTTAN']] [i] 
+  data [['cellTanWidth']] [i] <- data [['DTAN']] [i] + 2 * data [['CWTRAD']] [i] 
   
   # factor to substract bark thickness
   
@@ -847,7 +847,7 @@ for (i in 1:dim (data) [1]) {
   }
   
   # determine multiplier
-  multiplier <- circumference / data [['cellTanWidth']] [i]
+  multiplier <- circumference / data [['cellRadWidth']] [i]
   
   # calculate new zonal cell wall area (microns2)
   data [['zonalCWA']] [i] <- data [['CWA']] [i] * multiplier
@@ -1185,7 +1185,7 @@ plot (x = as_date (data [['formationDate']] [data [['YEAR']] == 2017 & data [['T
 abline (v = as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03')), col = '#99999999', lwd = 2)
 # plot all control trees
 treeLabels <- c ('01M','03M','04M','06M','07M','09M','18M','30M','31M','36M')
-controlMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+controlMean <- aggregate (x  = data [['cellRadWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                           by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                           mean)
 lines (x = as_date (controlMean [, 1]),
@@ -1193,7 +1193,7 @@ lines (x = as_date (controlMean [, 1]),
        col = colours [1], lwd = 2)
 # above the girld 
 treeLabels <- c ('05A','11A','15A','16A','19A','23A','29A','35A','39A','40A')
-aboveGirdlMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+aboveGirdlMean <- aggregate (x  = data [['cellRadWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                              by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                              mean)
 lines (x = as_date (aboveGirdlMean [, 1]),
@@ -1201,7 +1201,7 @@ lines (x = as_date (aboveGirdlMean [, 1]),
        col = colours [2], lwd = 2)
 # below the girld 
 treeLabels <- c ('05B','11B','15B','16B','19B','23B','29B','35B','39B','40B')
-belowGirdlMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+belowGirdlMean <- aggregate (x  = data [['cellRadWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                              by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                              mean)
 lines (x = as_date (belowGirdlMean [, 1]),
@@ -1209,7 +1209,7 @@ lines (x = as_date (belowGirdlMean [, 1]),
        col = colours [2], lwd = 2, lty = 2)
 # above the compression
 treeLabels <- c ('10A','12A','13A','17A','20A','21A','28A','32A','33A','38A')
-aboveComprMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+aboveComprMean <- aggregate (x  = data [['cellRadWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                              by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                              mean)
 lines (x = as_date (aboveComprMean [, 1]),
@@ -1217,7 +1217,7 @@ lines (x = as_date (aboveComprMean [, 1]),
        col = colours [3], lwd = 2)
 # below the compression
 treeLabels <- c ('10B','12B','13B','17B','20B','21B','28B','32B','33B','38B')
-belowComprMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+belowComprMean <- aggregate (x  = data [['cellRadWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                              by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                              mean)
 lines (x = as_date (belowComprMean [, 1]),
@@ -1225,7 +1225,7 @@ lines (x = as_date (belowComprMean [, 1]),
        col = colours [3], lwd = 2, lty = 2)
 # above the doublecompression
 treeLabels <- c ('02A','08A','14A','22A','24A','25A','26A','27A','34A','37A')
-aboveDCompMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+aboveDCompMean <- aggregate (x  = data [['cellRadWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                               by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                               mean)
 lines (x = as_date (aboveDCompMean [, 1]),
@@ -1233,7 +1233,7 @@ lines (x = as_date (aboveDCompMean [, 1]),
        col = colours [4], lwd = 2)
 # between the double compression
 treeLabels <- c ('02M','08M','14M','22M','24M','25M','26M','27M','34M','37M')
-betweenDCompMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+betweenDCompMean <- aggregate (x  = data [['cellRadWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                                by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                                mean)
 lines (x = as_date (betweenDCompMean [, 1]),
@@ -1241,7 +1241,7 @@ lines (x = as_date (betweenDCompMean [, 1]),
        col = colours [4], lwd = 2, lty = 3)
 # below the double compression
 treeLabels <- c ('02B','08B','14B','22B','24B','25B','26B','27B','34B','37B')
-belowDCompMean <- aggregate (x  = data [['cellTanWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+belowDCompMean <- aggregate (x  = data [['cellRadWidth']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                               by = list (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                               mean)
 lines (x = as_date (belowDCompMean [, 1]),
@@ -1288,15 +1288,17 @@ for (iTree in 1:40) { # loop over trees
     
     # determine average number of cells in sector and sum them
     condition <- data [['YEAR']] == 2017 & data [['TREE']] == treeID
-    nCells <- floor (sum (20 / data [['cellTanWidth']] [condition], na.rm = TRUE))
-    cellNumber <- add_row (cellNumber, tree = iTree, treatment = treatment, height = iHeight, n = nCells)
+    nCells <- floor (sum (20 / data [['cellRadWidth']] [condition], na.rm = TRUE))
+    iH <- iHeight
+    if (treatment == 1) iH <- 'C'
+    cellNumber <- add_row (cellNumber, tree = iTree, treatment = treatment, height = iH, n = nCells)
       
   } # end height loop
 } # end tree loop
 
 # delete first row, which is empty and 06.1M because data is no good
 cellNumber <- cellNumber [-1, ]
-cellNumber [cellNumber [['tree']] == 6, ] <- NA 
+#cellNumber [['n']] [cellNumber [['tree']] == 6] <- NA 
 
 # mean and standard deviation of cell number by treatment and height 
 cellNMeans <- aggregate (cellNumber [['n']], by = c (list (cellNumber [['height']]), list (cellNumber [['treatment']])), FUN = mean)
@@ -1429,60 +1431,5 @@ boxplot (at = xPositions [8], x = cellNumber [['n']] [cellNumber [['treatment']]
          col = colours [4], add = TRUE, axes = FALSE, horizontal = TRUE, pars = list (outbg = colours [4], outpch = 21), lty = 1)
 ```
 
-
-```{r testDifferencesInWoodAnatomy, echo = FALSE}
-# create long format tibble with ring width, carbon content, cell number, CWT and lumen diameter
-woodAnatomy <-  tibble (tree = 1, treatment = 1, position = 'M', RW2017 = NA, CC = NA, n = NA, CWA = NA, CWT = NA, LD = NA)
-
-for (iTree in 1:40) { # loop over trees
-  
-  # get treatment and determine heights
-  treatment <- allometricData [['treatment']] [iTree]
-  if (treatment == 1 & iTree != 6) {
-    iPos <- 'M'
-    iRW  <- as.numeric (standardisedRW2017 [iTree, 3])
-    iCC  <- as.numeric (carbonContentData  [iTree, 5])
-    iN   <- cellNumber [['n']] [cellNumber [['tree']] == iTree & cellNumber [['height']] == 'M' & !is.na (cellNumber [['n']])]
-    iCWA <- max (data [['CWAACC']] [as.numeric (substr (data [['TREE']], 1, 2)) == treatment], na.rm = T)
-    iCWT <- mean (data [['CWTALL']] [as.numeric (substr (data [['TREE']], 1, 2)) == treatment], na.rm = T)
-    iLD  <- mean (data [['DRAD']] [as.numeric (substr (data [['TREE']], 1, 2)) == treatment], na.rm = T)
-  } else if (treatment == 2 | treatment == 3) {
-    iPos <- c ('A','B')
-    iRW  <- as.numeric (standardisedRW2017 [iTree, c (2, 4)])
-    iCC  <- as.numeric (carbonContentData  [iTree, c (6, 4)])
-    iN   <- cellNumber [['n']] [cellNumber [['tree']] == iTree & cellNumber [['height']] %in% c ('A','B') & !is.na (cellNumber [['n']])]
-    iCWA <- aggregate (data [['CWAACC']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree], 
-                       by = list (data [['POS']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]), max, na.rm = T) [[2]]
-    iCWT <- aggregate (data [['CWTALL']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree], 
-                       by = list (data [['POS']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]), mean, na.rm = T) [[2]]
-    iLD  <- aggregate (data [['DRAD']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree], 
-                       by = list (data [['POS']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]), mean, na.rm = T) [[2]]
-  } else if (treatment == 4) {
-    iPos <- c ('A','B','M')
-    iRW  <- as.numeric (standardisedRW2017 [iTree, c (1, 5, 3)])
-    iCC  <- as.numeric (carbonContentData  [iTree, c (7, 5, 3)])
-    iN   <- cellNumber [['n']] [cellNumber [['tree']] == iTree & cellNumber [['height']] %in% c ('A','B','M') & !is.na (cellNumber [['n']])]
-    iCWA <- aggregate (data [['CWAACC']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree], 
-                       by = list (data [['POS']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]), max, na.rm = T) [[2]]
-    iCWT <- aggregate (data [['CWTALL']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree], 
-                       by = list (data [['POS']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]), mean, na.rm = T) [[2]]
-    iLD  <- aggregate (data [['DRAD']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree], 
-                       by = list (data [['POS']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]), mean, na.rm = T) [[2]]
-  }
-  
-  # add rows for tree
-  woodAnatomy <- add_row (woodAnatomy, tree = iTree, treatment = treatment, position = iPos, 
-                          RW2017 = iRW, CC = iCC, n = iN, CWA = iCWA, CWT = iCWT, LD = iLD)  
-
-  } # close height loop
-  
-} # close tree loop
-
-# delete first row
-woodAnatomy <- woodAnatomy [-1, ]
-
-# test for difference in RW2017
-
-```
 
 # References
