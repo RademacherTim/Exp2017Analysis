@@ -9,8 +9,9 @@ source ('processNSCDataForExp2017.R')
 # Make boxplot of treatments and height
 #----------------------------------------------------------------------------------------
 NSC    = 'sugar'                                   # choice is 'sugar' and 'starch'
-tissue = 'stem'                                    # choice is 'root','stem','leaf'
-data = get (paste (tissue, 'Data', sep = ''))
+tissue = 'leaf'                                    # choice is 'root','stem','leaf'
+year   = '2017'                                    # choice is '2017','2018','2019'
+data = get (paste (tissue, 'Data', year, sep = ''))
 if (NSC == 'sugar' & tissue == 'stem') {
   yLimit <- c (0, 2.4) 
   NOTWOOD <- FALSE
