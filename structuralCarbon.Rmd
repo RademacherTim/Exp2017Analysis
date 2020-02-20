@@ -666,8 +666,7 @@ legend (x = 1.35, y = 2, legend = c ('control','gridling','compression','double 
 f_Jul <- (ringWidthsJul [4:8] / ringWidthsJul [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
 f_Aug <- (ringWidthsAug [4:8] / ringWidthsAug [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
 f_Oct <- (ringWidthsOct [4:8] / ringWidthsOct [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
-# Samples with only a partial 2015 ring are currently set to NAs
-# TR - I need to deal with November samples that only have a partial measurement of the 2015 ring (06.1M, 11.2A, 24.4A, 24.4B)
+# Samples 24.4A and 24.4B only have a partial measurement of the 2015 ring and are excluded from the analysis (e.g., set to NA).
 
 # standardised ring width at the end of the season
 standardisedRW2017 <- ringWidthsNov [4:8] / ringWidthsNov [14:18]
@@ -1322,107 +1321,121 @@ cellNSD  <- aggregate (cellNumber [['n']], by = c (list (cellNumber [['height']]
 # plot box plot of the estimated end time of growth in each treatment
 xPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
 
-# determine the last day of growth for control trees
-
+# plot the estimated mean end of growth for each treatment
 par (mar = c (5,5,1,1))
 treeLabels <- c ('01M','03M','04M','06M','07M','09M','18M','30M','31M','36M')
 lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                         max, na.rm = TRUE)
 lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-# boxplot of control trees
-boxplot (at = xPositions [1],
-         x = as_date (lastDates [[2]]), xlab = 'estimated end of growth', ylab = 'treatment and sampling height', horizontal = TRUE,
-         col = colours [1], las = 1, 
-         xlim = c (0, 6), ylim = as_date (c ('2017-03-01','2017-11-15')), 
-         lty = 1, pars = list (outbg = colours [1], outpch = 21))
-
+# plot of the means and standard errors
+plot (y = xPositions [1],
+      x = as_date (mean (lastDates [[2]])), 
+      xlab = 'estimated end of growth', ylab = 'treatment and sampling height',
+      col = colours [1], las = 1, pch = 1, cex = 2, lwd = 3, yaxt = 'n',
+      ylim = c (0, 6), xlim = as_date (c ('2017-03-01','2017-11-15')))
+arrows (x0 = as_date (mean (lastDates [[2]]) - sd (lastDates [[2]])), 
+        x1 = as_date (mean (lastDates [[2]]) + sd (lastDates [[2]])),
+        y0 = xPositions [1], col = colours [1], lwd = 3, angle = 90, length = 0.15, code = 3)
+points (y = xPositions [1],
+      x = as_date (mean (lastDates [[2]])), 
+      col = colours [1], las = 1, pch = 21, cex = 2, lwd = 3, bg = colours [1])
 # determine the last day of growth for below the girdl
 treeLabels <- c ('05B','11B','15B','16B','19B','23B','29B','35B','39B','40B')
 lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                         max, na.rm = TRUE)
 lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-# boxplot for below the girdl
-boxplot (at = xPositions [2],
-         x = as_date (lastDates [[2]]), xlab = '', ylab = '', horizontal = TRUE, axes = FALSE, add = TRUE,
-         border = colours [2], col = 'white', 
-         lty = 1)
+# add mean and standard deviation for below the girdl
+arrows (x0 = as_date (mean (lastDates [[2]]) - sd (lastDates [[2]])), 
+        x1 = as_date (mean (lastDates [[2]]) + sd (lastDates [[2]])),
+        y0 = xPositions [2], col = colours [2], lwd = 3, angle = 90, length = 0.15, code = 3)
+points (y = xPositions [2],
+      x = as_date (mean (lastDates [[2]])), 
+      col = colours [2], las = 1, pch = 21, cex = 2, lwd = 3, bg = 'white')
 # determine the last day of growth for above the girdl
 treeLabels <- c ('05A','11A','15A','16A','19A','23A','29A','35A','39A','40A')
 lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                         max, na.rm = TRUE)
 lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-# boxplot above the girdl
-boxplot (at = xPositions [3],
-         x = as_date (lastDates [[2]]), xlab = '', ylab = '', horizontal = TRUE,axes = FALSE, add = TRUE,
-         col = colours [2],  
-         lty = 1, pars = list (outbg = colours [2], outpch = 21))
-axis (side = 2, at = xPositions, 
-      labels = c ('1 M','2 B','2 A','3 B','3 A','4 B','4 M','4 A'), 
-      tick = 1, las = 1)
-
+# add mean and standard deviation for above the girdl
+arrows (x0 = as_date (mean (lastDates [[2]]) - sd (lastDates [[2]])), 
+        x1 = as_date (mean (lastDates [[2]]) + sd (lastDates [[2]])),
+        y0 = xPositions [3], col = colours [2], lwd = 3, angle = 90, length = 0.15, code = 3)
+points (y = xPositions [3],
+      x = as_date (mean (lastDates [[2]])), 
+      col = colours [2], las = 1, pch = 21, cex = 2, lwd = 3, bg = colours [2])
 # determine the last day of growth for below the compression
 treeLabels <- c ('10B','12B','13B','17B','20B','21B','28B','32B','33B','38B')
 lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                         max, na.rm = TRUE)
 lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-# boxplot for below the compression
-boxplot (at = xPositions [4],
-         x = as_date (lastDates [[2]]), xlab = '', ylab = '', horizontal = TRUE, axes = FALSE, add = TRUE,
-         border = colours [3], col = 'white', 
-         lty = 1)
+# add mean and standard deviation for below the compression
+arrows (x0 = as_date (mean (lastDates [[2]]) - sd (lastDates [[2]])), 
+        x1 = as_date (mean (lastDates [[2]]) + sd (lastDates [[2]])),
+        y0 = xPositions [4], col = colours [3], lwd = 3, angle = 90, length = 0.15, code = 3)
+points (y = xPositions [4],
+      x = as_date (mean (lastDates [[2]])), 
+      col = colours [3], las = 1, pch = 21, cex = 2, lwd = 3, bg = 'white')
 # determine the last day of growth for above the compression
 treeLabels <- c ('10A','12A','13A','17A','20A','21A','28A','32A','33A','38A')
 lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                         max, na.rm = TRUE)
 lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-# boxplot above the compression
-boxplot (at = xPositions [5],
-         x = as_date (lastDates [[2]]), xlab = '', ylab = '', horizontal = TRUE,axes = FALSE, add = TRUE,
-         col = colours [3],  
-         lty = 1, pars = list (outbg = colours [3], outpch = 21))
+# add mean and standard deviation for above the compression
+arrows (x0 = as_date (mean (lastDates [[2]]) - sd (lastDates [[2]])), 
+        x1 = as_date (mean (lastDates [[2]]) + sd (lastDates [[2]])),
+        y0 = xPositions [5], col = colours [3], lwd = 3, angle = 90, length = 0.15, code = 3)
+points (y = xPositions [5],
+      x = as_date (mean (lastDates [[2]])), 
+      col = colours [3], las = 1, pch = 21, cex = 2, lwd = 3, bg = colours [3])
 # determine the last day of growth for below the double compression
 treeLabels <- c ('02B','08B','14B','22B','24B','25B','26B','27B','34B','37B')
 lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                         max, na.rm = TRUE)
 lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-# boxplot for below the double compression
-boxplot (at = xPositions [6],
-         x = as_date (lastDates [[2]]), xlab = '', ylab = '', horizontal = TRUE, axes = FALSE, add = TRUE,
-         border = colours [4], col = 'white', 
-         lty = 1)
+# add mean and standard deviation for below the double compression
+arrows (x0 = as_date (mean (lastDates [[2]], na.rm = TRUE) - sd (lastDates [[2]], na.rm = TRUE)), 
+        x1 = as_date (mean (lastDates [[2]], na.rm = TRUE) + sd (lastDates [[2]], na.rm = TRUE)),
+        y0 = xPositions [6], col = colours [4], lwd = 3, angle = 90, length = 0.15, code = 3)
+points (y = xPositions [6],
+      x = as_date (mean (lastDates [[2]], na.rm = TRUE)), 
+      col = colours [4], las = 1, pch = 21, cex = 2, lwd = 3, bg = 'white')
 # determine the last day of growth for below the double compression
 treeLabels <- c ('02M','08M','14M','22M','24M','25M','26M','27M','34M','37M')
 lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                         max, na.rm = TRUE)
 lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-# boxplot for below the double compression
-boxplot (at = xPositions [7],
-         x = as_date (lastDates [[2]]), xlab = '', ylab = '', horizontal = TRUE, axes = FALSE, add = TRUE,
-         border = colours [4], col = '#666666', 
-         lty = 1)
+# add mean and standard deviation for between the double compression
+arrows (x0 = as_date (mean (lastDates [[2]]) - sd (lastDates [[2]])), 
+        x1 = as_date (mean (lastDates [[2]]) + sd (lastDates [[2]])),
+        y0 = xPositions [7], col = colours [4], lwd = 3, angle = 90, length = 0.15, code = 3)
+points (y = xPositions [7],
+      x = as_date (mean (lastDates [[2]])), 
+      col = colours [4], las = 1, pch = 21, cex = 2, lwd = 3, bg = '#999999')
 # determine the last day of growth for above the double compression
 treeLabels <- c ('02A','08A','14A','22A','24A','25A','26A','27A','34A','37A')
 lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
                         max, na.rm = TRUE)
 lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-# boxplot above the double compression
-boxplot (at = xPositions [8],
-         x = as_date (lastDates [[2]]), xlab = '', ylab = '', horizontal = TRUE,axes = FALSE, add = TRUE,
-         col = colours [4],  
-         lty = 1, pars = list (outbg = colours [4], outpch = 21))
-
+# add mean and standard deviation for below the double compression
+arrows (x0 = as_date (mean (lastDates [[2]], na.rm = TRUE) - sd (lastDates [[2]], na.rm = TRUE)), 
+        x1 = as_date (mean (lastDates [[2]], na.rm = TRUE) + sd (lastDates [[2]], na.rm = TRUE)),
+        y0 = xPositions [8], col = colours [4], lwd = 3, angle = 90, length = 0.15, code = 3)
+points (y = xPositions [8],
+      x = as_date (mean (lastDates [[2]], na.rm = TRUE)), 
+      col = colours [4], las = 1, pch = 21, cex = 2, lwd = 3, bg = colours [4])
+# add y axis
 axis (side = 2, at = xPositions, 
       labels = c ('1 M','2 B','2 A','3 B','3 A','4 B','4 M','4 A'), 
       tick = 1, las = 1)
-
+# TR - Got to this point with cleaning up!!!
 
 # plot box plot of number of cell per ring in each treatment
 par (mar = c (5,5,1,1))
