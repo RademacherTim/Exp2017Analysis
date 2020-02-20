@@ -55,10 +55,10 @@ summary (M3)
 # Convert tree, date, treatment and sampleHeight to factors
 leafData2017 [['tree']]      <- factor (leafData2017 [['treeID']])
 leafData2017 [['date']]      <- factor (leafData2017 [['date']])
-leafData2017 [['treatment']] <- factor (leafData2017 [['treatment']], levels = c (4:1))
+leafData2017 [['treatment']] <- factor (leafData2017 [['treatment']], levels = c (1:4))
 
 # Fit mixed effects model to the leaf soluble sugar data
-M4 <- lmer (formula = sugar ~ (1 | tree) + date * treatment,
+M4 <- lmer (formula = sugar ~ (1 | tree) + date + treatment:date,
             data = leafData2017,
             REML = TRUE)
 summary (M4)

@@ -298,6 +298,7 @@ for (j in 1: length (jsonFiles)) {
     }
   } else if (t == 4) {
     sampleHeight <- substr (temp [['sampleID']], 6, 6)
+    print (c (j, treeID, sampleDate, sampleHeight))
     if (sampleHeight == 'A') {
       if (!is.na (growth [years == 2017])) {
         ringWidths [['RW2017at250']] [ringWidths [['tree']] == treeID &
@@ -443,9 +444,10 @@ setwd ('/home/trademacehr/projects/PlantGrowth/Exp2017/Exp2017Analysis/')
 As growth varies locally around the circumference of the stem, we tried to account for local circumferential variations in growth by standardisation with the 2015 ring width fromt the same thinsection. 
 
 $$
-f_{2017,i} = \frac {rw_{2017,i} \times rw_{2015,Nov}} {rw_{2015,i}} \times \frac{1} {rw_{2017,Nov}}
+f_{m,17} = \frac {rw_{m,17} \times rw_{N, 15}} {rw_{m,15}} \times \frac {1} {rw_{N,15}}
 $$
-, where $rw_{2015,Nov}$ and $rw_{2015,Nov}$ are respectively the 2015 and 2017 ring widths as measured at the end of the growing season. This assumes that the ring was fully formed on the 1$^{st}$ of November, which is about two weeks after the typical end of cell wall thickening for white pine at Harvard Forest. Then, $f_{2017,i}$ theoretically varies between 0 and 1 with 0 meaning non of the ring was formed at the sampling date and 1 meaning that the entire ring was already formed.
+
+, where $f_{m,17}$ is the fraction of the ring width formed in month $m$, $rw_{m, 15}$ and $rw_{m, 17}$ are respecitvely the 2015 and 2017 ring width in month $m$, and $rw_{N, 15}$ and $rw_{N, 17}$ are respectively the 2015 and 2017 ring widths as measured at the end of the growing season in November. This assumes that the ring was fully formed on the 1$^{st}$ of November, which is about two weeks after the typical end of cell wall thickening for white pine at Harvard Forest. Then, $f_{m, 17}$ theoretically varies between 0 and 1 with 0 meaning non of the ring was formed at the sampling date and 1 meaning that the entire ring was already formed.
 
 ```{r climateData, echo = FALSE}
 metData <- read_csv (url ('https://harvardforest.fas.harvard.edu/data/p30/hf300/hf300-01-annual-m.csv'), 
@@ -771,6 +773,12 @@ for (i in 1:dim (data) [1]) {
       } else {
         data [['period']] [i] <- as_date ('2017-11-03')
       }
+    } else if (treeID == 16 & sampleHeight == 'B') {
+      if (data [['RRADDISTR']] [i] / 100 <= fJul) {
+        data [['period']] [i] <- as_date ('2017-07-03')
+      } else if (data [['RRADDISTR']] [i] / 100 <= fAug) {
+        data [['period']] [i] <- as_date ('2017-08-09')
+      }
     }
   } else {
     fraction <- data [['RADDISTR.BAND']] [i] / data [['MRW']] [i]
@@ -986,7 +994,7 @@ CC <- 49.74
 carbonContentData [3:7] <- dryMatterData [3:7] * CC / 100.0
 
 # Export data if necessary
-WRITE <- FALSE
+WRITE <- TRUE
 if (WRITE) {
   write_csv (carbonContentData,  path = 'structuralCarbonData.csv')
 }
@@ -1044,7 +1052,7 @@ for (iDate in as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03')))
         treeID <- paste0 (iTree, iHeight)
       }
 
-      #curve to the four data points to estimate date of formation for any   
+      # curve to the four data points to estimate date of formation for any   
       
       # determine number of zones associated with each date
       condition <- data [['YEAR']] == 2017 & data [['TREE']] == treeID & data [['period']] == iDate
@@ -1069,6 +1077,13 @@ for (iDate in as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03')))
   } # close tree loop
   
 } # close period loop
+
+# interpolate linearly for tree 06M
+condition <- data [['YEAR']] == 2017 & data [['TREE']] == '06M'
+numberOfZones <- sum (condition, na.rm = TRUE)
+incr <- as.numeric (as_date (iDate) - startDate) / (numberOfZones - 1)
+data [['formationDate']] [condition] <- seq (as_date ('2017-03-01'),
+                                             as_date ('2017-11-03'), by = incr)
 
 # set window for rolling mean
 window <- 61
