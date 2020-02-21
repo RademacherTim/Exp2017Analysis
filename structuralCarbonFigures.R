@@ -449,12 +449,15 @@ cellNumber <- cellNumber [-1, ]
 cellNMeans <- aggregate (cellNumber [['n']], 
                          by = c (list (cellNumber [['height']]), list (cellNumber [['treatment']])), 
                          FUN = mean)
-cellNSD    <- aggregate (cellNumber [['n']], 
+cellNSE    <- aggregate (cellNumber [['n']], 
                          by = c (list (cellNumber [['height']]), list (cellNumber [['treatment']])), 
-                         FUN = sd)
+                         FUN = function (x) sd (x, na.rm = TRUE) / sqrt (sum (!is.na (x))))
 
 # plot box plot of the estimated end time of growth in each treatment
 xPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
+
+
+ALPHA <- 0.5
 
 # plot the estimated mean end of growth for each treatment
 png (filename = '../fig/Exp2017EndOfGrowthAndCellNumbers.png')
@@ -467,7 +470,7 @@ lastDates [is.infinite (lastDates [, 2]), 2] <- NA
 # plot of the means and standard errors
 plot (y = xPositions [1],
       x = as_date (mean (lastDates [[2]])), 
-      xlab = 'estimated end of growth', ylab = 'treatment and sampling height',
+      xlab = 'estimated end of growth', ylab = '',
       col = 'white', las = 1, yaxt = 'n',
       ylim = c (0, 6), xlim = as_date (c ('2017-03-01','2017-11-15')))
 arrows (x0 = as_date (mean (lastDates [[2]]) - (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))), 
@@ -573,17 +576,24 @@ points (y = xPositions [8],
         col = colours [4], pch = 23, cex = 1.5, lwd = 2, bg = 'white')
 # add y axis
 axis (side = 2, at = xPositions, 
-      labels = c ('1 M','2 B','2 A','3 B','3 A','4 B','4 M','4 A'), 
+      labels = c ('M','B','A','B','A','B','M','A'), 
       tick = 1, las = 1)
+# add treatments
+mtext (side = 2, line = 2, text = 'control', at = xPositions [1], cex = 0.8)
+mtext (side = 2, line = 2, text = 'girdled', at = mean (xPositions [c(2,3)]), cex = 0.8)
+mtext (side = 2, line = 2, text = 'compressed', at = mean (xPositions [c(4,5)]), cex = 0.8)
+mtext (side = 2, line = 2.5, text = 'double', at = mean (xPositions [c(6,7,8)]), cex = 0.8)
+mtext (side = 2, line = 2, text = 'compressed', at = mean (xPositions [c(6,7,8)]), cex = 0.8)
+
 # add new plot of cell number
 par (new = TRUE)
 plot (y = rep (xPositions [1], sum (cellNumber [['treatment']] == 1, na.rm = TRUE )), 
       x = cellNumber [['n']] [cellNumber [['treatment']] == 1], 
       xlab = '', ylab = '', axes = FALSE,
-      pch = 15, col = addOpacity (colours [1], ALPHA), ylim = c (0, 6), xlim = c (0, 150))
+      pch = 15, col = addOpacity (colours [1], ALPHA), ylim = c (0, 6), xlim = c (0, 200))
 # add y axis and margin text
 axis (side = 3, at = seq (0, 120, by  = 20))
-mtext (side = 3, line = 3, text = 'mean cell number of final ring (n)')
+mtext (side = 3, line = 3, text = 'mean number of cells in final ring (n)')
 # add below the girdling
 points (y = rep (xPositions [2], sum (cellNumber [['treatment']] == 2 & cellNumber [['height']] == 'B', na.rm = TRUE )), 
         x = cellNumber [['n']] [cellNumber [['treatment']] == 2 & cellNumber [['height']] == 'B'], 
@@ -612,5 +622,16 @@ points (y = rep (xPositions [7], sum (cellNumber [['treatment']] == 4 & cellNumb
 points (y = rep (xPositions [8], sum (cellNumber [['treatment']] == 4 & cellNumber [['height']] == 'A', na.rm = TRUE )), 
         x = cellNumber [['n']] [cellNumber [['treatment']] == 4 & cellNumber [['height']] == 'A'], 
         pch = 18, col = addOpacity (colours [4], ALPHA))
+# add standard deviation
+arrows (y0 = xPositions,
+        x0 = cellNMeans [[3]] [c (1, 3, 2, 5, 4, 7, 8, 6)] - cellNSE [[3]] [c (1, 3, 2, 5, 4, 7, 8, 6)], 
+        x1 = cellNMeans [[3]] [c (1, 3, 2, 5, 4, 7, 8, 6)] + cellNSE [[3]] [c (1, 3, 2, 5, 4, 7, 8, 6)], 
+        angle = 90, length = 0.05,
+        col = colours [c (1, 2, 2, 3, 3, 4, 4, 4)], code = 3, lwd = 2)
+# add means of cell numbers
+points (y = xPositions,
+        x = cellNMeans [[3]] [c (1, 3, 2, 5, 4, 7, 8, 6)],
+        col = colours [c (1, 2, 2, 3, 3, 4, 4, 4)], pch = c (22, 21, 23, 21, 23, 21, 22, 23),
+        lwd = 2, bg = colours [c (1, 2, 2, 3, 3, 4, 4, 4)], cex = 1.5)
 dev.off ()
 
