@@ -74,9 +74,9 @@ suppressMessages (source ('/home/trademacehr/projects/PlantGrowth/nonstructuralC
 
 # Create responseVariables tibble
 responseVariables <- tibble (year = 2017,
-                             month    = c (rep (7, 41), rep (8, 41), 
-                                           rep (10, 41), rep (11, 41)),
-                             tree = rep (1:41, 4),
+                             month    = c (rep (7, 40), rep (8, 40), 
+                                           rep (10, 40), rep (11, 40)),
+                             tree = rep (1:40, 4),
                              sugarW250 = NA, starchW250 = NA, sugarW200 = NA,	
                              starchW200 = NA,	sugarW150 = NA,	starchW150 = NA,	
                              sugarW100 = NA,	starchW100 = NA, sugarW50 = NA,	
@@ -179,7 +179,7 @@ B = exp (\beta_0 + \beta_1 \; ln \; d_{t})
 $$
 
 ``` {r totalBiomass}
-biomass04 <- exp (2.4800 + 2.4835 * log (allometricData [['cbh150']] / pi))  
+biomass04 <- exp (2.4800 + 2.4835 * log (allometricData [['cbh150']] [allometricData [['tree']] != 41] / pi))  
 #biomass08 <- exp (-2.6177 + 2.4638 * log (allometricData [['cbh150']] / pi)) # with specific gravity < 0.45
 #biomass08 <- exp (-3.0506 + 2.6465 * log (allometricData [['cbh150']] / pi)) # with specific gravity >= 0.45
 #biomassxx <- 2.2874 * exp (0.1968 * (allometricData [['cbh150']] / pi)) # From peichl
@@ -191,10 +191,10 @@ $$
 f = exp (\alpha_0 + \frac {\alpha_1} {d_t})
 $$
 ``` {r fractionalBiomass}
-rootFraction <- exp (-1.5619 + ( 0.6614 / (allometricData [['cbh150']] / pi)))
-stemFraction <- exp (-0.3737 + (-1.8055 / (allometricData [['cbh150']] / pi)))
-barkFraction <- exp (-2.0980 + (-1.1432 / (allometricData [['cbh150']] / pi)))
-foliFraction <- exp (-2.9584 + ( 4.4766 / (allometricData [['cbh150']] / pi)))
+rootFraction <- exp (-1.5619 + ( 0.6614 / (allometricData [['cbh150']] [allometricData [['tree']] != 41] / pi)))
+stemFraction <- exp (-0.3737 + (-1.8055 / (allometricData [['cbh150']] [allometricData [['tree']] != 41] / pi)))
+barkFraction <- exp (-2.0980 + (-1.1432 / (allometricData [['cbh150']] [allometricData [['tree']] != 41] / pi)))
+foliFraction <- exp (-2.9584 + ( 4.4766 / (allometricData [['cbh150']] [allometricData [['tree']] != 41] / pi)))
 branFraction <- 1.0 - foliFraction - stemFraction - barkFraction
 
 rootMass <- biomass04 * rootFraction
@@ -222,7 +222,6 @@ responseVariables [['sugarNeedle']] <- leafData2017 [['sugar']] * foliMass
 responseVariables [['starchRoot']]   <- rootData2017 [['starch']] * rootMass
 responseVariables [['starchNeedle']] <- leafData2017 [['starch']] * foliMass
 # TR I could also calculate sugar in branches and bark in the future with the samples we still have at NAU. Furthermore, I could average the stem section of the control to derive stem values.
-
 
 # Export data if necessary
 WRITE <- FALSE

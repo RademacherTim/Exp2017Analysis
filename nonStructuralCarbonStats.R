@@ -52,33 +52,57 @@ leafData2017 [['deltaSugar']] <- leafData2017 [['sugar']] -
 leafData2017 [['deltaStarch']] <- leafData2017 [['starch']] - 
                                   leafData2017 [['starch']] [1:40]
 stemData2017 [['deltaSugar']] <- stemData2017 [['sugar']] - 
-                                 stemData2017 [['sugar']] [1:40]
+                                 stemData2017 [['sugar']] [1:80]
 stemData2017 [['deltaStarch']] <- stemData2017 [['starch']] - 
-                                  stemData2017 [['starch']] [1:40]
+                                  stemData2017 [['starch']] [1:80]
 rootData2017 [['deltaSugar']] <- rootData2017 [['sugar']] - 
                                  rootData2017 [['sugar']] [1:40]
 rootData2017 [['deltaStarch']] <- rootData2017 [['starch']] - 
                                   rootData2017 [['starch']] [1:40]
 
 
-# Fit mixed effects model with tree as random effect to analyse stem soluble sugar for 1cm of wood
-M1 <- lmer (formula = sugar ~ (1 | tree) + date + date:treatment:height,
-            data = stemData2017,
-            REML = FALSE)
+# Fit mixed effects model with tree as random effect to analyse stem soluble sugar for 1cm of wood,
+# Fit model to the difference from the July baseline
+M1 <- lmer (formula = deltaSugar ~ (1 | tree) + date + date:treatment:height,
+            data = stemData2017 [81:320, ],
+            REML = TRUE)
 summary (M1)
-M2 <- lmer (formula = sugar ~ (1 | tree) + date + treatment:height, 
-            data = stemData2017,
-            REML = FALSE)
+plot (M1)
+qqnorm (resid (M1))
+# Difference in stem starch concentrations
+M2 <- lmer (formula = deltaStarch ~ (1 | tree) + date + date:treatment:height,
+            data = stemData2017 [81:320, ],
+            REML = TRUE)
 summary (M2)
-M3 <- lmer (formula = sugar ~ (1 | tree) + treatment:height, 
-            data = stemData2017,
-            REML = FALSE)
-summary (M3)
-anova (M1, M2, M3)
-# Model one fits is a more suscinct description of the data with lower AIC, BIC and an anova indicating that it is a better fit.
+plot (M2)
+qqnorm (resid (M2))
 
-# Fit mixed effects model to the leaf soluble sugar data
-M4 <- lmer (formula = sugar ~ (1 | tree) + date + treatment:date,
-            data = leafData2017,
+# Fit mixed effects model to the leaf soluble sugar concentration difference from baseline 
+M3 <- lmer (formula = deltaSugar ~ (1 | tree) + date + treatment:date,
+            data = leafData2017 [41:160, ],
+            REML = TRUE)
+summary (M3)
+plot (M3)
+qqnorm (resid (M3))
+
+# Fit mixed effects model to the leaf starch concentration difference from baseline 
+M4 <- lmer (formula = deltaStarch ~ (1 | tree) + date + treatment:date,
+            data = leafData2017 [41:160, ],
             REML = TRUE)
 summary (M4)
+plot (M4) 
+
+# Fit mixed effects model to the root soluble sugar concentration difference from baseline 
+M5 <- lmer (formula = deltaSugar ~ (1 | tree) + date + treatment:date,
+            data = rootData2017 [41:160, ],
+            REML = TRUE)
+summary (M5)
+plot (M5)
+qqnorm (resid (M5))
+
+# Fit mixed effects model to the root starch concentration difference from baseline 
+M6 <- lmer (formula = deltaStarch ~ (1 | tree) + date + treatment:date,
+            data = rootData2017 [41:160, ],
+            REML = TRUE)
+summary (M6)
+plot (M6)
