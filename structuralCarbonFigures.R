@@ -1,14 +1,11 @@
 #========================================================================================
 # Script to make figures with regard to structural carbon in the 2017 experiment at 
 # Harvard Forest.
-# 
-# Manuscript: 
-#
-#
-#
-# Figure caption:
-#   
 #----------------------------------------------------------------------------------------
+
+# set colour scheme for control, girdled, compressed, double compressed and chilled
+#----------------------------------------------------------------------------------------
+colours <- c ('#91b9a4','#C0334D','#F18904','#5C4A72','#23345C')
 
 # Function to add opacity to a colour
 #----------------------------------------------------------------------------------------
@@ -24,13 +21,8 @@ se <-  function (x) {
   sd (x, na.rm = TRUE) / sqrt (sum (!is.na (x)))
 }
 
-# Fig. X 
-#
-# Caption: 
-#  show boxplots for the 
-#
-#----------------------------------------------------------------------------------------
 # define tree labels for each group
+#----------------------------------------------------------------------------------------
 controlTrees      <- c ('01M','03M','04M','06M','07M','09M','18M','30M','31M','36M')
 girdledTreesAbove <- c ('05A','11A','15A','16A','19A','23A','29A','35A','39A','40A')
 girdledTreesBelow <- c ('05B','11B','15B','16B','19B','23B','29B','35B','39B','40B')
@@ -635,3 +627,4 @@ points (y = xPositions,
         lwd = 2, bg = colours [c (1, 2, 2, 3, 3, 4, 4, 4)], cex = 1.5)
 dev.off ()
 
+#========================================================================================
