@@ -1,5 +1,5 @@
 #========================================================================================
-# Script to plot the microcore images to check the measurements
+# Script to plot the microcore and increment core images to check the measurements
 #---------------------------------------------------------------------------------------- 
 
 # load dependencies
@@ -128,7 +128,57 @@ for (i in 1:length (imagesNames)) {
   dev.off ()
 }
 
-# reset working directory
+# set working directory to read increment core images
+#----------------------------------------------------------------------------------------
+setwd ('/media/TREE/PlantGrowth/data/incrementCores/images/Exp2017/')
+
+# list image files
+#----------------------------------------------------------------------------------------
+imagesNames <- list.files (path = './', pattern = '.jpg')
+
+csvFiles <- list.files (path = '../../ringWidths/Exp2017/', pattern = '.csv')
+
+# loop over images
+#----------------------------------------------------------------------------------------
+for (i in 1:40) {
+  
+  # read the image file
+  img <- raster (imagesNames [i])
+  
+  # extract treeID, sampling height and date from image's name
+  treeID <- substr (imagesNames [i], 13, 14)
+  treatment <- as.numeric (substr (imagesNames [i], 16, 16))
+
+  # open appropriate csv file with coordinates
+  rm (data) # delete variable to avoid using previous one when no file exists
+  temp <- read_csv (file = paste0 (path = '../../ringWidths/Exp2017/PinusStrobus',treeID,'p',treatment,'.csv'),
+                    col_types = cols ())
+  data <- temp
+  #print (paste0 ('Found json file:',substr (data [['sampleID']], 1, 2),'.',substr (data [['sampleID']], 4, 4),
+  #               substr (data [['sampleID']], 6, 6),' ',data [['sampleDate']],'.'))
+  
+  # open ploting device
+  png (paste0 ('./checkFigures/',substr (imagesNames [i], 1, 16),'_check.png'),
+       width = dim (img) [2],
+       height = dim (img) [1])
+
+  # plot that image
+  plot (img,
+        col = colorRampPalette (brewer.pal (n = 11, name = "RdGy"), bias = 0.2,
+                                interpolate = 'spline') (30))
+  # plot the markers
+  points (x  = data [['x']],
+          y  = data [['y']],
+          pch = 19,
+          #cex = 1, # When plotting manually to default device use this!
+          cex = 10,
+          col = 'cornflowerblue')
+  
+  # close device
+  dev.off ()
+}
+
+# reset the working directory to the original
 #----------------------------------------------------------------------------------------
 setwd (previousWD)
 #========================================================================================
