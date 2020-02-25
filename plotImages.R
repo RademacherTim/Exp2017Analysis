@@ -178,6 +178,58 @@ for (i in 1:40) {
   dev.off ()
 }
 
+# list image files for the cores taken at branches and tree 41
+#----------------------------------------------------------------------------------------
+imagesNames <- list.files (path = './additionalImages/', pattern = '.jpg')
+
+csvFiles <- list.files (path = '../../ringWidths/Exp2017/additionalMeasurements/', 
+                        pattern = '.csv')
+
+# loop over images
+#----------------------------------------------------------------------------------------
+for (i in 1:11) {
+  
+  # read the image file
+  img <- raster (paste0 ('./additionalImages/',imagesNames [i]))
+  
+  # extract treeID, sampling height and date from image's name
+  treeID <- substr (imagesNames [i], 13, 14)
+  treatment <- as.numeric (substr (imagesNames [i], 16, 16))
+  
+  # open appropriate csv file with coordinates
+  rm (data) # delete variable to avoid using previous one when no file exists
+  if (i < 11) {
+    temp <- read_csv (file = paste0 (path = '../../ringWidths/Exp2017/additionalMeasurements/PinusStrobus',
+                                     treeID,'p',treatment,'B.csv'),
+                      col_types = cols ())
+  } else {
+    temp <- read_csv (file = paste0 (path = '../../ringWidths/Exp2017/additionalMeasurements/PinusStrobus',
+                                     treeID,'p',treatment,'.csv'),
+                      col_types = cols ())
+  }
+  data <- temp
+  
+  # open ploting device
+  png (paste0 ('./checkFigures/',substr (imagesNames [i], 1, 16),'B_check.png'),
+       width = dim (img) [2],
+       height = dim (img) [1])
+  
+  # plot that image
+  plot (img,
+        col = colorRampPalette (brewer.pal (n = 11, name = "RdGy"), bias = 0.2,
+                                interpolate = 'spline') (30))
+  # plot the markers
+  points (x  = data [['x']],
+          y  = data [['y']],
+          pch = 19,
+          #cex = 1, # When plotting manually to default device use this!
+          cex = 10,
+          col = 'cornflowerblue')
+  
+  # close device
+  dev.off ()
+}
+
 # reset the working directory to the original
 #----------------------------------------------------------------------------------------
 setwd (previousWD)
