@@ -69,7 +69,7 @@ sd (allometricData [['treeHeight2017']] [allometricData [['tree']] != 41])
 
 # switch to directory with increment core measuremnts
 #----------------------------------------------------------------------------------------
-setwd ('/home/trademacehr/projects/PlantGrowth/data/incrementCores/Exp2017/')
+setwd ('/home/trademacehr/projects/PlantGrowth/data/incrementCores/ringWidths/Exp2017/')
 
 # make list of files in directory
 #----------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ listOfFiles <- list.files ('./', pattern = 'PinusStrobus')
 # create tibble with growth data
 #----------------------------------------------------------------------------------------
 annIncGrowth <- tibble (year = 1995:2019)
-k <- 2 # profile counter
+k <- 1 # profile counter
 
 # create tibble with all measurements
 #----------------------------------------------------------------------------------------
