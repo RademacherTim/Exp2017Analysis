@@ -99,7 +99,7 @@ setwd ('/media/TREE/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ringWidthTRI
 # }
 
 # Change working directory
-setwd ('/media/TREE/PlantGrowth/data/allometry/')
+setwd ('/media/TREE/PlantGrowth/data/allometry/Exp2017/')
 
 # Download the Exp2017 allometry data file
 # fileExp2017 <- drive_download (file = as_id (GDExp2017AllometryFileID), verbose = FALSE, overwrite = TRUE)
@@ -298,7 +298,7 @@ for (j in 1: length (jsonFiles)) {
     }
   } else if (t == 4) {
     sampleHeight <- substr (temp [['sampleID']], 6, 6)
-    print (c (j, treeID, sampleDate, sampleHeight))
+    # print (c (j, treeID, sampleDate, sampleHeight))
     if (sampleHeight == 'A') {
       if (!is.na (growth [years == 2017])) {
         ringWidths [['RW2017at250']] [ringWidths [['tree']] == treeID &
@@ -1005,65 +1005,65 @@ $$
 M_{s,p} = V_{CW,s,p} \times \rho_{CW} \times 49.74\%
 $$
 ``` {r estimateDateOfFormation, echo = FALSE}
-# # add new column to data
-# data <- add_column (data, formationDate = NA)
-# 
-# # estimate date of formation for each zone
-# for (iDate in as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03'))) {
-#   
-#   # loop over trees
-#   for (iTree in 1:40) {
-#     
-#     # get treatment and determine heights
-#     if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T1') {
-#       heights <-  c ('M')
-#     } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T2' |
-#                unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T3' ) {
-#       heights <-  c ('A', 'B')
-#     } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T4') {
-#       heights <-  c ('A', 'M', 'B')
-#     }
-#     
-#     # loop over sampling heights
-#     for (iHeight in heights) {
-#       
-#       if (iTree < 10) {
-#         treeID <- paste0 ('0',iTree,iHeight)
-#       } else {
-#         treeID <- paste0 (iTree, iHeight)
-#       }
-#       
-#       # curve to the four data points to estimate date of formation for any   
-#       
-#       # determine number of zones associated with each date
-#       condition <- data [['YEAR']] == 2017 & data [['TREE']] == treeID & data [['period']] == iDate
-#       numberOfZones <- sum (condition, na.rm = TRUE)
-#       
-#       # Divide period into equally into numberOfZones and associate a date of formation with each
-#       if (as_date (iDate) == '2017-07-03') {
-#         startDate <- as_date ('2017-03-01')
-#       } else if (as_date (iDate) == '2017-08-09') {
-#         startDate <- as_date ('2017-07-04')
-#       } else if (as_date (iDate) == '2017-10-09') {
-#         startDate <- as_date ('2017-08-10')
-#       } else if (as_date (iDate) == '2017-11-03') {
-#         startDate <- as_date ('2017-10-10')
-#       }
-#       if (numberOfZones > 0) {
-#         incr <- as.numeric (as_date (iDate) - startDate) / (numberOfZones - 1)
-#         data [['formationDate']] [condition] <- seq (startDate, as_date (iDate), by = incr)
-#       }  
-#     } # close height loop
-#     
-#   } # close tree loop
-#   
-# } # close period loop
-# 
-# # interpolate linearly for tree 06M
-# condition <- data [['YEAR']] == 2017 & data [['TREE']] == '06M'
-# numberOfZones <- sum (condition, na.rm = TRUE)
-# incr <- as.numeric (as_date (iDate) - startDate) / (numberOfZones - 1)
-# data [['formationDate']] [condition] <- seq (as_date ('2017-03-01'),
-#                                              as_date ('2017-11-03'), by = incr)
+# add new column to data
+data <- add_column (data, formationDate = NA)
+
+# estimate date of formation for each zone
+for (iDate in as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03'))) {
+
+  # loop over trees
+  for (iTree in 1:40) {
+
+    # get treatment and determine heights
+    if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T1') {
+      heights <-  c ('M')
+    } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T2' |
+               unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T3' ) {
+      heights <-  c ('A', 'B')
+    } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T4') {
+      heights <-  c ('A', 'M', 'B')
+    }
+
+    # loop over sampling heights
+    for (iHeight in heights) {
+
+      if (iTree < 10) {
+        treeID <- paste0 ('0',iTree,iHeight)
+      } else {
+        treeID <- paste0 (iTree, iHeight)
+      }
+
+      # curve to the four data points to estimate date of formation for any
+
+      # determine number of zones associated with each date
+      condition <- data [['YEAR']] == 2017 & data [['TREE']] == treeID & data [['period']] == iDate
+      numberOfZones <- sum (condition, na.rm = TRUE)
+
+      # Divide period into equally into numberOfZones and associate a date of formation with each
+      if (as_date (iDate) == '2017-07-03') {
+        startDate <- as_date ('2017-03-01')
+      } else if (as_date (iDate) == '2017-08-09') {
+        startDate <- as_date ('2017-07-04')
+      } else if (as_date (iDate) == '2017-10-09') {
+        startDate <- as_date ('2017-08-10')
+      } else if (as_date (iDate) == '2017-11-03') {
+        startDate <- as_date ('2017-10-10')
+      }
+      if (numberOfZones > 0) {
+        incr <- as.numeric (as_date (iDate) - startDate) / (numberOfZones - 1)
+        data [['formationDate']] [condition] <- seq (startDate, as_date (iDate), by = incr)
+      }
+    } # close height loop
+
+  } # close tree loop
+
+} # close period loop
+
+# interpolate linearly for tree 06M
+condition <- data [['YEAR']] == 2017 & data [['TREE']] == '06M'
+numberOfZones <- sum (condition, na.rm = TRUE)
+incr <- as.numeric (as_date (iDate) - startDate) / (numberOfZones - 1)
+data [['formationDate']] [condition] <- seq (as_date ('2017-03-01'),
+                                             as_date ('2017-11-03'), by = incr)
 ```
 # References

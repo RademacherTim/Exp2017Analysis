@@ -20,11 +20,11 @@ colours <- c ('#91b9a4','#C0334D','#F18904','#5C4A72','#23345C')
 
 ## Estimating respiratory losses for stem sections
 
-To estimate stem respiratory losses, weekly stem respiration measurements were made using a Li-Cor820 starting at 13.00h. The LiCor820 was attached to a PVC pipe (4" diameter) that were previously fitted and attached to the stem sections using silicone to create a closed chamber in which the enclosed air circulates via a small pump, similar to the Flux Puppy system [@carbone_flux_2019]. Respiration rates were calculate from the change CO<sub>2</sub> using the RespChamberProc package [@citation] in R [@r_core_team_r:_2018]. Stem sections were measured in the same order to minimise variations in time of day from week to week. The rates were corrected for water vapour pressure fluctuations using climate data from Fisher weather station for the 15 minute interval during which the measurement took place. 
+To estimate stem respiratory losses, weekly stem respiration measurements were made using a Li-Cor820 starting at 13.00h. The LiCor820 was attached to a PVC pipe (4" diameter) that were previously fitted and attached to the stem sections using silicone to create a closed chamber in which the enclosed air circulates via a small pump, similar to the Flux Puppy system [@carbone_flux_2019]. Respiration fluxes and uncertainties were calculate from the change in CO<sub>2</sub> using the RespChamberProc package [@perez-priego_sun-induced_2015] in R [@r_core_team_r:_2019]. The rates were corrected for fluctuations in atmospheric water vapour pressure using climate data from the Fisher meteorological station. Stem sections were measured in the same order every week to minimise variations in time of day of repeat measurements. 
 
 ## Integration over the surface area of the stem section
 
-Instantaneous fluxes of respiratory CO2 loss were measured as described above and subsequently integrated across space (e.g. the specific surface area of a 10 cm stem section) for each stem section to estimate the respiratrates in grams per stem section per day. To integrate the measured respiration rates across a 10cm stem section, we calculate the surface area of the i-th stem section ($A_{s,i}$) as follows:
+Instantaneous fluxes of diffusive CO<sub>2</sub> loss through the bark were measured as described above and subsequently integrated across space (e.g. the specific surface area of a 10 cm stem section) for each stem section to estimate the respiratrory loss in grams per stem section per day. To integrate the measured respiration rates across a 10cm stem section, we calculate the surface area of the i-th stem section ($A_{s,i}$) as follows:
 
 $$
 A_{s, i} = \frac {cbh_{s,i}} {100} \times h 
@@ -40,12 +40,13 @@ allometricData <- read_excel (path = '/media/TREE/PlantGrowth/data/allometry/all
 
 # Define height of the section (h; in m)
 h <- 0.1
+
 # create a tibble with the responseVariables
 if (!exists ('responseVariables')) {
-  responseVariables <- tibble (year = 2017,
-                               month    = c (rep (7, 41), rep (8, 41),
-                                             rep (10, 41), rep (11, 41)),
-                               tree = rep (1:41, 4),
+  responseVariables <- tibble (year  = 2017,
+                               month = c (rep (7, 40), rep (8, 40),
+                                          rep (10, 40), rep (11, 40)),
+                               tree = rep (1:40, 4),
                                resp250 = NA, resp200 = NA, resp150 = NA,	resp100 = NA,
                                resp50 = NA, A250 = NA, A200 = NA, A150 = NA, A100 = NA,
                                A50 = NA)
@@ -92,7 +93,7 @@ respRates2017 <- respRates2017 [-1, ]
 
 # Integrate the respiration rate over space 
 respRates2017 <- add_column (respRates2017, flux_g_day = NA)
-for (iTree in 1:41) {
+for (iTree in 1:40) {
   # Check whether this tree has only one chamber (i.e. control group)
   if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 1) {
     respRates2017 [['flux_g_day']] [respRates2017 [['tree']] == iTree] <- respRates2017 [['flux_g']] [respRates2017 [['tree']] == iTree] * unique (responseVariables [['A150']] [responseVariables [['tree']] == iTree])
@@ -122,12 +123,11 @@ for (iTree in 1:41) {
       unique (responseVariables [['A250']] [responseVariables [['tree']] == iTree])
   }
 }
-
 ```
 
 # Integrate across time
 
-Respiration rates were averaged for over four time period: (i) pre-treatment, (ii) treatment period 1 (i.e. first month after start of the experiment), (iii) treament period 2 (i.e. second and third month after the start of the experiment) and (iii) treatment period 3 (i.e. fourth month after the start of the experiment to the end of the growing season). 
+Respiration rates were averaged for over four time periods: (i) pre-treatment, (ii) treatment period 1 (i.e. first month after start of the experiment), (iii) treament period 2 (i.e. second and third month after the start of the experiment) and (iii) treatment period 3 (i.e. fourth month after the start of the experiment to the end of the growing season). 
 
 We then approximated the total loss of carbon for each combination of period $j$ and stem section $i$ ($R_{i,j}$) by multiplying the temporal mean of spatially integrated respiration rates in $g \, day^{-1}$ measured during each period $j$ by the length of the period ($l_p$ in days).
 

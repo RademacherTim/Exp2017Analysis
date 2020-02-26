@@ -452,7 +452,7 @@ xPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
 ALPHA <- 0.5
 
 # plot the estimated mean end of growth for each treatment
-png (filename = '../fig/Exp2017EndOfGrowthAndCellNumbers.png')
+png (filename = '../fig/Exp2017EndOfGrowthAndCellNumbers.png', width = 600)
 par (mar = c (5, 5, 5, 1))
 treeLabels <- c ('01M','03M','04M','06M','07M','09M','18M','30M','31M','36M')
 lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
@@ -462,8 +462,8 @@ lastDates [is.infinite (lastDates [, 2]), 2] <- NA
 # plot of the means and standard errors
 plot (y = xPositions [1],
       x = as_date (mean (lastDates [[2]])), 
-      xlab = 'estimated end of growth', ylab = '',
-      col = 'white', las = 1, yaxt = 'n',
+      xlab = '', ylab = '',
+      col = 'white', las = 1, axes = FALSE,
       ylim = c (0, 6), xlim = as_date (c ('2017-03-01','2017-11-15')))
 arrows (x0 = as_date (mean (lastDates [[2]]) - (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))), 
         x1 = as_date (mean (lastDates [[2]]) + (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))), 
@@ -570,6 +570,12 @@ points (y = xPositions [8],
 axis (side = 2, at = xPositions, 
       labels = c ('M','B','A','B','A','B','M','A'), 
       tick = 1, las = 1)
+# add x-axis 
+axis (side = 1, 
+      at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')), 
+      labels = c ('Jul','Aug','Sep','Oct','Nov'))
+# add x-axis description
+mtext (side = 1, line = 3, at = as_date ('2017-08-25'), text = 'estimated end of growth')
 # add treatments
 mtext (side = 2, line = 2, text = 'control', at = xPositions [1], cex = 0.8)
 mtext (side = 2, line = 2, text = 'girdled', at = mean (xPositions [c(2,3)]), cex = 0.8)
@@ -582,10 +588,10 @@ par (new = TRUE)
 plot (y = rep (xPositions [1], sum (cellNumber [['treatment']] == 1, na.rm = TRUE )), 
       x = cellNumber [['n']] [cellNumber [['treatment']] == 1], 
       xlab = '', ylab = '', axes = FALSE,
-      pch = 15, col = addOpacity (colours [1], ALPHA), ylim = c (0, 6), xlim = c (0, 200))
+      pch = 15, col = addOpacity (colours [1], ALPHA), ylim = c (0, 6), xlim = c (0, 300))
 # add y axis and margin text
 axis (side = 3, at = seq (0, 120, by  = 20))
-mtext (side = 3, line = 3, text = 'mean number of cells in final ring (n)')
+mtext (side = 3, line = 3, at = 60, text = 'mean number of cells in final ring (n)')
 # add below the girdling
 points (y = rep (xPositions [2], sum (cellNumber [['treatment']] == 2 & cellNumber [['height']] == 'B', na.rm = TRUE )), 
         x = cellNumber [['n']] [cellNumber [['treatment']] == 2 & cellNumber [['height']] == 'B'], 
@@ -619,12 +625,14 @@ arrows (y0 = xPositions,
         x0 = cellNMeans [[3]] [c (1, 3, 2, 5, 4, 7, 8, 6)] - cellNSE [[3]] [c (1, 3, 2, 5, 4, 7, 8, 6)], 
         x1 = cellNMeans [[3]] [c (1, 3, 2, 5, 4, 7, 8, 6)] + cellNSE [[3]] [c (1, 3, 2, 5, 4, 7, 8, 6)], 
         angle = 90, length = 0.05,
-        col = colours [c (1, 2, 2, 3, 3, 4, 4, 4)], code = 3, lwd = 2)
+        col = c ('#999999', rep (c ('#555555', '#999999'), 2), '#555555', '#777777', '#999999'), 
+        code = 3, lwd = 2)
 # add means of cell numbers
 points (y = xPositions,
         x = cellNMeans [[3]] [c (1, 3, 2, 5, 4, 7, 8, 6)],
-        col = colours [c (1, 2, 2, 3, 3, 4, 4, 4)], pch = c (22, 21, 23, 21, 23, 21, 22, 23),
-        lwd = 2, bg = colours [c (1, 2, 2, 3, 3, 4, 4, 4)], cex = 1.5)
+        col = colours [c (1, 2, 2, 3, 3, 4, 4, 4)], 
+        pch = c (22, 21, 23, 21, 23, 21, 22, 23),
+        lwd = 2, bg = 'white', cex = 1.5)
 dev.off ()
 
 #========================================================================================
