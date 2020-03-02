@@ -3,8 +3,8 @@ title: "Estimating respiratory losses (SI 3)"
 author: Tim Rademacher
 date: "09/09/2019"
 output: html_document
-bibliography: "/home/trademacehr/projects/PlantGrowth/bib/Exp2017.bib"
-csl: "/home/trademacehr/projects/PlantGrowth/bib/harvard.csl"
+bibliography: "/home/tim/projects/PlantGrowth/bib/Exp2017.bib"
+csl: "/home/tim/projects/PlantGrowth/bib/harvard.csl"
 ---
 
 ```{r setup, include=FALSE}
@@ -34,7 +34,7 @@ $$
 The stem respiration rate over this surface area was then determined by multiplication of the instanteanous respiration flux (in $g \, m^{-2} \,day^{-1}$) by the surface area to get the respiration rate (in $g \, day_{-1}$).
 ```{r integrateAcrossSpace}
 # Get the tree measurements of circumference from spreadsheet
-allometricData <- read_excel (path = '/media/TREE/PlantGrowth/data/allometry/allometricDataExp2017.xlsx', 
+allometricData <- read_excel (path = '/media/tim/dataDisk/PlantGrowth/data/allometry/allometricDataExp2017.xlsx', 
                               sheet = 'allometricData', 
                               na = "NA")
 

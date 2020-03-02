@@ -3,8 +3,8 @@ title: 'Scaling structural carbon (SI 1)'
 author: Tim Rademacher
 date: "01/11/2019"
 output: html_document
-bibliography: "/home/trademacehr/projects/PlantGrowth/bib/Exp2017.bib"
-csl: "/home/trademacehr/projects/PlantGrowth/bib/harvard.csl"
+bibliography: "/home/tim/projects/PlantGrowth/bib/Exp2017.bib"
+csl: "/home/tim/projects/PlantGrowth/bib/harvard.csl"
 ---
 
 ```{r setup, include=FALSE}
@@ -15,7 +15,7 @@ library ('lubridate')
 library ('readxl')
 library ('googledrive')
 library ('rjson')
-library ('plotrix')
+#library ('plotrix')
 library ('zoo')
 
 # Specify the user:
@@ -77,7 +77,7 @@ GDFilesAllometry <- drive_ls (path = as_id (GDallometryID))
 GDExp2017AllometryFileID <- GDFilesAllometry [['id']] [GDFilesAllometry [['name']] == 'allometricDataExp2017.xlsx']
 
 # Change working directory
-setwd ('/media/TREE/PlantGrowth/data/microcores/woodAnatomy/Exp2017/')
+setwd ('/media/tim/dataDisk/PlantGrowth/data/microcores/woodAnatomy/Exp2017/')
 
 # Download the Exp2017 wood anatomical data file
 # fileExp2017 <- drive_download (file = as_id (GDExp2017FileID), verbose = FALSE, overwrite = TRUE)
@@ -89,7 +89,7 @@ data <- read_excel (path = paste0 (getwd (),'/20muband_ALL.xlsx'),
                     na = "NA")
 
 # Change working directory
-setwd ('/media/TREE/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ringWidthTRIAD/')
+setwd ('/media/tim/dataDisk/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ringWidthTRIAD/')
 
 # Download the files for ring width measurements of the Exp 2017 microcores
 # for (i in 1:dim (GDringWidthFilesIDs) [1]) {
@@ -99,7 +99,7 @@ setwd ('/media/TREE/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ringWidthTRI
 # }
 
 # Change working directory
-setwd ('/media/TREE/PlantGrowth/data/allometry/Exp2017/')
+setwd ('/media/tim/dataDisk/PlantGrowth/data/allometry/Exp2017/')
 
 # Download the Exp2017 allometry data file
 # fileExp2017 <- drive_download (file = as_id (GDExp2017AllometryFileID), verbose = FALSE, overwrite = TRUE)
@@ -111,7 +111,7 @@ allometricData <- read_excel (path = paste0 (getwd (),'/allometricDataExp2017.xl
                               na = "NA")
 
 # Reset the working directory
-setwd ('/home/trademacehr/projects/PlantGrowth/Exp2017/Exp2017Analysis/')
+setwd ('/home/tim/projects/PlantGrowth/Exp2017Analysis/')
 ```
 
 The estimation of structural carbon gain for each stem section is scaled from the cell wall area of one thinsections sampled at the end of the growing season (3$^{rd}$ of November 2017) and divided into sections grown in each period (e.g., prior, during and after treatment) by association with the proportion of the ring formed at the time. Each sampling date two thinsection were collected and stored in solution (75% ethanol and 25% glacial acedic acid). Where the first thinsection did not fully include the necessary rings or had other quality issues, we cut and processed the second microcore. Between the two microcores, we were able to obtain high-quality image data for 314<!-- TR - Image 06.1 M for 2017/08/09 only contains part of the 2017 ring. And images 06.1 M, 24.4 A and 24.4 B are missing the 2015 ring. There must be two additional rings missing because the numbferOfSamples suggests so!!!--> out of 320 samples (i.e., 4 sampling dates times 40 trees times on average two sampling heights). Only for one tree (tree id: 06; treament: control) both thinsections collected in October did not contain a full set of rings necessary for the analysis. For each image, we identified and divided the ring formed in 2017 into 20 micron-wide discrete zones and derived the average anatomical structure for a cell in each zone using ROXAS [@von_arx_roxas_2014]. In particular, we measured cell wall area, cell wall thickness, as well as tangential and radial cell width. The ring width of the fully formed ring ranged between `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/1000, 2)` and `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [2] / 1000, 2 )`mm with a mean of `r round (mean (unique (data [['MRW']] [data [['YEAR']] == 2017]))/1000, 2)`mm. Thus event he smallest ring was divided into, at least, `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/20)` discrete zones with anatomical data.
@@ -138,7 +138,7 @@ ringWidths <- tibble (tree = rep (1:40, 4),
 
 
 # set working directory to read json files
-setwd ('/media/TREE/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ringWidthTRIAD/')
+setwd ('/media/tim/dataDisk/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ringWidthTRIAD/')
 
 # list all json output file from TRIAD
 jsonFiles <- list.files (path = './', pattern = '.json')
@@ -438,7 +438,7 @@ for (i in 1:dim (data) [1]) {
 }
 
 # Reset the working directory
-setwd ('/home/trademacehr/projects/PlantGrowth/Exp2017/Exp2017Analysis/')
+setwd ('/home/tim/projects/PlantGrowth/Exp2017Analysis/')
 ```
 
 As growth varies locally around the circumference of the stem, we tried to account for local circumferential variations in growth by standardisation with the 2015 ring width fromt the same thinsection. 
