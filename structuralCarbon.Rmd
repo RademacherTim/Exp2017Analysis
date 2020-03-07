@@ -18,11 +18,11 @@ library ('readxl')
 library ('RAPTOR')
 ```
 
-# Structural carbon estimation for stem sections of the 2017 experiment at Harvard Forest
+## Structural carbon estimation for stem sections of the 2017 experiment at Harvard Forest
 
-The estimation of structural carbon gain for each stem section is scaled from the cell wall area of one (or two, when available) thinsections sampled at the end of the growing season (1$^{st}$ of November 2017). The cell wall area is scaled to the entire circumference of the stem section and divided into the portions of the ring that formed between sampling dates. To get a cell wall volume we assume that the area is constant along the stem and simply multiply with the height of the stem section (h = 10cm). Once the cell wall volume for each ring portion of the stem section is known, they are multiplied by a fixed cell wall density ($kgDM \, m^{−3}$) and carbon content to estimate the amount of carbon sequestered in structural biomass for each period.
+The estimation of structural carbon gain for each stem section is scaled from the cell wall area of one (or two, when available) thinsections sampled at the end of the growing season (1$^{st}$ of November 2017). The cell wall area is divided into the portions of the ring that formed between sampling dates (e.g., 3$^{rd}$ of July 2017 to 9$^{th}$ of August 2017) and is subsequently scaled to the entire circumference of the stem section. To convert cell wall area to cell wall volume per stem section, we assume that the area is constant along the stem and simply multiply with the height of the stem section (h = 10cm). Once the cell wall volume for each ring portion of the stem section is known, they are multiplied by a fixed cell wall density ($kgDM \, m^{−3}$) and carbon content to estimate the amount of carbon sequestered in structural biomass for each period.
 
-``` {r}
+``` {r getROXASData, echo = FALSE}
 # Source the read.roxas function 
 source ('../data/HF_2017_T1_T4_Rox/Functions/1-read.roxas.R')
 source ('../data/HF_2017_T1_T4_Rox/Functions/2-assign.to.R')
@@ -35,27 +35,33 @@ suppressMessages (T2017 <- read.roxas (WD = '../data/HF_2017_T1_T4_Rox/',
 # Extract ring specific data and add treatment and ID columns
 ringData <- T2017 [['ring']]
 ringData [['Treatment']] <- as.numeric (substr (ringData [['TREE.ID']], 2, 2)) 
+ringData [['samplingHeight']] <- ifelse (is.na (substr (ringData [['TREE.ID']], 6, 6)) | 
+                                         substr (ringData [['TREE.ID']], 6, 6) == "",
+                                         'M', substr (ringData [['TREE.ID']], 6, 6))
 ringData [['TREE.ID']]   <- as.numeric (substr (ringData [['TREE.ID']], 4, 5)) 
 ringData [['year']]      <- as.numeric (ringData [['YEAR']])
 
 # Correction because the last ring in T3 and T4 was incorrectly dated
-condition <- which (ringData [['Treatment']] == 3 | 
-                    ringData [['Treatment']] == 4)
+condition <- which (ringData [['Treatment']] == 4)
 ringData [['year']] [condition] <- as.numeric (ringData [['YEAR']] [condition]) + 1
 
 # Sum the cell wall area for each ring
 ringSummary <- ringData %>%  
                mutate (CWA = replace (CWA, CWA == -999,  NA)) %>%
                mutate (CWA = replace (CWA, CWA == -9999, NA)) %>%
-               group_by (SITE, TREE.ID, year, Treatment) %>%
+               group_by (SITE, TREE.ID, year, Treatment, samplingHeight) %>%
                dplyr::summarise (CWAsum = sum (CWA, na.rm = T), 
                                  LDradmean  = mean (LDrad,  na.rm = TRUE), 
                                  CWTradmean = mean (CWTrad, na.rm = TRUE)) 
 ```
 
+## Estimating cell wall area in the 2017 ring
+
 We used the image analysis software ROXAS (Arx and Carrer, 2014) to estimate the cell wall area, mean cell wall thickness and mean radial lumen diameter from images of thinsections for each stem section from the end of the growing season (1$^{st}$ of November 2017).
 
-To divide the total annual cell wall area incerement into the increments between sampling dates, we had to estimate the proportion of the ring formed for each stem section at each sampling date. We measured the ring widths of images of thinsections for each stem section using the Tree Ring Image Analysis and Database (TRIAD) tool kit. To estimate the fraction of the 2017 ring growth at each sampling date ($f_{2017,i}$) while accounting for local difference in growth, we measured the 2015 and 2017 ring width in each thinsection image for the sampling date $i$ ($RW_{2017,i}$) and adjusted it as follows:
+## Dividing cell wall area by period of formation
+
+To divide the total annual cell wall area incerement into the increments between sampling dates, we estimated the proportion of the ring formed betweem two sampling date. We measured the ring widths of images of thinsections for each stem section using the Tree Ring Image Analysis and Database (TRIAD) tool kit. To estimate the fraction of the 2017 ring growth at each sampling date ($f_{2017,i}$) while accounting for local difference in growth, we measured the 2015 and 2017 ring width in each thinsection image for the sampling date $i$ ($rw_{2017,i}$) and adjusted it as follows:
 
 $$
 f_{2017,i} = \frac {rw_{2017,i} \times rw_{2015,Nov}} {rw_{2015,i}} \times \frac{1} {rw_{2017,Nov}}
@@ -63,7 +69,7 @@ $$
 
 , where $rw_{2015,Nov}$ and $rw_{2015,Nov}$ are respectively the 2015 and 2017 ring widths as measured at the end of the growing season in November 2017. This assumes that the ring was fully formed on the 1$^{st}$ of November, which is about two weeks after the typical end of cell wall thickening for white pine at Harvard Forest. Then, $f_{2017,i}$ theoretically varies between 0 and 1 with 0 meaning non of the ring was formed at the sampling date and 1 meaning that the entire ring was already formed.
 
-``` {r getRingWidths}
+``` {r getRingWidths, echo = FALSE}
 # Get the tree measurements of circumference from the googlesheet 
 key <- '1K8Vk9VHRdwNjIa28frc-Zt4uyk07G6CZe1EkJunUll0'
 suppressMessages (predictors <- gs_read (gs_key (key), ws = 'predictors', col_types = cols ()))
@@ -351,13 +357,9 @@ for (t in 1:4) {
 
 # add November ring width to the ringWidths tibble
 for (i in 1:dim (ringData) [1]) {
-  treeID <- ringData [['TREE.ID']] [i]
-  treatment <- ringData [['Treatment']] [i]
-  sampleHeight <- ifelse (substr (ringData [['ID']], 1, 1) == 'T', 
-                          substr (ringData [['ID']], 8, 8),
-                          ifelse (substr (ringData [['ID']], 7, 7) == "0", 
-                                  substr (ringData [['ID']], 5, 5), 
-                                  substr (ringData [['ID']], 4, 4))) [i]
+  treeID       <- ringData [['TREE.ID']] [i]
+  treatment    <- ringData [['Treatment']] [i]
+  sampleHeight <- ringData [['samplingHeight']] [i]
   sampleDate <- 11
   year <- ringData [['year']] [i]
   if (sampleHeight == 'A' & treatment == 4) {
@@ -375,6 +377,9 @@ for (i in 1:dim (ringData) [1]) {
   ringWidths [[xTemp]] [ringWidths [['tree']] == treeID & 
                         ringWidths [['month']] == sampleDate] <- as.numeric (ringData [['MRW']] [i]) * 1.0e-3
 }
+
+# Correct for partially measured rings in 2015
+
 
 # Divide into tibble for each sampling date
 ringWidthsJul <- ringWidths [ringWidths [['month']] == 7, ]
@@ -444,13 +449,149 @@ legend (x = 2.5, y = 0.51, legend = c ('July','August','October','November'),
         col = c ('#018571', '#80cdc1', '#dfc27d', '#a6611a'),
         lwd = 2, box.lty = 0, bg = 'transparent')
 
+# Plot standardised ring widths in November to look for treatment effect in 2017
+dNov1M <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 1, 6] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 1, 16]), na.rm = T)
+dNov2A <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 2, 5] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 2, 15]), na.rm = T)
+dNov2B <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 2, 7] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 2, 17]), na.rm = T)
+dNov3A <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 3, 5] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 3, 15]), na.rm = T)
+dNov3B <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 3, 7] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 3, 17]), na.rm = T)
+dNov4A <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 4, 4] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 4, 14]), na.rm = T)
+dNov4M <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 4, 6] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 4, 16]), na.rm = T)
+dNov4B <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 4, 8] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 4, 18]), na.rm = T)
+
+par (mar = c (5,5,3,1))
+layout (matrix (1:4, nrow = 2), height = c (1.5, 1, 1.5, 1))
+plot (dNov1M, col = colours [1], lwd = 2, ylim = c (0, 2), las = 1,
+      xlab = 'ring width (mm)',
+      ylab = 'density', main = '2017',
+      xlim = c (0, 6))
+lines (dNov2A, col = colours [2], lwd = 2)
+lines (dNov2B, col = colours [2], lwd = 2, lty = 2)
+lines (dNov3A, col = colours [3], lwd = 2)
+lines (dNov3B, col = colours [3], lwd = 2, lty = 2)
+lines (dNov4A, col = colours [4], lwd = 2)
+lines (dNov4B, col = colours [4], lwd = 2, lty = 2)
+lines (dNov4M, col = colours [4], lwd = 2, lty = 3)
+boxplot (at = 6, x = ringWidthsNov [ringWidthsNov [['treatment']] == 1, 6] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 1, 16], 
+         col = colours [1], xlim = c (0, 7), ylim = c (0, 6),
+         axes = FALSE, horizontal = TRUE)
+boxplot (at = 5, x = ringWidthsNov [ringWidthsNov [['treatment']] == 2, 5] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 2, 15], 
+         col = colours [2], add = T, 
+         axes = FALSE, horizontal = TRUE)
+boxplot (at = 4.5, x = ringWidthsNov [ringWidthsNov [['treatment']] == 2, 7] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 2, 17], 
+         col = colours [2], add = T, 
+         axes = FALSE, horizontal = TRUE)
+boxplot (at = 3.5, x = ringWidthsNov [ringWidthsNov [['treatment']] == 3, 5] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 3, 15], 
+         col = colours [3], add = T, 
+         axes = FALSE, horizontal = TRUE)
+boxplot (at = 3, x = ringWidthsNov [ringWidthsNov [['treatment']] == 3, 7] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 3, 17], 
+         col = colours [3], add = T, 
+         axes = FALSE, horizontal = TRUE)
+boxplot (at = 2, x = ringWidthsNov [ringWidthsNov [['treatment']] == 4, 4] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 4, 14], 
+         col = colours [4], add = T, 
+         axes = FALSE, horizontal = TRUE)
+boxplot (at = 1.5, x = ringWidthsNov [ringWidthsNov [['treatment']] == 4, 6] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 4, 16], 
+         col = colours [4], add = T, 
+         axes = FALSE, horizontal = TRUE)
+boxplot (at = 1, x = ringWidthsNov [ringWidthsNov [['treatment']] == 4, 8] / 
+                           ringWidthsNov [ringWidthsNov [['treatment']] == 4, 18], 
+         col = colours [4], add = T, 
+         axes = FALSE, horizontal = TRUE)
+
+# Add a plot for 2015 
+dNov1M <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 1, 16]), na.rm = T)
+dNov2A <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 2, 15]), na.rm = T)
+dNov2B <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 2, 17]), na.rm = T)
+dNov3A <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 3, 15]), na.rm = T)
+dNov3B <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 3, 17]), na.rm = T)
+dNov4A <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 4, 14]), na.rm = T)
+dNov4M <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 4, 16]), na.rm = T)
+dNov4B <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 4, 18]), na.rm = T)
+par (mar = c (5,5,3,1))
+plot (dNov1M, col = colours [1], lwd = 2, ylim = c (0, 1.2), las = 1,
+      xlab = 'ring width (mm)',
+      ylab = 'density', main = '2015',
+      xlim = c (0, 6))
+lines (dNov2A, col = colours [2], lwd = 2)
+lines (dNov2B, col = colours [2], lwd = 2, lty = 2)
+lines (dNov3A, col = colours [3], lwd = 2)
+lines (dNov3B, col = colours [3], lwd = 2, lty = 2)
+lines (dNov4A, col = colours [4], lwd = 2)
+lines (dNov4B, col = colours [4], lwd = 2, lty = 2)
+lines (dNov4M, col = colours [4], lwd = 2, lty = 3)
+boxplot (at = 6, x = ringWidthsNov [ringWidthsNov [['treatment']] == 1, 16], 
+         col = colours [1], xlim = c (0, 7), ylim = c (0, 6),
+         axes = FALSE, horizontal = TRUE)
+boxplot (at = 5, x = ringWidthsNov [ringWidthsNov [['treatment']] == 2, 15], 
+         col = colours [2], add = T, 
+         axes = FALSE, horizontal = TRUE)
+boxplot (at = 4.5, x = ringWidthsNov [ringWidthsNov [['treatment']] == 2, 17], 
+         col = colours [2], add = T, 
+         axes = FALSE, horizontal = TRUE)
+boxplot (at = 3.5, x = ringWidthsNov [ringWidthsNov [['treatment']] == 3, 15], 
+         col = colours [3], add = T, 
+         axes = FALSE, horizontal = TRUE)
+boxplot (at = 3, x = ringWidthsNov [ringWidthsNov [['treatment']] == 3, 17], 
+         col = colours [3], add = T, 
+         axes = FALSE, horizontal = TRUE)
+boxplot (at = 2, x = ringWidthsNov [ringWidthsNov [['treatment']] == 4, 14], 
+         col = colours [4], add = T, 
+         axes = FALSE, horizontal = TRUE)
+boxplot (at = 1.5, x = ringWidthsNov [ringWidthsNov [['treatment']] == 4, 16], 
+         col = colours [4], add = T, 
+         axes = FALSE, horizontal = TRUE)
+boxplot (at = 1, x = ringWidthsNov [ringWidthsNov [['treatment']] == 4, 18], 
+         col = colours [4], add = T, 
+         axes = FALSE, horizontal = TRUE)
+
 # Calculate the fractions of ring formed
 f_Jul <- (ringWidthsJul [4:8] / ringWidthsJul [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
 f_Aug <- (ringWidthsAug [4:8] / ringWidthsAug [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
 f_Oct <- (ringWidthsOct [4:8] / ringWidthsOct [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
+
+# Correct the samples with only a partial 2015 ring to use 2016
+# Alternatively, I could set these to NAs
+# TR - I need to deal with November samples that only have a partial measurement of the 2015 ring (06.1M, 11.2A, 24.4A, 24.4B, 41.2A, 41.2B) or are completely incorrect (tree 01.1M and 24.4A) 
+for (iTree in c (8, 35, 41)) {
+  if (iTree == 8) {iCol <- 1} else if (iTree == 35) {iCol <- 4} else if (iTree == 41) {iCol <- c (2, 4)}
+  f_Jul [iTree, iCol] <- (ringWidthsJul [iTree, 3+iCol] / ringWidthsJul [iTree, 8+iCol]) * 
+                          ringWidthsNov [iTree, 8+iCol] / ringWidthsNov [iTree, 3+iCol] 
+}
+for (iTree in c (4, 37, 41)) {
+  if (iTree == 4) {iCol <- 3} else if (iTree == 37) {iCol <- 5} else if (iTree == 41) {iCol <- 2}
+  f_Aug [iTree, iCol] <- (ringWidthsAug [iTree, 3+iCol] / ringWidthsAug [iTree, 8+iCol]) * 
+                          ringWidthsNov [iTree, 8+iCol] / ringWidthsNov [iTree, 3+iCol]
+}
+for (iTree in c (6, 24, 37, 41)) {
+  if (iTree == 6) {iCol <- 3} else if (iTree == 24) {iCol <- c (1, 3, 5)} else if (iTree == 37) {iCol <- c (3, 5)} else if (iTree == 41) {iCol <- c (2, 4)}
+  f_Oct [iTree, iCol] <- (ringWidthsOct [iTree, 3+iCol] / ringWidthsOct [iTree, 8+iCol]) * 
+                          ringWidthsNov [iTree, 8+iCol] / ringWidthsNov [iTree, 3+iCol]
+}
+
+# Aggregate the fractional growth by treatment
+f_Agg <- aggregate (f_Jul, mean, by = list (predictors [['treatment']]), na.rm = TRUE)
+f_Agg <- rbind (f_Agg, aggregate (f_Aug, mean, by = list (predictors [['treatment']]), na.rm = TRUE))
+f_Agg <- rbind (f_Agg, aggregate (f_Oct, mean, by = list (predictors [['treatment']]), na.rm = TRUE))
+f_Agg <- cbind (f_Agg, c(rep (7, 4), rep (8, 4), rep (10,4)))
+names (f_Agg) <- c ('treatment', names (f_Agg [,2:6]),'month')
 ```
 
-On average, `r round (mean (unlist (f_Jul), na.rm = TRUE) * 100.0, 1)`%, `r round (mean (unlist (f_Aug), na.rm = TRUE) * 100.0, 1)`%, and `r round (mean (unlist (f_Oct), na.rm = TRUE) * 100.0, 1)`% of the ring width had respectively grown in July, August and October. Thus, two thirds of the ring widths wee already formed before the start of the treatment and ring width growth had finished by Ocotober.
+On average, `r round (mean (unlist (f_Jul), na.rm = TRUE) * 100.0, 1)`%, `r round (mean (unlist (f_Aug), na.rm = TRUE) * 100.0, 1)`%, and `r round (mean (unlist (f_Oct), na.rm = TRUE) * 100.0, 1)`% of the ring width had respectively grown in July, August and October. Thus, two thirds of the ring widths was already formed before the start of the treatment and ring width growth had finished by Ocotober. However, there were substantial differences between treatments and sampling heights.  
 
 ```{r tableWithNumberOfSamples, echo = FALSE, results = 'asis'}
 # check how many trees with data I have for each year
@@ -470,43 +611,107 @@ metData <- read_csv (url ('https://harvardforest.fas.harvard.edu/data/p30/hf300/
                      col_types = cols ())
 ```
 
-The number of measurements for growth rings drops off strongly after the 2015 growth ring, because the older the ring the less likely it is to be covered by the 15mm microcore, hence visible in the thinsection image. Due to this drop, we wanted to use a recent year to adjust for local growth difference. 2015 was preferred over 2016, because a abnormally dry growing season in 2016 (total annual precipitation of `r metData [['prec']] [metData [['year']] == 2016]` $mm$, which is `r mean (metData [['prec']]) - metData [['prec']] [metData [['year']] == 2016]` below the long-term average of `r mean (metData [['prec']])` $mm$), had caused a bimodal distribution of growth in young white pines at Harvard Forest with increased frequency of intra-annual density fluctuations in 2016. 
+The number of measurements for growth rings drops off strongly after the 2015 growth ring, because the older the ring the less likely it is to be covered by the 15mm microcore, hence visible in the thinsection image. Due to this drop, we wanted to use a recent year to adjust for local growth difference. 2015 was preferred over 2016, because an abnormally dry growing season in 2016 (total annual precipitation of `r metData [['prec']] [metData [['year']] == 2016]` $mm$, which is `r round (mean (metData [['prec']]) - metData [['prec']] [metData [['year']] == 2016])` below the long-term average of `r round (mean (metData [['prec']]))` $mm$). In contrast the 2015 growing season climate was similar to the 2017 growing season climate with a mean annual temperature of `r metData [['airt']] [metData [['year']] == 2015]` $^{\circ}C$ and a total annual precipitation of `r metData [['prec']] [metData [['year']] == 2015]` $mm$. In fact, about three quraters of trees included in this study showed a intra-annual density fluctuation in 2016 due to the dry growing season and the remaining quarter of trees had a relatively narrower ring. Consequently, standardisation by the 2016 ring would introduce a systematic bias based on the presence of an intra-annual density fluctuation. 
 
-In contrast the 2015 growing season climate was similar to the 2017 growing season climate with a mean annual temperature of `r metData [['airt']] [metData [['year']] == 2015]` $^{\circ}C$ and a total annual precipitation of `r metData [['prec']] [metData [['year']] == 2015]` $mm$.
+## Associate cell wall area in final ring with period
 
-``` {r}
+``` {r, echo = FALSE}
 # Extract only 2015 to 2017
 ringSummary <- ringSummary %>% filter(year >= 2015)
 ```
 
-We did use the 2016 ring because a severe drought in 2016 caused intra-annual density fluctuations in vigorous trees but narrower rings in less vigorous trees. These systematic variations in the 2016 ring width would introduce a systematic bias. Consequently, 2015 was used to correct for local variations in ring width, as it was the youngest year typical growth. In fact, 2015 had similar climatic conditions to 2017.
-
-The fractional ring width was subsequently used to estimate the cell wall area formed in each period. For this purpose, we used the RAPTOR package to divide the final ring into 100 sectors. Each sector was associated with one of the four period, using the fractional ring width as boundaries. Sectors that were split by a period boundary, where fractionally added to both adjacent period.
+The fractional ring width was subsequently used to estimate the cell wall area formed in each period. For this purpose, we used the RAPTOR package [@peters_raptor:_2018] to divide the final ring into 100 sectors. Using the fractional ring widths as boundaries, each sector was associated with one of the four periods: (i) beginning of growing season to start of experiment, (ii) first month of the experiment, (iii) second month of the experiment, (iv) end of double compression to end of growing season. Sectors that were split by a period boundary, where fractionally added to both adjacent period.
 
 ``` {r cellularData}
 # Divide each ring into 100 sectors for calculation percent annual structural carbon gain
-cellularData <- assign.to (T2017 [['cell']], method = "SECTOR", NSECTOR = 100)
+suppressMessages (cellularData <- assign.to (T2017 [['cell']], method = "SECTOR", NSECTOR = 10))
 
 # Add treatment and treeID to the cell and ring data
-cellularData [['Treatment']] <- as.numeric (substr (cellularData [['TREE.ID']], 2, 2))
-cellularData [['TREE.ID']]   <- as.numeric (substr (cellularData [['TREE.ID']], 4, 5))
-cellularData [['CWA']]       <- as.numeric (cellularData [['CWA']])
+cellularData [['Treatment']]    <- as.numeric (substr (cellularData [['TREE.ID']], 2, 2))
+cellularData [['sampleHeight']] <- substr (cellularData [['TREE.ID']], 6, 6)
+cellularData [['TREE.ID']]      <- as.numeric (substr (cellularData [['TREE.ID']], 4, 5))
+cellularData [['CWA']]          <- as.numeric (cellularData [['CWA']])
 
+# Sum the cell wall area for each sector for 2017
+sectorSummary <- cellularData %>%
+                 filter (YEAR == 2017, CWTrad != -9999, CWTrad != -999, !is.na (TO.SECTORS)) %>%
+                 mutate (CWTrad = replace (CWTrad, CWTrad == -999, NA)) %>%
+                 mutate (CWTrad = replace (CWTrad, is.nan (CWTrad), NA)) %>%
+                 group_by (SITE, TREE.ID, YEAR, Treatment, TO.SECTORS, sampleHeight) %>%
+                 dplyr::summarise (CWAsum = sum (CWA, na.rm = T), 
+                                   LDradmean  = mean (LDrad,  na.rm = TRUE), 
+                                   CWTradmean = mean (CWTrad, na.rm = TRUE)) 
 
-# Correction because the last ring in T3 and T4 was incorrectly dated
-condition <- which (cellularData [['Treatment']] == 3 | 
-                    cellularData [['Treatment']] == 4)
-cellularData [['YEAR']] [condition] <- cellularData [['YEAR']] [condition] + 1
-  
-# Sum the cell wall area for each sector
-  
+# build data frame with ell wall area (CWA for each period)
+CWA <- tibble (tree = rep (1:41, 4),
+               treatment = rep (predictors [['treatment']], 4),
+               month = c (rep (7, 41), rep (8, 41), rep (10, 41), rep (11, 41)),
+               CWA2017at250 = NA, CWA2017at200 = NA, CWA2017at150 = NA, CWA2017at100 = NA, CWA2017at050 = NA)
 
-# A<-T2017TO %>% 
-#   filter(YEAR>=2015, CWTrad!=-9999, CWTrad!=-999, !is.na(TO.SECTORS)) %>%
-# mutate(CWTrad=replace(CWTrad, CWTrad==-999, NA)) %>% 
-#  mutate(CWTrad=replace(CWTrad, is.nan(CWTrad), NA)) %>% 
-#  group_by(SITE,TREE.ID,as.factor(YEAR),Treatment,TO.SECTORS)
+# Need to double check this an re-write when I have data from Patrick
+# Sum over periods
+# for (i in 1:dim (CWA) [1]) {
+#   
+#   # Determine treeID
+#   treeID <- CWA [['tree']] [i]
+#   iMon   <- CWA [['month']] [i]
+#   if (iMon == 7) {
+#     lowerBound <- rep (0, 5)
+#     upperBound <- f_Jul [treeID, ] * 100.0
+#   } else if (iMon == 8) {
+#     lowerBound <- f_Jul [treeID, ] * 100.0
+#     upperBound <- f_Aug [treeID, ] * 100.0
+#   } else if (iMon == 10) {
+#     lowerBound <- f_Aug [treeID, ] * 100.0
+#     upperBound <- f_Oct [treeID, ] * 100.0
+#   } else if (iMon == 11) {
+#     lowerBound <- f_Oct [treeID, ] * 100.0
+#     upperBound <- rep (100.0, 5)
+#   }
+#   if (treeID == 36) next # For now jump tree 36.1M but correct once Patrick got back with what is going on.
+#   
+#   for (j in 1:5) {
+#     if (is.na (lowerBound [j]) | is.na (upperBound [j]) | lowerBound [j] >= 100 | upperBound [j] <= 0 | 
+#         lowerBound [j] > upperBound [j]) next
+#     if (j <= 2) {
+#       sampleHeight <- 'A'
+#     } else if (j == 3) {
+#       sampleHeight <- 'M'
+#     } else if (j >= 4) {
+#       sampleHeight <- 'B'
+#     } 
+#     # Add full sectors 
+#     temp <- sum (sectorSummary [['CWAsum']] [sectorSummary [['TREE.ID']] == treeID & 
+#                                              sectorSummary [['samplingHeight']] == sampleHeight & 
+#                                              sectorSummary [['TO.SECTORS']] >= lowerBound [j] [[1]] &
+#                                              sectorSummary [['TO.SECTORS']] <= upperBound [j] [[1]]])
+#     # Add the fraction of the lower bound sector
+#     if ((round (lowerBound [j] [[1]])-1) >= 1) {
+#       frac <- -(lowerBound [j] - round (lowerBound [j])) [[1]]
+#       temp <- temp + frac * sectorSummary [['CWAsum']] [sectorSummary [['TREE.ID']] == treeID & 
+#                                                         sectorSummary [['samplingHeight']] == sampleHeight & 
+#                                                         sectorSummary [['TO.SECTORS']] == (round (lowerBound [j] [[1]])-1)]
+#     }
+#     # Add fraction of the upper bound sector
+#     if ((round (upperBound [j] [[1]])) <= 100) {
+#       frac <- upperBound [j] - round (upperBound [j]) [[1]]
+#       temp <- temp + frac * sectorSummary [['CWAsum']] [sectorSummary [['TREE.ID']] == treeID & 
+#                                                         sectorSummary [['samplingHeight']] == sampleHeight & 
+#                                                         sectorSummary [['TO.SECTORS']] == (round (upperBound [j] [[1]]))]
+#     }
+#     # Write it in appropriate cell
+#     xtemp <- paste0 ('CWA2017at',ifelse  (j > 1, j*50, '050'))
+#     #print (temp)
+#     #print (xtemp)
+#     CWA [[xtemp]] [i] <- temp [[1]]
+#   }
+# }
+# 
+# # Sum annual cellwall area to compare it to the ring measurement
+# CWAannual <- cbind (CWA [1:41,1:3], CWA [1:41, 4:8] + CWA [42:82, 4:8] + CWA [83:123, 4:8] + CWA [124:164, 4:8])
 ```
+
+## Scaling cell wall area increment to stem section
 
 The cell wall area increment is scaled geometrically to the stem section’s cell wall volume increment in two steps, assuming that wood formed homogenously around the stem in each section and the above estimate is representative of the formed wood for each section and period. Using the stem section’s circumference, as measured at the beginning of the experiment ($CBH_{outer,s}$). First, the circumference is reduce assuming a bark thickness of 0.8 cm according to the following equation:
 
