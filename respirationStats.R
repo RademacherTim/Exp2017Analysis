@@ -13,6 +13,10 @@ library ('lubridate')
 #----------------------------------------------------------------------------------------
 source ('/home/tim/projects/PlantGrowth/stemCO2Efflux/readProcessedRespData.R')
 
+# Get rid of tree 41 
+#----------------------------------------------------------------------------------------
+respData <- filter (respData, tree <= 40)
+
 # Wrangle the data 
 #----------------------------------------------------------------------------------------
 respData [['date']] <- as_date (respData [['timestamp']])
@@ -29,7 +33,7 @@ respData [['height']] <- factor (respData [['height']], levels = c ('A','M','B',
 
 # fit mixed effects model with tree as random effect
 #----------------------------------------------------------------------------------------
-M1 <- lmer (formula = flux ~ (1 | tree) + factor (date) + factor (date):treatment:height, 
+M1 <- lmer (formula = fluxRaw ~ (1 | tree) + factor (date) + factor (date):treatment:height, 
             data = filter (respData, study == 'Exp2017'),
             REML = FALSE)
 summary (M1)

@@ -7,14 +7,14 @@ library ('tidyverse')
 
 # define the work station
 #----------------------------------------------------------------------------------------
-machine <- 'timNAU'
+machine <- 'timPersonal'
 
 # define data directory
 #----------------------------------------------------------------------------------------
 if (machine == 'timNAU') {
   dataDir <- '/media/tim/dataDisk/PlantGrowth/data/respiration/processed/'
 } else if (machine == 'timPersonal') {
-  dataDir <- '../data/'
+  dataDir <- '../../data/respiration/processed/'
 }
 # Start with processed data from 2017 experiment, which was not using FluxPuppy
 #----------------------------------------------------------------------------------------
