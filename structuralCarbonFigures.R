@@ -448,7 +448,6 @@ cellNSE    <- aggregate (cellNumber [['n']],
 # plot box plot of the estimated end time of growth in each treatment
 xPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
 
-
 ALPHA <- 0.5
 
 # plot the estimated mean end of growth for each treatment

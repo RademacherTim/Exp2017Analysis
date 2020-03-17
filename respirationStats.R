@@ -35,4 +35,22 @@ M1 <- lmer (formula = flux ~ (1 | tree) + factor (date) + factor (date):treatmen
 summary (M1)
 plot (M1)
 qqnorm (resid (M1))
+
+# divide period into before, during and after
+#----------------------------------------------------------------------------------------
+respData [['period']] <- 3 
+respData [['period']] [respData [['date']] <= as_date ('2017-10-09')] <- 2
+respData [['period']] [respData [['date']] <= as_date ('2017-08-09')] <- 1
+respData [['period']] [respData [['date']] <= as_date ('2017-07-05')] <- 0
+respData [['period']] <- factor (respData [['period']])
+
+# fit mixed effects model with tree as random effect
+#----------------------------------------------------------------------------------------
+M2 <- lmer (formula = flux ~ (1 | tree) + period + period:treatment:height, 
+            data = filter (respData, study == 'Exp2017'),
+            REML = FALSE)
+summary (M2)
+plot (M2)
+qqnorm (resid (M2))
+
 #========================================================================================

@@ -8,7 +8,7 @@ library ('lme4')
 library ('nlme')
 
 # Read the sugar and starch concentration (means for needles and roots and first centimeter for wood sections)
-suppressMessages (source ('/home/trademacehr/projects/PlantGrowth/nonstructuralCarbon/processExpNSCData.R'))
+suppressMessages (source ('/home/tim/projects/PlantGrowth/nonstructuralCarbon/processExpNSCData.R'))
 
 # Convert tree, date, treatment and sampleHeight to factors
 stemData2017 [['tree']]      <- factor (stemData2017 [['treeID']])
