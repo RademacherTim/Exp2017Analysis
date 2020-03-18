@@ -451,140 +451,186 @@ xPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
 ALPHA <- 0.4
 
 # plot the estimated mean end of growth for each treatment
-png (filename = '../fig/Exp2017EndOfGrowthAndCellNumbers.png', width = 600)
+#png (filename = '../fig/Exp2017EndOfGrowthAndCellNumbers.png', width = 600)
+png (filename = '../fig/Exp2017CellNumbers.png', width = 600)
   par (mfrow = c (1, 1))
   par (mar = c (5, 5, 5, 1))
-  treeLabels <- c ('01M','03M','04M','06M','07M','09M','18M','30M','31M','36M')
-  lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
-                          by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
-                          max, na.rm = TRUE)
-  lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-  # plot of the means and standard errors
-  plot (y = xPositions [1],
-        x = as_date (mean (lastDates [[2]])), 
-        xlab = '', ylab = '',
-        col = 'white', las = 1, axes = FALSE,
-        ylim = c (0, 6), xlim = as_date (c ('2017-03-01','2017-11-15')))
-  arrows (x0 = as_date (mean (lastDates [[2]]) - (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))), 
-          x1 = as_date (mean (lastDates [[2]]) + (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))), 
-          y0 = xPositions [1], col = '#333333', lwd = 3, angle = 90, length = 0.05, code = 3)
-  points (y = xPositions [1],
-          x = as_date (mean (lastDates [[2]], na.rm = TRUE)), 
-          col = colours [1], las = 1, pch = 22, cex = 2, lwd = 3, bg = 'white')
-  # determine the last day of growth for below the girdl
-  treeLabels <- c ('05B','11B','15B','16B','19B','23B','29B','35B','39B','40B')
-  lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
-                          by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
-                          max, na.rm = TRUE)
-  lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-  # add mean and standard deviation for below the girdl
-  arrows (x0 = as_date (mean (lastDates [[2]]) - (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))),
-          x1 = as_date (mean (lastDates [[2]]) + (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))),
-          y0 = xPositions [2], col = '#333333', lwd = 3, angle = 90, length = 0.05, code = 3)
-  points (y = xPositions [2],
-          x = as_date (mean (lastDates [[2]])), 
-          col = colours [2], las = 1, pch = 21, cex = 2, lwd = 3, bg = 'white')
-  # determine the last day of growth for above the girdl
-  treeLabels <- c ('05A','11A','15A','16A','19A','23A','29A','35A','39A','40A')
-  lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
-                          by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
-                          max, na.rm = TRUE)
-  lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-  # add mean and standard deviation for above the girdl
-  arrows (x0 = as_date (mean (lastDates [[2]]) - (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))), 
-          x1 = as_date (mean (lastDates [[2]]) + (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))),
-          y0 = xPositions [3], col = '#333333', lwd = 3, angle = 90, length = 0.1, code = 3)
-  points (y = xPositions [3],
-          x = as_date (mean (lastDates [[2]])), 
-          col = colours [2], las = 1, pch = 23, cex = 2, lwd = 3, bg = 'white')
-  # determine the last day of growth for below the compression
-  treeLabels <- c ('10B','12B','13B','17B','20B','21B','28B','32B','33B','38B')
-  lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
-                          by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
-                          max, na.rm = TRUE)
-  lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-  # add mean and standard deviation for below the compression
-  arrows (x0 = as_date (mean (lastDates [[2]]) - (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))),
-          x1 = as_date (mean (lastDates [[2]]) + (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))),
-          y0 = xPositions [4], col = '#333333', lwd = 3, angle = 90, length = 0.05, code = 3)
-  points (y = xPositions [4],
-          x = as_date (mean (lastDates [[2]])), 
-          col = colours [3], las = 1, pch = 21, cex = 2, lwd = 3, bg = 'white')
-  # determine the last day of growth for above the compression
-  treeLabels <- c ('10A','12A','13A','17A','20A','21A','28A','32A','33A','38A')
-  lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
-                          by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
-                          max, na.rm = TRUE)
-  lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-  # add mean and standard deviation for above the compression
-  arrows (x0 = as_date (mean (lastDates [[2]]) - (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))), 
-          x1 = as_date (mean (lastDates [[2]]) + (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))),
-          y0 = xPositions [5], col = '#333333', lwd = 3, angle = 90, length = 0.05, code = 3)
-  points (y = xPositions [5],
-          x = as_date (mean (lastDates [[2]])), 
-          col = colours [3], las = 1, pch = 23, cex = 2, lwd = 3, bg = 'white')
-  # determine the last day of growth for below the double compression
-  treeLabels <- c ('02B','08B','14B','22B','24B','25B','26B','27B','34B','37B')
-  lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
-                          by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
-                          max, na.rm = TRUE)
-  lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-  # add mean and standard deviation for below the double compression
-  arrows (x0 = as_date (mean (lastDates [[2]], na.rm = TRUE) - (sd (lastDates [[2]], na.rm = TRUE) / 
-                                                                  sqrt (sum (!is.na(lastDates [[2]]))))),
-          x1 = as_date (mean (lastDates [[2]], na.rm = TRUE) + (sd (lastDates [[2]], na.rm = TRUE) / 
-                                                                  sqrt (sum (!is.na(lastDates [[2]]))))),
-          y0 = xPositions [6], col = '#333333', lwd = 3, angle = 90, length = 0.05, code = 3)
-  points (y = xPositions [6],
-          x = as_date (mean (lastDates [[2]], na.rm = TRUE)), 
-          col = colours [4], pch = 21, cex = 2, lwd = 3, bg = 'white')
-  # determine the last day of growth for below the double compression
-  treeLabels <- c ('02M','08M','14M','22M','24M','25M','26M','27M','34M','37M')
-  lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
-                          by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
-                          max, na.rm = TRUE)
-  lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-  # add mean and standard deviation for between the double compression
-  arrows (x0 = as_date (mean (lastDates [[2]]) - (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))), 
-          x1 = as_date (mean (lastDates [[2]]) + (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))),
-          y0 = xPositions [7], col = '#333333', lwd = 3, angle = 90, length = 0.05, code = 3)
-  points (y = xPositions [7],
-          x = as_date (mean (lastDates [[2]])), 
-          col = colours [4], pch = 22, cex = 2, lwd = 3, bg = 'white')
-  # determine the last day of growth for above the double compression
-  treeLabels <- c ('02A','08A','14A','22A','24A','25A','26A','27A','34A','37A')
-  lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
-                          by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
-                          max, na.rm = TRUE)
-  lastDates [is.infinite (lastDates [, 2]), 2] <- NA
-  # add mean and standard deviation for below the double compression
-  arrows (x0 = as_date (mean (lastDates [[2]], na.rm = TRUE) - (sd (lastDates [[2]], na.rm = TRUE) / 
-                                                                  sqrt (sum (!is.na(lastDates [[2]]))))), 
-          x1 = as_date (mean (lastDates [[2]], na.rm = TRUE) + (sd (lastDates [[2]], na.rm = TRUE) / 
-                                                                  sqrt (sum (!is.na(lastDates [[2]]))))),
-          y0 = xPositions [8], col = '#333333', lwd = 3, angle = 90, length = 0.05, code = 3)
-  points (y = xPositions [8],
-          x = as_date (mean (lastDates [[2]], na.rm = TRUE)), 
-          col = colours [4], pch = 23, cex = 2, lwd = 3, bg = 'white')
+  # treeLabels <- c ('01M','03M','04M','06M','07M','09M','18M','30M','31M','36M')
+  # lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+  #                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+  #                         max, na.rm = TRUE)
+  # 
+  # # plot of the means and standard errors
+  # #--------------------------------------------------------------------------------------
+  # plot (y = xPositions [1],
+  #       x = as_date (mean (lastDates [[2]])), 
+  #       xlab = '', ylab = '',
+  #       col = 'white', las = 1, axes = FALSE,
+  #       ylim = c (0, 6), xlim = as_date (c ('2017-03-01','2017-11-15')))
+  # points (x = as_date (lastDates [[2]]),
+  #         y = rep ((xPositions [1]), 10), pch = 21, cex = 1.5,
+  #         col = addOpacity (colours [1], ALPHA), bg = addOpacity (colours [1], ALPHA))
+  # arrows (x0 = as_date (mean (lastDates [[2]]) - (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))), 
+  #         x1 = as_date (mean (lastDates [[2]]) + (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))), 
+  #         y0 = xPositions [1], col = '#333333', lwd = 3, angle = 90, length = 0.05, code = 3)
+  # points (y = xPositions [1],
+  #         x = as_date (mean (lastDates [[2]], na.rm = TRUE)), 
+  #         col = colours [1], las = 1, pch = 21, cex = 2, lwd = 3, bg = 'white')
+  # # determine the last day of growth for below the girdl
+  # treeLabels <- c ('05B','11B','15B','16B','19B','23B','29B','35B','39B','40B')
+  # lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+  #                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+  #                         max, na.rm = TRUE)
+  # # add individual measurements for below the girdle
+  # points (x = as_date (lastDates [[2]]),
+  #         y = rep ((xPositions [2]), 10), pch = 25, cex = 1.5,
+  #         col = addOpacity (colours [2], ALPHA), bg = addOpacity (colours [2], ALPHA))
+  # # add mean and standard deviation for below the girdle
+  # arrows (x0 = as_date (mean (lastDates [[2]]) - (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))),
+  #         x1 = as_date (mean (lastDates [[2]]) + (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))),
+  #         y0 = xPositions [2], col = '#333333', lwd = 3, angle = 90, length = 0.05, code = 3)
+  # points (y = xPositions [2],
+  #         x = as_date (mean (lastDates [[2]])), 
+  #         col = colours [2], las = 1, pch = 25, cex = 2, lwd = 3, bg = 'white')
+  # # determine the last day of growth for above the girdl
+  # treeLabels <- c ('05A','11A','15A','16A','19A','23A','29A','35A','39A','40A')
+  # lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+  #                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+  #                         max, na.rm = TRUE)
+  # # add individual measurements for below the girdle
+  # points (x = as_date (lastDates [[2]]),
+  #         y = rep ((xPositions [3]), 10), pch = 24, cex = 1.5,
+  #         col = addOpacity (colours [2], ALPHA), bg = addOpacity (colours [2], ALPHA))
+  # # add mean and standard deviation for above the girdl
+  # arrows (x0 = as_date (mean (lastDates [[2]]) - (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))), 
+  #         x1 = as_date (mean (lastDates [[2]]) + (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))),
+  #         y0 = xPositions [3], col = '#333333', lwd = 3, angle = 90, length = 0.1, code = 3)
+  # points (y = xPositions [3],
+  #         x = as_date (mean (lastDates [[2]])), 
+  #         col = colours [2], las = 1, pch = 24, cex = 2, lwd = 3, bg = 'white')
+  # # determine the last day of growth for below the compression
+  # treeLabels <- c ('10B','12B','13B','17B','20B','21B','28B','32B','33B','38B')
+  # lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+  #                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+  #                         max, na.rm = TRUE)
+  # # add individual measurements for below the girdle
+  # points (x = as_date (lastDates [[2]]),
+  #         y = rep ((xPositions [4]), 10), pch = 25, cex = 1.5,
+  #         col = addOpacity (colours [3], ALPHA), bg = addOpacity (colours [3], ALPHA))
+  # # add mean and standard deviation for below the compression
+  # arrows (x0 = as_date (mean (lastDates [[2]]) - (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))),
+  #         x1 = as_date (mean (lastDates [[2]]) + (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))),
+  #         y0 = xPositions [4], col = '#333333', lwd = 3, angle = 90, length = 0.05, code = 3)
+  # points (y = xPositions [4],
+  #         x = as_date (mean (lastDates [[2]])), 
+  #         col = colours [3], las = 1, pch = 25, cex = 2, lwd = 3, bg = 'white')
+  # # determine the last day of growth for above the compression
+  # treeLabels <- c ('10A','12A','13A','17A','20A','21A','28A','32A','33A','38A')
+  # lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+  #                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+  #                         max, na.rm = TRUE)
+  # # add individual measurements for below the girdle
+  # points (x = as_date (lastDates [[2]]),
+  #         y = rep ((xPositions [5]), 10), pch = 24, cex = 1.5,
+  #         col = addOpacity (colours [3], ALPHA), bg = addOpacity (colours [3], ALPHA))
+  # # add mean and standard deviation for above the compression
+  # arrows (x0 = as_date (mean (lastDates [[2]]) - (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))), 
+  #         x1 = as_date (mean (lastDates [[2]]) + (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))),
+  #         y0 = xPositions [5], col = '#333333', lwd = 3, angle = 90, length = 0.05, code = 3)
+  # points (y = xPositions [5],
+  #         x = as_date (mean (lastDates [[2]])), 
+  #         col = colours [3], las = 1, pch = 24, cex = 2, lwd = 3, bg = 'white')
+  # # determine the last day of growth for below the double compression
+  # treeLabels <- c ('02B','08B','14B','22B','24B','25B','26B','27B','34B','37B')
+  # lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+  #                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+  #                         max, na.rm = TRUE)
+  # # add individual measurements for below the girdle
+  # points (x = as_date (lastDates [[2]]),
+  #         y = rep ((xPositions [6]), 10), pch = 25, cex = 1.5,
+  #         col = addOpacity (colours [4], ALPHA), bg = addOpacity (colours [4], ALPHA))
+  # # add mean and standard deviation for below the double compression
+  # arrows (x0 = as_date (mean (lastDates [[2]], na.rm = TRUE) - (sd (lastDates [[2]], na.rm = TRUE) / 
+  #                                                                 sqrt (sum (!is.na(lastDates [[2]]))))),
+  #         x1 = as_date (mean (lastDates [[2]], na.rm = TRUE) + (sd (lastDates [[2]], na.rm = TRUE) / 
+  #                                                                 sqrt (sum (!is.na(lastDates [[2]]))))),
+  #         y0 = xPositions [6], col = '#333333', lwd = 3, angle = 90, length = 0.05, code = 3)
+  # points (y = xPositions [6],
+  #         x = as_date (mean (lastDates [[2]], na.rm = TRUE)), 
+  #         col = colours [4], pch = 25, cex = 2, lwd = 3, bg = 'white')
+  # # determine the last day of growth for below the double compression
+  # treeLabels <- c ('02M','08M','14M','22M','24M','25M','26M','27M','34M','37M')
+  # lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+  #                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+  #                         max, na.rm = TRUE)
+  # # add individual measurements for below the girdle
+  # points (x = as_date (lastDates [[2]]),
+  #         y = rep ((xPositions [7]), 10), pch = 22, cex = 1.5,
+  #         col = addOpacity (colours [4], ALPHA), bg = addOpacity (colours [4], ALPHA))
+  # # add mean and standard deviation for between the double compression
+  # arrows (x0 = as_date (mean (lastDates [[2]]) - (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))), 
+  #         x1 = as_date (mean (lastDates [[2]]) + (sd (lastDates [[2]]) / sqrt (sum (!is.na(lastDates [[2]]))))),
+  #         y0 = xPositions [7], col = '#333333', lwd = 3, angle = 90, length = 0.05, code = 3)
+  # points (y = xPositions [7],
+  #         x = as_date (mean (lastDates [[2]])), 
+  #         col = colours [4], pch = 22, cex = 2, lwd = 3, bg = 'white')
+  # # determine the last day of growth for above the double compression
+  # treeLabels <- c ('02A','08A','14A','22A','24A','25A','26A','27A','34A','37A')
+  # lastDates <- aggregate (data [['formationDate']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels], 
+  #                         by = list (data [['TREE']] [data [['YEAR']] == 2017 & data [['TREE']] %in% treeLabels]), 
+  #                         max, na.rm = TRUE)
+  # # add individual measurements for below the girdle
+  # points (x = as_date (lastDates [[2]]),
+  #         y = rep ((xPositions [8]), 10), pch = 24, cex = 1.5,
+  #         col = addOpacity (colours [4], ALPHA), bg = addOpacity (colours [4], ALPHA))
+  # # add mean and standard deviation for below the double compression
+  # arrows (x0 = as_date (mean (lastDates [[2]], na.rm = TRUE) - (sd (lastDates [[2]], na.rm = TRUE) / 
+  #                                                                 sqrt (sum (!is.na(lastDates [[2]]))))), 
+  #         x1 = as_date (mean (lastDates [[2]], na.rm = TRUE) + (sd (lastDates [[2]], na.rm = TRUE) / 
+  #                                                                 sqrt (sum (!is.na(lastDates [[2]]))))),
+  #         y0 = xPositions [8], col = '#333333', lwd = 3, angle = 90, length = 0.05, code = 3)
+  # points (y = xPositions [8],
+  #         x = as_date (mean (lastDates [[2]], na.rm = TRUE)), 
+  #         col = colours [4], pch = 24, cex = 2, lwd = 3, bg = 'white')
+  # 
+  # # add x-axis 
+  # #--------------------------------------------------------------------------------------
+  # axis (side = 1, cex = 2,
+  #       at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')), 
+  #       labels = c ('Jul','Aug','Sep','Oct','Nov'))
+  # 
+  # # add x-axis description
+  # #--------------------------------------------------------------------------------------
+  # mtext (side = 1, line = 3, at = as_date ('2017-08-30'), cex = 1.5, 
+  #        text = 'estimated end of growth')
+  # 
+  # # add line to separate the panels
+  # #--------------------------------------------------------------------------------------
+  # abline (v = as_date ('2017-06-22'), col = '#666666')
+  # 
+  # # add new plot of cell number
+  # #--------------------------------------------------------------------------------------
+  # par (new = TRUE)
+  plot (y = rep (xPositions [1], sum (cellNumber [['treatment']] == 1, na.rm = TRUE )), 
+        x = cellNumber [['n']] [cellNumber [['treatment']] == 1], 
+        xlab = '', ylab = '', axes = FALSE,cex = 2,
+        pch = 21, col = addOpacity (colours [1], ALPHA), 
+        bg = addOpacity (colours [1], ALPHA), 
+        ylim = c (0, 6), xlim = c (0, 120))
+  
+  # add x axis and margin text
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = seq (0, 120, by  = 20), cex = 2)
+  mtext (side = 1, line = 3, at = 60, cex = 1.5, 
+         text = 'mean number of cells in final ring (n)')
   
   # add y axis
   #--------------------------------------------------------------------------------------
-  axis (side = 2, at = xPositions, 
-        labels = c ('M','B','A','B','A','B','M','A'), 
+  axis (side = 2, at = xPositions,
+        labels = c ('M','B','A','B','A','B','M','A'),
         tick = 1, las = 1, cex = 2)
   
-  # add x-axis 
-  #--------------------------------------------------------------------------------------
-  axis (side = 1, cex = 2,
-        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')), 
-        labels = c ('Jul','Aug','Sep','Oct','Nov'))
-  
-  # add x-axis description
-  #--------------------------------------------------------------------------------------
-  mtext (side = 1, line = 3, at = as_date ('2017-08-30'), cex = 1.5, 
-         text = 'estimated end of growth')
-  
-  # add treatments
+  # add treatment as y-axis labels 
   #--------------------------------------------------------------------------------------
   mtext (side = 2, line = 2, text = 'control', at = xPositions [1], cex = 1.2)
   mtext (side = 2, line = 2, text = 'girdled', at = mean (xPositions [c(2,3)]), cex = 1.2)
@@ -592,65 +638,59 @@ png (filename = '../fig/Exp2017EndOfGrowthAndCellNumbers.png', width = 600)
   mtext (side = 2, line = 3, text = 'double', at = mean (xPositions [c(6,7,8)]), cex = 1.2)
   mtext (side = 2, line = 2, text = 'compressed', at = mean (xPositions [c(6,7,8)]), cex = 1.2)
   
-  # add line to separate the panels
-  #--------------------------------------------------------------------------------------
-  abline (v = as_date ('2017-06-22'), col = '#666666')
-  
-  # add new plot of cell number
-  #--------------------------------------------------------------------------------------
-  par (new = TRUE)
-  plot (y = rep (xPositions [1], sum (cellNumber [['treatment']] == 1, na.rm = TRUE )), 
-        x = cellNumber [['n']] [cellNumber [['treatment']] == 1], 
-        xlab = '', ylab = '', axes = FALSE,
-        pch = 15, col = addOpacity (colours [1], ALPHA), ylim = c (0, 6), xlim = c (0, 300))
-  
-  # add y axis and margin text
-  #--------------------------------------------------------------------------------------
-  axis (side = 3, at = seq (0, 120, by  = 20), cex = 2)
-  mtext (side = 3, line = 3, at = 60, cex = 1.5, 
-         text = 'mean number of cells in final ring (n)')
-  
-  # add below the girdling
   #--------------------------------------------------------------------------------------
   points (y = rep (xPositions [2], sum (cellNumber [['treatment']] == 2 & cellNumber [['height']] == 'B', na.rm = TRUE )), 
           x = cellNumber [['n']] [cellNumber [['treatment']] == 2 & cellNumber [['height']] == 'B'], 
-          pch = 16, col = addOpacity (colours [2], ALPHA), cex = 2)
+          pch = 25, 
+          col = addOpacity (colours [2], ALPHA), 
+          bg  = addOpacity (colours [2], ALPHA), cex = 2)
   
   # add above the girdling
   #--------------------------------------------------------------------------------------
   points (y = rep (xPositions [3], sum (cellNumber [['treatment']] == 2 & cellNumber [['height']] == 'A', na.rm = TRUE )), 
           x = cellNumber [['n']] [cellNumber [['treatment']] == 2 & cellNumber [['height']] == 'A'], 
-          pch = 18, col = addOpacity (colours [2], ALPHA), cex = 2)
+          pch = 24, bg = addOpacity (colours [2], ALPHA), 
+          col = addOpacity (colours [2], ALPHA), cex = 2)
   
   # add below the compression
   #--------------------------------------------------------------------------------------
   points (y = rep (xPositions [4], sum (cellNumber [['treatment']] == 3 & cellNumber [['height']] == 'B', na.rm = TRUE )), 
           x = cellNumber [['n']] [cellNumber [['treatment']] == 3 & cellNumber [['height']] == 'B'], 
-          pch = 16, col = addOpacity (colours [3], ALPHA), cex = 2)
+          pch = 25, 
+          bg  = addOpacity (colours [3], ALPHA),
+          col = addOpacity (colours [3], ALPHA), cex = 2)
   
   # add above the compression
   #--------------------------------------------------------------------------------------
   points (y = rep (xPositions [5], sum (cellNumber [['treatment']] == 3 & cellNumber [['height']] == 'A', na.rm = TRUE )), 
           x = cellNumber [['n']] [cellNumber [['treatment']] == 3 & cellNumber [['height']] == 'A'], 
-          pch = 18, col = addOpacity (colours [3], ALPHA), cex = 2)
+          pch = 24, 
+          bg  = addOpacity (colours [3], ALPHA), 
+          col = addOpacity (colours [3], ALPHA), cex = 2)
   
   # add below the double compression
   #--------------------------------------------------------------------------------------
   points (y = rep (xPositions [6], sum (cellNumber [['treatment']] == 4 & cellNumber [['height']] == 'B', na.rm = TRUE )), 
           x = cellNumber [['n']] [cellNumber [['treatment']] == 4 & cellNumber [['height']] == 'B'], 
-          pch = 16, col = addOpacity (colours [4], ALPHA), cex = 2)
+          pch = 25, 
+          bg  = addOpacity (colours [4], ALPHA),
+          col = addOpacity (colours [4], ALPHA), cex = 2)
   
   # add in between the double compression
   #--------------------------------------------------------------------------------------
   points (y = rep (xPositions [7], sum (cellNumber [['treatment']] == 4 & cellNumber [['height']] == 'M', na.rm = TRUE )), 
           x = cellNumber [['n']] [cellNumber [['treatment']] == 4 & cellNumber [['height']] == 'M'], 
-          pch = 15, col = addOpacity (colours [4], ALPHA), cex = 2)
+          pch = 22, 
+          bg  = addOpacity (colours [4], ALPHA),
+          col = addOpacity (colours [4], ALPHA), cex = 2)
   
   # add above the double compression
   #--------------------------------------------------------------------------------------
   points (y = rep (xPositions [8], sum (cellNumber [['treatment']] == 4 & cellNumber [['height']] == 'A', na.rm = TRUE )), 
           x = cellNumber [['n']] [cellNumber [['treatment']] == 4 & cellNumber [['height']] == 'A'], 
-          pch = 18, col = addOpacity (colours [4], ALPHA), cex = 2)
+          pch = 24, 
+          bg  = addOpacity (colours [4], ALPHA),
+          col = addOpacity (colours [4], ALPHA), cex = 2)
   
   # add standard deviation
   #--------------------------------------------------------------------------------------
@@ -666,7 +706,7 @@ png (filename = '../fig/Exp2017EndOfGrowthAndCellNumbers.png', width = 600)
   points (y = xPositions,
           x = cellNMeans [[3]] [c (1, 3, 2, 5, 4, 7, 8, 6)],
           col = colours [c (1, 2, 2, 3, 3, 4, 4, 4)], 
-          pch = c (22, 21, 23, 21, 23, 21, 22, 23),
+          pch = c (21, 25, 24, 25, 24, 25, 22, 24),
           lwd = 3, bg = 'white', cex = 2)
 dev.off ()
 
