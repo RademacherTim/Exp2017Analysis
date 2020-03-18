@@ -31,7 +31,7 @@ addOpacity <- function (colour, alpha = 1) {
          function (x) rgb (x [1], x [2], x [3], alpha = alpha))
 }
 
-ALPHA  <- 0.5 # add transparency to better see all symbols
+ALPHA  <- 0.6 # add transparency to better see all symbols
 
 # create yPosition and plotting symbols for the stemData
 yPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
@@ -90,8 +90,6 @@ rootSDs <- rootData2017 %>% select (treatment, date, sugar, starch) %>%
                             group_by (treatment, date) %>% 
                             summarise_each (funs (sd (., na.rm = TRUE)))
 
-# TR- There seem to NSC data with treatment NA, which should not be the case
-
 # plot leaf sugar concentrations for each period
 #----------------------------------------------------------------------------------------
 png (filename = '../fig/Exp2017LeafSugarConcentrations.png', width = 800, height = 500)
@@ -103,8 +101,9 @@ png (filename = '../fig/Exp2017LeafSugarConcentrations.png', width = 800, height
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
         xlab = '', ylab = '', 
-        xaxt = 'n', yaxt = 'n',
-        xlim = c (-0.5, 12.5), ylim = c (0, 5))
+#        xaxt = 'n', yaxt = 'n',
+        axes = FALSE,
+        xlim = c (-1, 13), ylim = c (0, 5))
 
   # add x axis
   #--------------------------------------------------------------------------------------
@@ -118,7 +117,7 @@ png (filename = '../fig/Exp2017LeafSugarConcentrations.png', width = 800, height
   
   # add month label
   #--------------------------------------------------------------------------------------
-  text ('july', x = 9, y = 4.7, cex = 1.5)
+  text ('july', x = 0, y = 5, cex = 1.5, pos = 4)
   
   # add tissues label
   #--------------------------------------------------------------------------------------
@@ -129,7 +128,7 @@ png (filename = '../fig/Exp2017LeafSugarConcentrations.png', width = 800, height
   points (x = leafData2017 [['sugar']] [leafData2017 [['date']] == '2017-07-05'], 
           y = leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-07-05'], 
           col = addOpacity (colours [leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-07-05']], ALPHA),
-          pch = 18)
+          pch = 18, cex = 1.5)
   
   # add mean and standard deviation of leaf sugar by treatment
   #--------------------------------------------------------------------------------------
@@ -142,8 +141,11 @@ png (filename = '../fig/Exp2017LeafSugarConcentrations.png', width = 800, height
   points (x = leafMeans [['sugar']]  [leafMeans [['date']] == '2017-07-05'],
           y = leafMeans [['treatment']]  [leafMeans [['date']] == '2017-07-05'],
           col = colours [leafMeans [['treatment']]  [leafMeans [['date']] == '2017-07-05']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
+          pch = 23, bg = 'white', lwd = 2, cex = 2)
+  
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 13.5, col = '#666666')
   
   # plot august leaf sugar concentrations
   #--------------------------------------------------------------------------------------
@@ -153,8 +155,8 @@ png (filename = '../fig/Exp2017LeafSugarConcentrations.png', width = 800, height
         las = 1, typ = 'p', 
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
-        xlab = '', ylab = '', xaxt = 'n', yaxt = 'n',
-        xlim = c (-0.5, 12.5), ylim = c (0, 5))
+        xlab = '', ylab = '', axes = FALSE, #xaxt = 'n', yaxt = 'n',
+        xlim = c (-1, 13), ylim = c (0, 5))
   
   # add x-axis 
   #----------------------------------------------------------------------------------------
@@ -162,14 +164,14 @@ png (filename = '../fig/Exp2017LeafSugarConcentrations.png', width = 800, height
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('august', x = 9, y = 4.7, cex = 1.5)
+  text ('august', x = 0, y = 5, cex = 1.5, pos = 4)
   
   # individual leaf sugar measurements form august  as points
   #----------------------------------------------------------------------------------------
   points (x = leafData2017 [['sugar']]     [leafData2017 [['date']] == '2017-08-10'], 
           y = leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-08-10'], 
           col = addOpacity (colours [leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-08-10']], ALPHA),
-          pch = 18)
+          pch = 18, cex = 1.5)
   
   # add mean and standard deviation for august leaf sugar concentrations by treatment
   #----------------------------------------------------------------------------------------
@@ -182,8 +184,11 @@ png (filename = '../fig/Exp2017LeafSugarConcentrations.png', width = 800, height
   points (x = leafMeans [['sugar']] [leafMeans [['date']] == '2017-08-10'],
           y = leafMeans [['treatment']] [leafMeans [['date']] == '2017-08-10'],
           col = colours [leafMeans [['treatment']] [leafMeans [['date']] == '2017-08-10']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
+          pch = 23, bg = 'white', lwd = 2, cex = 2)
+  
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 13.5, col = '#666666')
   
   # add title
   #----------------------------------------------------------------------------------------
@@ -201,8 +206,8 @@ png (filename = '../fig/Exp2017LeafSugarConcentrations.png', width = 800, height
         las = 1, typ = 'p', 
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
-        xlab = '', ylab = '', xaxt = 'n', yaxt = 'n',
-        xlim = c (-0.5, 12.5), ylim = c (0, 5))
+        xlab = '', ylab = '', axes = FALSE, #xaxt = 'n', yaxt = 'n',
+        xlim = c (-1, 13), ylim = c (0, 5))
   
   # add x-axis 
   #----------------------------------------------------------------------------------------
@@ -210,14 +215,14 @@ png (filename = '../fig/Exp2017LeafSugarConcentrations.png', width = 800, height
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('october', x = 9, y = 4.7, cex = 1.5)
+  text ('october', x = 0, y = 5, cex = 1.5, pos = 4)
   
   # individual measurements as points
   #----------------------------------------------------------------------------------------
   points (x = leafData2017 [['sugar']]     [leafData2017 [['date']] == '2017-10-09'], 
           y = leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-10-09'], 
           col = addOpacity (colours [leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-10-09']], ALPHA),
-          pch = 18)
+          pch = 18, cex = 1.5)
   
   # add mean and standard deviation
   #----------------------------------------------------------------------------------------
@@ -230,8 +235,11 @@ png (filename = '../fig/Exp2017LeafSugarConcentrations.png', width = 800, height
   points (x = leafMeans [['sugar']] [leafMeans [['date']] == '2017-10-09'],
           y = leafMeans [['treatment']] [leafMeans [['date']] == '2017-10-09'],
           col = colours [leafMeans [['treatment']] [leafMeans [['date']] == '2017-10-09']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
+          pch = 23, bg = 'white', lwd = 2, cex = 2)
+  
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 13.5, col = '#666666')
   
   # plot november leaf sugar concentrations
   #----------------------------------------------------------------------------------------
@@ -241,8 +249,8 @@ png (filename = '../fig/Exp2017LeafSugarConcentrations.png', width = 800, height
         las = 1, typ = 'p', 
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
-        xlab = '', ylab = '', xaxt = 'n', yaxt = 'n',
-        xlim = c (-0.5, 12.5), ylim = c (0, 5))
+        xlab = '', ylab = '', axes = FALSE, #xaxt = 'n', yaxt = 'n',
+        xlim = c (-1, 13), ylim = c (0, 5))
   
   # add x-axis 
   #----------------------------------------------------------------------------------------
@@ -250,16 +258,16 @@ png (filename = '../fig/Exp2017LeafSugarConcentrations.png', width = 800, height
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('november', x = 9, y = 4.7, cex = 1.5)
+  text ('november', x = 0, y = 5, cex = 1.5, pos = 4)
   
-  # individual measurements as points
+  # individual measurements of leaf sugar in november as points
   #----------------------------------------------------------------------------------------
   points (x = leafData2017 [['sugar']] [leafData2017 [['date']] == '2017-11-03'], 
           y = leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-11-03'], 
           col = addOpacity (colours [leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-11-03']], ALPHA),
-          pch = 18)
+          pch = 18, cex = 1.5)
   
-  # add mean and standard deviation
+  # add mean and standard deviation for leaf sugar in November
   #----------------------------------------------------------------------------------------
   arrows (x0 = leafMeans [['sugar']] [leafMeans [['date']] == '2017-11-03'] - 
                leafSDs [['sugar']] [leafMeans [['date']] == '2017-11-03'],
@@ -270,11 +278,10 @@ png (filename = '../fig/Exp2017LeafSugarConcentrations.png', width = 800, height
   points (x = leafMeans [['sugar']] [leafMeans [['date']] == '2017-11-03'],
           y = leafMeans [['treatment']] [leafMeans [['date']] == '2017-11-03'],
           col = colours [leafMeans [['treatment']] [leafMeans [['date']] == '2017-11-03']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
+          pch = 23, bg = 'white', lwd = 2, cex = 2)
 dev.off ()
 
-# plot wood starch concentrations of 1 cm for each period
+# plot leafstarch concentrations of 1 cm for each period
 #----------------------------------------------------------------------------------------
 png (filename = '../fig/Exp2017LeafStarchConcentrations.png', width = 800, height = 500)
   layout (matrix (1:4, nrow = 1, byrow = TRUE), widths = c (1.3, 1, 1, 1.1))
@@ -284,39 +291,46 @@ png (filename = '../fig/Exp2017LeafStarchConcentrations.png', width = 800, heigh
         las = 1, typ = 'p', 
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
-        xlab = '', ylab = '', yaxt = 'n',
-        xlim = c (-0.1, 7.1), ylim = c (0, 5))
+        xlab = '', ylab = '', axes = FALSE, #yaxt = 'n',
+        xlim = c (-0.5, 7.5), ylim = c (0, 5))
+  
+  # add x axis 
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = 0:7)
   
   # add y axis
-  #----------------------------------------------------------------------------------------
+  #--------------------------------------------------------------------------------------
   axis (side = 2, at = 1:4, 
         labels = c ('control', 'gridled', 'compressed', expression ('    double \ncompressed')), 
         tick = 1)
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('july', x = 6, y = 4.7, cex = 1.5)
+  text ('july', x = 0, y = 5, cex = 1.5, pos = 4)
 
-  # individual measurements as points
+  # individual measurements of leaf starch in July as points
   #----------------------------------------------------------------------------------------
   points (x = leafData2017 [['starch']] [leafData2017 [['date']] == '2017-07-05'], 
           y = leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-07-05'], 
           col = addOpacity (colours [leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-07-05']], ALPHA),
-          pch = 18)
+          pch = 18, cex = 1.5)
   
-  # add mean and standard deviation
+  # add mean and standard deviation for leaf starch in July
   #----------------------------------------------------------------------------------------
   arrows (x0 = leafMeans [['starch']] [leafMeans [['date']] == '2017-07-05'] - 
                leafSDs [['starch']] [leafMeans [['date']] == '2017-07-05'],
           x1 = leafMeans [['starch']] [leafMeans [['date']] == '2017-07-05'] + 
                leafSDs [['starch']] [leafMeans [['date']] == '2017-07-05'],
           y0 = leafMeans [['treatment']] [leafMeans [['date']] == '2017-07-05'],
-          col = '#999999', code = 3, length = 0.05, angle = 90,lwd = 2)
+          col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
   points (x = leafMeans [['starch']]  [leafMeans [['date']] == '2017-07-05'],
           y = leafMeans [['treatment']] [leafMeans [['date']] == '2017-07-05'],
           col = colours [leafMeans [['treatment']]  [leafMeans [['date']] == '2017-07-05']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
+          pch = 23, bg = 'white', lwd = 2, cex = 2)
+  
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 7.8, col = '#666666')
   
   # plot august concentrations
   #----------------------------------------------------------------------------------------
@@ -326,41 +340,49 @@ png (filename = '../fig/Exp2017LeafStarchConcentrations.png', width = 800, heigh
         las = 1, typ = 'p', 
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
-        xlab = '', ylab = '', yaxt = 'n',
-        xlim = c (-0.1, 7.1), ylim = c (0, 5))
+        xlab = '', ylab = '', axes = FALSE, #yaxt = 'n',
+        xlim = c (-0.5, 7.5), ylim = c (0, 5))
+  
+  # add x axis 
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = 0:7)
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('august', x = 6, y = 4.7, cex = 1.5)
+  text ('august', x = 0, y = 5, cex = 1.5, pos = 4)
   
-  # individual measurements as points
+  # individual measurements of leaf starch in august as points
   #----------------------------------------------------------------------------------------
   points (x = leafData2017 [['starch']] [leafData2017 [['date']] == '2017-08-10'], 
           y = leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-08-10'], 
           col = addOpacity (colours [leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-08-10']], ALPHA),
-          pch = 18)
+          pch = 18, cex = 1.5)
   
-  # add mean and standard deviation
+  # add mean and standard deviation for leaf starch in august
   #----------------------------------------------------------------------------------------
   arrows (x0 = leafMeans [['starch']] [leafMeans [['date']] == '2017-08-10'] - 
                leafSDs [['starch']] [leafMeans [['date']] == '2017-08-10'],
           x1 = leafMeans [['starch']] [leafMeans [['date']] == '2017-08-10'] + 
                leafSDs [['starch']] [leafMeans [['date']] == '2017-08-10'],
           y0 = leafMeans [['treatment']] [leafMeans [['date']] == '2017-08-10'],
-          col = '#999999', code = 3, length = 0.05, angle = 90,lwd = 2)
+          col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
   points (x = leafMeans [['starch']] [leafMeans [['date']] == '2017-08-10'],
           y = leafMeans [['treatment']] [leafMeans [['date']] == '2017-08-10'],
           col = colours [leafMeans [['treatment']] [leafMeans [['date']] == '2017-08-10']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
+          pch = 23, bg = 'white', lwd = 2, cex = 2)
+  
+  
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 7.8, col = '#666666')
   
   # add title
   #----------------------------------------------------------------------------------------
-  mtext (side = 3, line = 2, text = 'starch', at = 7.1, cex = 2)
+  mtext (side = 3, line = 2, text = 'starch', at = 7.5, cex = 2)
   
   # add x-axis description
   #----------------------------------------------------------------------------------------
-  mtext (side = 1, line = 3, text = 'concentration (% dry weight)', at = 7.1, cex = 1)
+  mtext (side = 1, line = 3, text = 'concentration (% dry weight)', at = 7.5, cex = 1)
   
   # plot october concentrations
   #----------------------------------------------------------------------------------------
@@ -370,21 +392,25 @@ png (filename = '../fig/Exp2017LeafStarchConcentrations.png', width = 800, heigh
         las = 1, typ = 'p', 
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
-        xlab = '', ylab = '', yaxt = 'n',
-        xlim = c (-0.1, 7.1), ylim = c (0, 5))
+        xlab = '', ylab = '', axes = FALSE, #yaxt = 'n',
+        xlim = c (-0.5, 7.5), ylim = c (0, 5))
+  
+  # add x axis 
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = 0:7)
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('october', x = 6, y = 4.7, cex = 1.5)
+  text ('october', x = 0, y = 5, cex = 1.5, pos = 4)
   
-  # individual measurements as points
+  # individual measurements of leaf starch in october as points
   #----------------------------------------------------------------------------------------
   points (x = leafData2017 [['starch']] [leafData2017 [['date']] == '2017-10-09'], 
           y = leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-10-09'], 
           col = addOpacity (colours [leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-10-09']], ALPHA),
-          pch = 18)
+          pch = 18, cex = 1.5)
   
-  # add mean and standard deviation
+  # add mean and standard deviation for elaf starch in october
   #----------------------------------------------------------------------------------------
   arrows (x0 = leafMeans [['starch']] [leafMeans [['date']] == '2017-10-09'] - 
                leafSDs [['starch']] [leafMeans [['date']] == '2017-10-09'],
@@ -395,8 +421,11 @@ png (filename = '../fig/Exp2017LeafStarchConcentrations.png', width = 800, heigh
   points (x = leafMeans [['starch']] [leafMeans [['date']] == '2017-10-09'],
           y = leafMeans [['treatment']] [leafMeans [['date']] == '2017-10-09'],
           col = colours [leafMeans [['treatment']] [leafMeans [['date']] == '2017-10-09']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
+          pch = 23, bg = 'white', lwd = 2, cex = 2)
+ 
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 7.8, col = '#666666')
   
   # plot november concentrations
   #----------------------------------------------------------------------------------------
@@ -406,19 +435,23 @@ png (filename = '../fig/Exp2017LeafStarchConcentrations.png', width = 800, heigh
         las = 1, typ = 'p', 
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
-        xlab = '', ylab = '', yaxt = 'n',
-        xlim = c (-0.1, 7.1), ylim = c (0, 5))
+        xlab = '', ylab = '', axes = FALSE, #yaxt = 'n',
+        xlim = c (-0.5, 7.5), ylim = c (0, 5))
+  
+  # add x axis 
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = 0:7)
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('november', x = 6, y = 4.7, cex = 1.5)
+  text ('november', x = 0, y = 5, cex = 1.5, pos = 4)
   
   # individual measurements as points
   #----------------------------------------------------------------------------------------
   points (x = leafData2017 [['starch']] [leafData2017 [['date']] == '2017-11-03'], 
           y = leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-11-03'], 
           col = addOpacity (colours [leafData2017 [['treatment']] [leafData2017 [['date']] == '2017-11-03']], ALPHA),
-          pch = 18)
+          pch = 18, cex = 1.5)
   
   # add mean and standard deviation
   #----------------------------------------------------------------------------------------
@@ -431,8 +464,7 @@ png (filename = '../fig/Exp2017LeafStarchConcentrations.png', width = 800, heigh
   points (x = leafMeans [['starch']] [leafMeans [['date']] == '2017-11-03'],
           y = leafMeans [['treatment']] [leafMeans [['date']] == '2017-11-03'],
           col = colours [leafMeans [['treatment']] [leafMeans [['date']] == '2017-11-03']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
+          pch = 23, bg = 'white', lwd = 2, cex = 2)
 dev.off ()
 
 # plot wood sugar concentrations of 1 cm for each period
@@ -446,8 +478,8 @@ png (filename = '../fig/Exp2017StemSugarConcentrations.png', width = 800, height
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
         xlab = '', ylab = '', 
-        xaxt = 'n', yaxt = 'n',
-        xlim = c (0, 2.5), ylim = c (0, 6.6))
+        axes = FALSE, #xaxt = 'n', yaxt = 'n',
+        xlim = c (-0.1, 2.6), ylim = c (0, 6.8))
   
   # add x axis
   #----------------------------------------------------------------------------------------
@@ -461,7 +493,7 @@ png (filename = '../fig/Exp2017StemSugarConcentrations.png', width = 800, height
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('july', x = 2, y = 6.4, cex = 1.5)
+  text ('july', x = 0, y = 6.8, cex = 1.5, pos = 4)
   
   # add treatments
   #----------------------------------------------------------------------------------------
@@ -472,37 +504,41 @@ png (filename = '../fig/Exp2017StemSugarConcentrations.png', width = 800, height
   mtext (side = 2, line = 2, text = 'compressed', at = mean (yPositions [c(6,7,8)]), cex = 0.8)
   mtext (side = 2, line = 6, text = 'wood', cex = 2)
   
-  # individual measurements as points
+  # individual measurements of wood sugar in july as points
   #----------------------------------------------------------------------------------------
   points (x = stemData2017 [['sugar']] [stemData2017 [['date']] == '2017-07-05'], 
           y = stemData2017 [['y']]     [stemData2017 [['date']] == '2017-07-05'], 
           col = addOpacity (colours [stemData2017 [['treatment']] [stemData2017 [['date']] == '2017-07-05']], ALPHA),
-          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-07-05'])
+          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-07-05'], cex = 1.5)
   
-  # add mean and standard deviation for august wood sugar concentrations by treatment
+  # add mean and standard deviation for july wood sugar concentrations by treatment
   #----------------------------------------------------------------------------------------
   arrows (x0 = stemMeans [['sugar']] [stemMeans [['date']] == '2017-07-05'] - 
-            stemSDs [['sugar']] [stemMeans [['date']] == '2017-07-05'],
+               stemSDs [['sugar']] [stemMeans [['date']] == '2017-07-05'],
           x1 = stemMeans [['sugar']] [stemMeans [['date']] == '2017-07-05'] + 
-            stemSDs [['sugar']] [stemMeans [['date']] == '2017-07-05'],
+               stemSDs [['sugar']] [stemMeans [['date']] == '2017-07-05'],
           y0 = yPositions,
-          col = '#999999', code = 3, length = 0.05, angle = 90,lwd = 2)
+          col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
   points (x = stemMeans [['sugar']]  [stemMeans [['date']] == '2017-07-05'],
           y = yPositions,
           col = colours [stemMeans [['treatment']]  [stemMeans [['date']] == '2017-07-05']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
+          pch = c (22, 21, 23, 21, 23, 21, 22, 23), 
+          bg = 'white', lwd = 2, cex = 2)
+  
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 2.6, col = '#666666')
   
   # plot august wood sugar concentrations
   #----------------------------------------------------------------------------------------
-  par (mar = c (5, 0, 6, 0))
-  plot (y = rev (yPositions),
+  par (mar = c (5, 0, 1, 0))
+  plot (y = yPositions,
         x = stemMeans [['sugar']]  [stemMeans [['date']] == '2017-08-10'],
         las = 1, typ = 'p', 
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
-        xlab = '', ylab = '', xaxt = 'n', yaxt = 'n',
-        xlim = c (0, 2.5), ylim = c (0, 6.6))
+        xlab = '', ylab = '', axes = FALSE, #xaxt = 'n', yaxt = 'n',
+        xlim = c (-0.1, 2.6), ylim = c (0, 6.8))
   
   # add x-axis 
   #----------------------------------------------------------------------------------------
@@ -510,47 +546,48 @@ png (filename = '../fig/Exp2017StemSugarConcentrations.png', width = 800, height
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('august', x = 2, y = 6.4, cex = 1.5)
+  text ('august', x = 0, y = 6.8, cex = 1.5, pos = 4)
   
-  # individual measurements as points
+  # individual measurements of wood sugar in august as points
   #----------------------------------------------------------------------------------------
   points (x = stemData2017 [['sugar']] [stemData2017 [['date']] == '2017-08-10'], 
           y = stemData2017 [['y']]     [stemData2017 [['date']] == '2017-08-10'], 
           col = addOpacity (colours [stemData2017 [['treatment']] [stemData2017 [['date']] == '2017-08-10']], ALPHA),
-          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-08-10'])
+          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-08-10'],
+          cex = 1.5)
   
-  # add mean and standard deviation
+  # add mean and standard deviation for wood sugar in august
   #----------------------------------------------------------------------------------------
   arrows (x0 = stemMeans [['sugar']] [stemMeans [['date']] == '2017-08-10'] - 
-            stemSDs [['sugar']] [stemMeans [['date']] == '2017-08-10'],
+               stemSDs [['sugar']] [stemMeans [['date']] == '2017-08-10'],
           x1 = stemMeans [['sugar']] [stemMeans [['date']] == '2017-08-10'] + 
-            stemSDs [['sugar']] [stemMeans [['date']] == '2017-08-10'],
+               stemSDs [['sugar']] [stemMeans [['date']] == '2017-08-10'],
           y0 = yPositions,
-          col = '#999999', code = 3, length = 0.05, angle = 90,lwd = 2)
+          col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
   points (x = stemMeans [['sugar']] [stemMeans [['date']] == '2017-08-10'],
           y = yPositions,
           col = colours [stemMeans [['treatment']] [stemMeans [['date']] == '2017-08-10']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
-  
-  # add title
-  #----------------------------------------------------------------------------------------
-  mtext (side = 3, line = 2, text = 'sugar', at = 2.5, cex = 2)
+          pch = c (22, 21, 23, 21, 23, 21, 22, 23), 
+          bg = 'white', lwd = 2, cex = 2)
   
   # add x-axis description
   #----------------------------------------------------------------------------------------
   mtext (side = 1, line = 3, text = 'concentration (% dry weight)', at = 2.5, cex = 1)
   
-  # plot october concentrations
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 2.6, col = '#666666')
+  
+  # plot october wood sugar concentrations
   #----------------------------------------------------------------------------------------
-  par (mar = c (5, 0, 6, 0))
-  plot (y = rev (yPositions),
+  par (mar = c (5, 0, 1, 0))
+  plot (y = yPositions,
         x = stemMeans [['sugar']]  [stemMeans [['date']] == '2017-08-10'],
         las = 1, typ = 'p', 
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
-        xlab = '', ylab = '', xaxt = 'n', yaxt = 'n',
-        xlim = c (0, 2.5), ylim = c (0, 6.6))
+        xlab = '', ylab = '', axes = FALSE, #xaxt = 'n', yaxt = 'n',
+        xlim = c (-0.1, 2.6), ylim = c (0, 6.8))
   
   # add x-axis 
   #----------------------------------------------------------------------------------------
@@ -558,39 +595,43 @@ png (filename = '../fig/Exp2017StemSugarConcentrations.png', width = 800, height
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('october', x = 2, y = 6.4, cex = 1.5)
+  text ('october', x = 0, y = 6.8, cex = 1.5, pos = 4)
   
-  # individual measurements as points
+  # individual measurements of wood sugar in october as points
   #----------------------------------------------------------------------------------------
   points (x = stemData2017 [['sugar']] [stemData2017 [['date']] == '2017-10-09'], 
           y = stemData2017 [['y']]     [stemData2017 [['date']] == '2017-10-09'], 
           col = addOpacity (colours [stemData2017 [['treatment']] [stemData2017 [['date']] == '2017-10-09']], ALPHA),
-          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-10-09'])
+          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-10-09'], cex = 1.5)
   
-  # add mean and standard deviation
+  # add mean and standard deviation for wood sugar in october
   #----------------------------------------------------------------------------------------
   arrows (x0 = stemMeans [['sugar']] [stemMeans [['date']] == '2017-10-09'] - 
-            stemSDs [['sugar']] [stemMeans [['date']] == '2017-10-09'],
+               stemSDs [['sugar']] [stemMeans [['date']] == '2017-10-09'],
           x1 = stemMeans [['sugar']] [stemMeans [['date']] == '2017-10-09'] +  
-            stemSDs [['sugar']] [stemMeans [['date']] == '2017-10-09'],
+               stemSDs [['sugar']] [stemMeans [['date']] == '2017-10-09'],
           y0 = yPositions,
           col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
   points (x = stemMeans [['sugar']] [stemMeans [['date']] == '2017-10-09'],
           y = yPositions,
           col = colours [stemMeans [['treatment']] [stemMeans [['date']] == '2017-10-09']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
+          pch = c (22, 21, 23, 21, 23, 21, 22, 23), 
+          bg = 'white', lwd = 2, cex = 2)
   
-  # plot november concentrations
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 2.6, col = '#666666')
+  
+  # plot november wood sugar concentrations
   #----------------------------------------------------------------------------------------
-  par (mar = c (5, 0, 6, 1))
-  plot (y = rev (yPositions),
+  par (mar = c (5, 0, 1, 1))
+  plot (y = yPositions,
         x = stemMeans [['sugar']]  [stemMeans [['date']] == '2017-08-10'],
         las = 1, typ = 'p', 
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
-        xlab = '', ylab = '', xaxt = 'n', yaxt = 'n',
-        xlim = c (0, 2.5), ylim = c (0, 6.6))
+        xlab = '', ylab = '', axes = FALSE, #xaxt = 'n', yaxt = 'n',
+        xlim = c (-0.1, 2.6), ylim = c (0, 6.8))
   
   # add x-axis 
   #----------------------------------------------------------------------------------------
@@ -598,42 +639,47 @@ png (filename = '../fig/Exp2017StemSugarConcentrations.png', width = 800, height
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('november', x = 2, y = 6.4, cex = 1.5)
+  text ('november', x = 0, y = 6.8, cex = 1.5, pos = 4)
   
-  # individual measurements as points
+  # individual measurements of wood sugar in november as points
   #----------------------------------------------------------------------------------------
   points (x = stemData2017 [['sugar']] [stemData2017 [['date']] == '2017-11-03'], 
           y = stemData2017 [['y']]     [stemData2017 [['date']] == '2017-11-03'], 
           col = addOpacity (colours [stemData2017 [['treatment']] [stemData2017 [['date']] == '2017-11-03']], ALPHA),
-          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-11-03'])
+          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-11-03'], cex = 1.5)
   
-  # add mean and standard deviation
+  # add mean and standard deviation of november wood sugar concentrations
   #----------------------------------------------------------------------------------------
   arrows (x0 = stemMeans [['sugar']] [stemMeans [['date']] == '2017-11-03'] - 
-            stemSDs [['sugar']] [stemMeans [['date']] == '2017-11-03'],
+               stemSDs [['sugar']] [stemMeans [['date']] == '2017-11-03'],
           x1 = stemMeans [['sugar']] [stemMeans [['date']] == '2017-11-03'] +  
-            stemSDs [['sugar']] [stemMeans [['date']] == '2017-11-03'],
+               stemSDs [['sugar']] [stemMeans [['date']] == '2017-11-03'],
           y0 = yPositions,
           col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
   points (x = stemMeans [['sugar']] [stemMeans [['date']] == '2017-11-03'],
           y = yPositions,
           col = colours [stemMeans [['treatment']] [stemMeans [['date']] == '2017-11-03']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
+          pch = c (22, 21, 23, 21, 23, 21, 22, 23), 
+          bg = 'white', lwd = 2, cex = 2)
 dev.off ()
 
 # plot wood starch concentrations of 1 cm for each period
 #----------------------------------------------------------------------------------------
-layout (matrix (1:4, nrow = 1, byrow = TRUE), widths = c (1.3, 1, 1, 1.1))
-  par (mar = c (5, 5, 6, 0))
+png (filename = '../fig/Exp2017StemStarchConcentrations.png', width = 800, height = 500)
+  layout (matrix (1:4, nrow = 1, byrow = TRUE), widths = c (1.3, 1, 1, 1.1))
+  par (mar = c (5, 5, 1, 0))
   plot (y = stemMeans [['y']]     [stemMeans [['date']] == '2017-07-05'],
         x = stemMeans [['starch']] [stemMeans [['date']] == '2017-07-05'],
         las = 1, typ = 'p', 
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
-        xlab = '', ylab = '', yaxt = 'n',
-        xlim = c (-0.1, 1.1), ylim = c (0, 6.6))
+        xlab = '', ylab = '', axes = FALSE, #yaxt = 'n',
+        xlim = c (-0.1, 1.1), ylim = c (0, 6.8))
   
+  # add y axis
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, at = seq (0, 1, by = 0.5)) 
+        
   # add y axis
   #----------------------------------------------------------------------------------------
   axis (side = 2, at = yPositions, 
@@ -642,7 +688,7 @@ layout (matrix (1:4, nrow = 1, byrow = TRUE), widths = c (1.3, 1, 1, 1.1))
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('july', x = 0.8, y = 6.4, cex = 1.5)
+  text ('july', x = 0, y = 6.8, cex = 1.5, pos = 4)
   
   # add treatments
   #----------------------------------------------------------------------------------------
@@ -657,135 +703,524 @@ layout (matrix (1:4, nrow = 1, byrow = TRUE), widths = c (1.3, 1, 1, 1.1))
   points (x = stemData2017 [['starch']] [stemData2017 [['date']] == '2017-07-05'], 
           y = stemData2017 [['y']]     [stemData2017 [['date']] == '2017-07-05'], 
           col = addOpacity (colours [stemData2017 [['treatment']] [stemData2017 [['date']] == '2017-07-05']], ALPHA),
-          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-07-05'])
+          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-07-05'], cex = 1.5)
   
   # add mean and standard deviation
   #----------------------------------------------------------------------------------------
   arrows (x0 = stemMeans [['starch']] [stemMeans [['date']] == '2017-07-05'] - 
-            stemSDs [['starch']] [stemMeans [['date']] == '2017-07-05'],
+               stemSDs [['starch']] [stemMeans [['date']] == '2017-07-05'],
           x1 = stemMeans [['starch']] [stemMeans [['date']] == '2017-07-05'] + 
-            stemSDs [['starch']] [stemMeans [['date']] == '2017-07-05'],
+               stemSDs [['starch']] [stemMeans [['date']] == '2017-07-05'],
           y0 = yPositions,
-          col = '#999999', code = 3, length = 0.05, angle = 90,lwd = 2)
+          col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
   points (x = stemMeans [['starch']]  [stemMeans [['date']] == '2017-07-05'],
           y = yPositions,
           col = colours [stemMeans [['treatment']]  [stemMeans [['date']] == '2017-07-05']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
+          pch = c (22, 21, 23, 21, 23, 21, 22, 23), 
+          bg = 'white', lwd = 2, cex = 2)
+
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 1.1, col = '#666666') 
   
-  # plot august concentrations
+  # plot august wood starch concentrations
   #----------------------------------------------------------------------------------------
-  par (mar = c (5, 0, 6, 0))
-  plot (y = rev (yPositions),
+  par (mar = c (5, 0, 1, 0))
+  plot (y = yPositions,
         x = stemMeans [['starch']]  [stemMeans [['date']] == '2017-08-10'],
         las = 1, typ = 'p', 
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
-        xlab = '', ylab = '', yaxt = 'n',
-        xlim = c (-0.1, 1.1), ylim = c (0, 6.6))
+        xlab = '', ylab = '', axes = FALSE, #yaxt = 'n',
+        xlim = c (-0.1, 1.1), ylim = c (0, 6.8))
+  
+  # add y axis
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, at = seq (0, 1, by = 0.5)) 
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('august', x = 0.8, y = 6.4, cex = 1.5)
+  text ('august', x = 0, y = 6.8, cex = 1.5, pos = 4)
   
-  # individual measurements as points
+  # individual measurements for august wood starch as points
   #----------------------------------------------------------------------------------------
   points (x = stemData2017 [['starch']] [stemData2017 [['date']] == '2017-08-10'], 
           y = stemData2017 [['y']]     [stemData2017 [['date']] == '2017-08-10'], 
           col = addOpacity (colours [stemData2017 [['treatment']] [stemData2017 [['date']] == '2017-08-10']], ALPHA),
-          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-08-10'])
+          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-08-10'], cex = 1.5)
   
   # add mean and standard deviation
   #----------------------------------------------------------------------------------------
   arrows (x0 = stemMeans [['starch']] [stemMeans [['date']] == '2017-08-10'] - 
-            stemSDs [['starch']] [stemMeans [['date']] == '2017-08-10'],
+               stemSDs [['starch']] [stemMeans [['date']] == '2017-08-10'],
           x1 = stemMeans [['starch']] [stemMeans [['date']] == '2017-08-10'] + 
-            stemSDs [['starch']] [stemMeans [['date']] == '2017-08-10'],
+               stemSDs [['starch']] [stemMeans [['date']] == '2017-08-10'],
           y0 = yPositions,
-          col = '#999999', code = 3, length = 0.05, angle = 90,lwd = 2)
+          col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
   points (x = stemMeans [['starch']] [stemMeans [['date']] == '2017-08-10'],
           y = yPositions,
           col = colours [stemMeans [['treatment']] [stemMeans [['date']] == '2017-08-10']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
-  
-  # add title
-  #----------------------------------------------------------------------------------------
-  mtext (side = 3, line = 2, text = 'starch', at = 1, cex = 2)
+          pch = c (22, 21, 23, 21, 23, 21, 22, 23), 
+          bg = 'white', lwd = 2, cex = 2)
   
   # add x-axis description
   #----------------------------------------------------------------------------------------
   mtext (side = 1, line = 3, text = 'concentration (% dry weight)', at = 1, cex = 1)
   
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 1.1, col = '#666666') 
+  
   # plot october concentrations
   #----------------------------------------------------------------------------------------
-  par (mar = c (5, 0, 6, 0))
+  par (mar = c (5, 0, 1, 0))
   plot (y = rev (yPositions),
         x = stemMeans [['starch']]  [stemMeans [['date']] == '2017-08-10'],
         las = 1, typ = 'p', 
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
-        xlab = '', ylab = '', yaxt = 'n',
-        xlim = c (-0.1, 1.1), ylim = c (0, 6.6))
+        xlab = '', ylab = '', axes =FALSE, #yaxt = 'n',
+        xlim = c (-0.1, 1.1), ylim = c (0, 6.8))
+  
+  # add y axis
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, at = seq (0, 1, by = 0.5)) 
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('october', x = 0.8, y = 6.4, cex = 1.5)
+  text ('october', x = 0, y = 6.8, cex = 1.5, pos = 4)
   
-  # individual measurements as points
+  # individual measurements of wood starch in october as points
   #----------------------------------------------------------------------------------------
   points (x = stemData2017 [['starch']] [stemData2017 [['date']] == '2017-10-09'], 
           y = stemData2017 [['y']]     [stemData2017 [['date']] == '2017-10-09'], 
           col = addOpacity (colours [stemData2017 [['treatment']] [stemData2017 [['date']] == '2017-10-09']], ALPHA),
-          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-10-09'])
+          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-10-09'], cex = 1.5)
   
-  # add mean and standard deviation
+  # add mean and standard deviation for wood starch in october
   #----------------------------------------------------------------------------------------
   arrows (x0 = stemMeans [['starch']] [stemMeans [['date']] == '2017-10-09'] - 
-            stemSDs [['starch']] [stemMeans [['date']] == '2017-10-09'],
+               stemSDs [['starch']] [stemMeans [['date']] == '2017-10-09'],
           x1 = stemMeans [['starch']] [stemMeans [['date']] == '2017-10-09'] +  
-            stemSDs [['starch']] [stemMeans [['date']] == '2017-10-09'],
+               stemSDs [['starch']] [stemMeans [['date']] == '2017-10-09'],
           y0 = yPositions,
           col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
   points (x = stemMeans [['starch']] [stemMeans [['date']] == '2017-10-09'],
           y = yPositions,
           col = colours [stemMeans [['treatment']] [stemMeans [['date']] == '2017-10-09']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
+          pch = c (22, 21, 23, 21, 23, 21, 22, 23), 
+          bg = 'white', lwd = 2, cex = 2)
+  
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 1.1, col = '#666666') 
   
   # plot november concentrations
   #----------------------------------------------------------------------------------------
-  par (mar = c (5, 0, 6, 1))
+  par (mar = c (5, 0, 1, 1))
   plot (y = rev (yPositions),
         x = stemMeans [['starch']]  [stemMeans [['date']] == '2017-08-10'],
         las = 1, typ = 'p', 
         col = 'white', 
         pch = 22, cex = 1.5, lwd = 2,
-        xlab = '', ylab = '', yaxt = 'n',
-        xlim = c (-0.1, 1.1), ylim = c (0, 6.6))
+        xlab = '', ylab = '', axes = FALSE, #yaxt = 'n',
+        xlim = c (-0.1, 1.1), ylim = c (0, 6.8))
+  
+  # add y axis
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, at = seq (0, 1, by = 0.5)) 
   
   # add month label
   #----------------------------------------------------------------------------------------
-  text ('november', x = 0.8, y = 6.4, cex = 1.5)
+  text ('november', x = 0, y = 6.8, cex = 1.5, pos = 4)
   
-  # individual measurements as points
+  # individual measurements of wood starch in november as points
   #----------------------------------------------------------------------------------------
   points (x = stemData2017 [['starch']] [stemData2017 [['date']] == '2017-11-03'], 
           y = stemData2017 [['y']]     [stemData2017 [['date']] == '2017-11-03'], 
           col = addOpacity (colours [stemData2017 [['treatment']] [stemData2017 [['date']] == '2017-11-03']], ALPHA),
-          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-11-03'])
+          pch = stemData2017 [['p']] [stemData2017 [['date']] == '2017-11-03'], cex = 1.5)
   
-  # add mean and standard deviation
+  # add mean and standard deviation for wood starch in November
   #----------------------------------------------------------------------------------------
   arrows (x0 = stemMeans [['starch']] [stemMeans [['date']] == '2017-11-03'] - 
-            stemSDs [['starch']] [stemMeans [['date']] == '2017-11-03'],
+               stemSDs [['starch']] [stemMeans [['date']] == '2017-11-03'],
           x1 = stemMeans [['starch']] [stemMeans [['date']] == '2017-11-03'] +  
-            stemSDs [['starch']] [stemMeans [['date']] == '2017-11-03'],
+               stemSDs [['starch']] [stemMeans [['date']] == '2017-11-03'],
           y0 = yPositions,
           col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
   points (x = stemMeans [['starch']] [stemMeans [['date']] == '2017-11-03'],
           y = yPositions,
           col = colours [stemMeans [['treatment']] [stemMeans [['date']] == '2017-11-03']], 
-          pch = c (22, 23, 21, 23, 21, 23, 22, 21), 
-          bg = 'white', lwd = 2, cex = 1.5)
+          pch = c (22, 21, 23, 21, 23, 21, 22, 23), 
+          bg = 'white', lwd = 2, cex = 2)
+dev.off ()
+
+# plot root sugar concentrations for each period
+#----------------------------------------------------------------------------------------
+png (filename = '../fig/Exp2017rootSugarConcentrations.png', width = 800, height = 500)
+  layout (matrix (1:4, nrow = 1, byrow = TRUE), widths = c (1.5, 1, 1, 1.1))
+  par (mar = c (5, 9, 1, 0))
+  plot (y = 1:4,
+        x = rootMeans [['sugar']] [rootMeans [['date']] == '2017-07-05'],
+        las = 1, typ = 'p', 
+        col = 'white', 
+        pch = 22, cex = 1.5, lwd = 2,
+        xlab = '', ylab = '', 
+        #        xaxt = 'n', yaxt = 'n',
+        axes = FALSE,
+        xlim = c (-0.5, 5.5), ylim = c (0, 5))
+  
+  # add x axis
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = 0:5)
+  
+  # add y axis
+  #--------------------------------------------------------------------------------------
+  axis (side = 2, at = 1:4, 
+        labels = c ('control', 'girdled', 'compressed', expression ('    double \ncompressed')),
+        tick = 1)
+  
+  # add month label
+  #--------------------------------------------------------------------------------------
+  text ('july', x = 0, y = 5, cex = 1.5, pos = 4)
+  
+  # add tissues label
+  #--------------------------------------------------------------------------------------
+  mtext (side = 2, line = 6, text = 'roots', cex = 2)
+  
+  # individual root sugar measurements as points
+  #--------------------------------------------------------------------------------------
+  points (x = rootData2017 [['sugar']] [rootData2017 [['date']] == '2017-07-05'], 
+          y = rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-07-05'], 
+          col = addOpacity (colours [rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-07-05']], ALPHA),
+          pch = 19, cex = 1.5)
+  
+  # add mean and standard deviation of root sugar by treatment
+  #--------------------------------------------------------------------------------------
+  arrows (x0 = rootMeans [['sugar']] [rootMeans [['date']] == '2017-07-05'] - 
+            rootSDs [['sugar']] [rootMeans [['date']] == '2017-07-05'],
+          x1 = rootMeans [['sugar']] [rootMeans [['date']] == '2017-07-05'] + 
+            rootSDs [['sugar']] [rootMeans [['date']] == '2017-07-05'],
+          y0 = rootMeans [['treatment']] [rootMeans [['date']] == '2017-07-05'],
+          col = '#999999', code = 3, length = 0.05, angle = 90,lwd = 2)
+  points (x = rootMeans [['sugar']]  [rootMeans [['date']] == '2017-07-05'],
+          y = rootMeans [['treatment']]  [rootMeans [['date']] == '2017-07-05'],
+          col = colours [rootMeans [['treatment']]  [rootMeans [['date']] == '2017-07-05']], 
+          pch = 21, bg = 'white', lwd = 2, cex = 2)
+  
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 5.6, col = '#666666')
+  
+  # plot august root sugar concentrations
+  #--------------------------------------------------------------------------------------
+  par (mar = c (5, 0, 1, 0))
+  plot (y = rootMeans [['treatment']] [rootMeans [['date']] == '2017-08-10'],
+        x = rootMeans [['sugar']]  [rootMeans [['date']] == '2017-08-10'],
+        las = 1, typ = 'p', 
+        col = 'white', 
+        pch = 22, cex = 1.5, lwd = 2,
+        xlab = '', ylab = '', axes = FALSE, #xaxt = 'n', yaxt = 'n',
+        xlim = c (-0.5, 5.5), ylim = c (0, 5))
+  
+  # add x axis
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = 0:5)
+  
+  # add month label
+  #----------------------------------------------------------------------------------------
+  text ('august', x = 0, y = 5, cex = 1.5, pos = 4)
+  
+  # individual root sugar measurements form august  as points
+  #----------------------------------------------------------------------------------------
+  points (x = rootData2017 [['sugar']]     [rootData2017 [['date']] == '2017-08-10'], 
+          y = rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-08-10'], 
+          col = addOpacity (colours [rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-08-10']], ALPHA),
+          pch = 19, cex = 1.5)
+  
+  # add mean and standard deviation for august root sugar concentrations by treatment
+  #----------------------------------------------------------------------------------------
+  arrows (x0 = rootMeans [['sugar']] [rootMeans [['date']] == '2017-08-10'] - 
+            rootSDs [['sugar']] [rootMeans [['date']] == '2017-08-10'],
+          x1 = rootMeans [['sugar']] [rootMeans [['date']] == '2017-08-10'] + 
+            rootSDs [['sugar']] [rootMeans [['date']] == '2017-08-10'],
+          y0 = rootMeans [['treatment']] [rootMeans [['date']] == '2017-08-10'],
+          col = '#999999', code = 3, length = 0.05, angle = 90,lwd = 2)
+  points (x = rootMeans [['sugar']] [rootMeans [['date']] == '2017-08-10'],
+          y = rootMeans [['treatment']] [rootMeans [['date']] == '2017-08-10'],
+          col = colours [rootMeans [['treatment']] [rootMeans [['date']] == '2017-08-10']], 
+          pch = 21, bg = 'white', lwd = 2, cex = 2)
+  
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 5.6, col = '#666666')
+  
+  # add x-axis description
+  #----------------------------------------------------------------------------------------
+  mtext (side = 1, line = 3, text = 'concentration (% dry weight)', at = 5.5, cex = 1)
+  
+  # plot october root sugar concentrations
+  #----------------------------------------------------------------------------------------
+  par (mar = c (5, 0, 1, 0))
+  plot (y = rootMeans [['treatment']] [rootMeans [['date']] == '2017-08-10'],
+        x = rootMeans [['sugar']]  [rootMeans [['date']] == '2017-08-10'],
+        las = 1, typ = 'p', 
+        col = 'white', 
+        pch = 22, cex = 1.5, lwd = 2,
+        xlab = '', ylab = '', axes = FALSE, #xaxt = 'n', yaxt = 'n',
+        xlim = c (-0.5, 5.5), ylim = c (0, 5))
+  
+  # add x axis
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = 0:5)
+  
+  # add month label
+  #----------------------------------------------------------------------------------------
+  text ('october', x = 0, y = 5, cex = 1.5, pos = 4)
+  
+  # individual measurements as points
+  #----------------------------------------------------------------------------------------
+  points (x = rootData2017 [['sugar']]     [rootData2017 [['date']] == '2017-10-09'], 
+          y = rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-10-09'], 
+          col = addOpacity (colours [rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-10-09']], ALPHA),
+          pch = 19, cex = 1.5)
+  
+  # add mean and standard deviation
+  #----------------------------------------------------------------------------------------
+  arrows (x0 = rootMeans [['sugar']] [rootMeans [['date']] == '2017-10-09'] - 
+            rootSDs [['sugar']] [rootMeans [['date']] == '2017-10-09'],
+          x1 = rootMeans [['sugar']] [rootMeans [['date']] == '2017-10-09'] +  
+            rootSDs [['sugar']] [rootMeans [['date']] == '2017-10-09'],
+          y0 = rootMeans [['treatment']] [rootMeans [['date']] == '2017-10-09'],
+          col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
+  points (x = rootMeans [['sugar']] [rootMeans [['date']] == '2017-10-09'],
+          y = rootMeans [['treatment']] [rootMeans [['date']] == '2017-10-09'],
+          col = colours [rootMeans [['treatment']] [rootMeans [['date']] == '2017-10-09']], 
+          pch = 21, bg = 'white', lwd = 2, cex = 2)
+  
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 5.6, col = '#666666')
+  
+  # plot november root sugar concentrations
+  #----------------------------------------------------------------------------------------
+  par (mar = c (5, 0, 1, 1))
+  plot (y = rootMeans [['treatment']] [rootMeans [['date']] == '2017-11-03'],
+        x = rootMeans [['sugar']]  [rootMeans [['date']] == '2017-11-03'],
+        las = 1, typ = 'p', 
+        col = 'white', 
+        pch = 22, cex = 1.5, lwd = 2,
+        xlab = '', ylab = '', axes = FALSE, #xaxt = 'n', yaxt = 'n',
+        xlim = c (-0.5, 5.5), ylim = c (0, 5))
+  
+  # add x axis
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = 0:5)
+  
+  # add month label
+  #----------------------------------------------------------------------------------------
+  text ('november', x = 0, y = 5, cex = 1.5, pos = 4)
+  
+  # individual measurements of root sugar in november as points
+  #----------------------------------------------------------------------------------------
+  points (x = rootData2017 [['sugar']] [rootData2017 [['date']] == '2017-11-03'], 
+          y = rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-11-03'], 
+          col = addOpacity (colours [rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-11-03']], ALPHA),
+          pch = 19, cex = 1.5)
+  
+  # add mean and standard deviation for root sugar in November
+  #----------------------------------------------------------------------------------------
+  arrows (x0 = rootMeans [['sugar']] [rootMeans [['date']] == '2017-11-03'] - 
+               rootSDs [['sugar']] [rootMeans [['date']] == '2017-11-03'],
+          x1 = rootMeans [['sugar']] [rootMeans [['date']] == '2017-11-03'] +  
+               rootSDs [['sugar']] [rootMeans [['date']] == '2017-11-03'],
+          y0 = rootMeans [['treatment']] [rootMeans [['date']] == '2017-11-03'],
+          col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
+  points (x = rootMeans [['sugar']] [rootMeans [['date']] == '2017-11-03'],
+          y = rootMeans [['treatment']] [rootMeans [['date']] == '2017-11-03'],
+          col = colours [rootMeans [['treatment']] [rootMeans [['date']] == '2017-11-03']], 
+          pch = 21, bg = 'white', lwd = 2, cex = 2)
+dev.off ()
+
+# plot rootstarch concentrations of 1 cm for each period
+#----------------------------------------------------------------------------------------
+png (filename = '../fig/Exp2017rootStarchConcentrations.png', width = 800, height = 500)
+  layout (matrix (1:4, nrow = 1, byrow = TRUE), widths = c (1.3, 1, 1, 1.1))
+  par (mar = c (5, 5, 1, 0))
+  plot (y = rootMeans [['treatment']] [rootMeans [['date']] == '2017-07-05'],
+        x = rootMeans [['starch']]    [rootMeans [['date']] == '2017-07-05'],
+        las = 1, typ = 'p', 
+        col = 'white', 
+        pch = 22, cex = 1.5, lwd = 2,
+        xlab = '', ylab = '', axes = FALSE, #yaxt = 'n',
+        xlim = c (-0.1, 1.7), ylim = c (0, 5))
+  
+  # add x axis 
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = seq (0, 1.5, by = 0.5))
+  
+  # add y axis
+  #--------------------------------------------------------------------------------------
+  axis (side = 2, at = 1:4, 
+        labels = c ('control', 'gridled', 'compressed', expression ('    double \ncompressed')), 
+        tick = 1)
+  
+  # add month label
+  #----------------------------------------------------------------------------------------
+  text ('july', x = 0, y = 5, cex = 1.5, pos = 4)
+  
+  # individual measurements of root starch in July as points
+  #----------------------------------------------------------------------------------------
+  points (x = rootData2017 [['starch']] [rootData2017 [['date']] == '2017-07-05'], 
+          y = rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-07-05'], 
+          col = addOpacity (colours [rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-07-05']], ALPHA),
+          pch = 19, cex = 1.5)
+  
+  # add mean and standard deviation for root starch in July
+  #----------------------------------------------------------------------------------------
+  arrows (x0 = rootMeans [['starch']] [rootMeans [['date']] == '2017-07-05'] - 
+               rootSDs [['starch']] [rootMeans [['date']] == '2017-07-05'],
+          x1 = rootMeans [['starch']] [rootMeans [['date']] == '2017-07-05'] + 
+               rootSDs [['starch']] [rootMeans [['date']] == '2017-07-05'],
+          y0 = rootMeans [['treatment']] [rootMeans [['date']] == '2017-07-05'],
+          col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
+  points (x = rootMeans [['starch']]  [rootMeans [['date']] == '2017-07-05'],
+          y = rootMeans [['treatment']] [rootMeans [['date']] == '2017-07-05'],
+          col = colours [rootMeans [['treatment']]  [rootMeans [['date']] == '2017-07-05']], 
+          pch = 21, bg = 'white', lwd = 2, cex = 2)
+  
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 1.7, col = '#666666')
+
+  # plot august concentrations
+  #----------------------------------------------------------------------------------------
+  par (mar = c (5, 0, 1, 0))
+  plot (y = rootMeans [['treatment']] [rootMeans [['date']] == '2017-08-10'],
+        x = rootMeans [['starch']]  [rootMeans [['date']] == '2017-08-10'],
+        las = 1, typ = 'p', 
+        col = 'white', 
+        pch = 22, cex = 1.5, lwd = 2,
+        xlab = '', ylab = '', axes = FALSE, #yaxt = 'n',
+        xlim = c (-0.1, 1.7), ylim = c (0, 5))
+  
+  # add x axis 
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = seq (0, 1.5, by = 0.5))
+  
+  # add month label
+  #----------------------------------------------------------------------------------------
+  text ('august', x = 0, y = 5, cex = 1.5, pos = 4)
+  
+  # individual measurements of root starch in august as points
+  #----------------------------------------------------------------------------------------
+  points (x = rootData2017 [['starch']] [rootData2017 [['date']] == '2017-08-10'], 
+          y = rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-08-10'], 
+          col = addOpacity (colours [rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-08-10']], ALPHA),
+          pch = 19, cex = 1.5)
+  
+  # add mean and standard deviation for root starch in august
+  #----------------------------------------------------------------------------------------
+  arrows (x0 = rootMeans [['starch']] [rootMeans [['date']] == '2017-08-10'] - 
+               rootSDs [['starch']] [rootMeans [['date']] == '2017-08-10'],
+          x1 = rootMeans [['starch']] [rootMeans [['date']] == '2017-08-10'] + 
+               rootSDs [['starch']] [rootMeans [['date']] == '2017-08-10'],
+          y0 = rootMeans [['treatment']] [rootMeans [['date']] == '2017-08-10'],
+          col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
+  points (x = rootMeans [['starch']] [rootMeans [['date']] == '2017-08-10'],
+          y = rootMeans [['treatment']] [rootMeans [['date']] == '2017-08-10'],
+          col = colours [rootMeans [['treatment']] [rootMeans [['date']] == '2017-08-10']], 
+          pch = 21, bg = 'white', lwd = 2, cex = 2)
+  
+  
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 1.7, col = '#666666')
+  
+  # add x-axis description
+  #----------------------------------------------------------------------------------------
+  mtext (side = 1, line = 3, text = 'concentration (% dry weight)', at = 1.7, cex = 1)
+  
+  # plot october concentrations
+  #----------------------------------------------------------------------------------------
+  par (mar = c (5, 0, 1, 0))
+  plot (y =  rootMeans [['treatment']] [rootMeans [['date']] == '2017-08-10'],
+        x = rootMeans [['starch']]  [rootMeans [['date']] == '2017-08-10'],
+        las = 1, typ = 'p', 
+        col = 'white', 
+        pch = 22, cex = 1.5, lwd = 2,
+        xlab = '', ylab = '', axes = FALSE, #yaxt = 'n',
+        xlim = c (-0.1, 1.7), ylim = c (0, 5))
+  
+  # add x axis 
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = seq (0, 1.5, by = 0.5))
+  
+  # add month label
+  #----------------------------------------------------------------------------------------
+  text ('october', x = 0, y = 5, cex = 1.5, pos = 4)
+  
+  # individual measurements of root starch in october as points
+  #----------------------------------------------------------------------------------------
+  points (x = rootData2017 [['starch']] [rootData2017 [['date']] == '2017-10-09'], 
+          y = rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-10-09'], 
+          col = addOpacity (colours [rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-10-09']], ALPHA),
+          pch = 19, cex = 1.5)
+  
+  # add mean and standard deviation for elaf starch in october
+  #----------------------------------------------------------------------------------------
+  arrows (x0 = rootMeans [['starch']] [rootMeans [['date']] == '2017-10-09'] - 
+               rootSDs [['starch']] [rootMeans [['date']] == '2017-10-09'],
+          x1 = rootMeans [['starch']] [rootMeans [['date']] == '2017-10-09'] +  
+               rootSDs [['starch']] [rootMeans [['date']] == '2017-10-09'],
+          y0 = rootMeans [['treatment']] [rootMeans [['date']] == '2017-10-09'],
+          col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
+  points (x = rootMeans [['starch']] [rootMeans [['date']] == '2017-10-09'],
+          y = rootMeans [['treatment']] [rootMeans [['date']] == '2017-10-09'],
+          col = colours [rootMeans [['treatment']] [rootMeans [['date']] == '2017-10-09']], 
+          pch = 21, bg = 'white', lwd = 2, cex = 2)
+  
+  # add line to separate the plots
+  #--------------------------------------------------------------------------------------
+  abline (v = 1.7, col = '#666666')
+  
+  # plot november concentrations
+  #----------------------------------------------------------------------------------------
+  par (mar = c (5, 0, 1, 1))
+  plot (y = rootMeans [['treatment']] [rootMeans [['date']] == '2017-11-03'],
+        x = rootMeans [['starch']]  [rootMeans [['date']] == '2017-11-03'],
+        las = 1, typ = 'p', 
+        col = 'white', 
+        pch = 22, cex = 1.5, lwd = 2,
+        xlab = '', ylab = '', axes = FALSE, #yaxt = 'n',
+        xlim = c (-0.1, 1.7), ylim = c (0, 5))
+  
+  # add x axis 
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = seq (0, 1.5, by = 0.5))
+  
+  # add month label
+  #----------------------------------------------------------------------------------------
+  text ('november', x = 0, y = 5, cex = 1.5, pos = 4)
+  
+  # individual measurements november root starch as points
+  #----------------------------------------------------------------------------------------
+  points (x = rootData2017 [['starch']] [rootData2017 [['date']] == '2017-11-03'], 
+          y = rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-11-03'], 
+          col = addOpacity (colours [rootData2017 [['treatment']] [rootData2017 [['date']] == '2017-11-03']], ALPHA),
+          pch = 19, cex = 1.5)
+  
+  # add mean and standard deviation for november root starch
+  #----------------------------------------------------------------------------------------
+  arrows (x0 = rootMeans [['starch']] [rootMeans [['date']] == '2017-11-03'] - 
+               rootSDs [['starch']] [rootMeans [['date']] == '2017-11-03'],
+          x1 = rootMeans [['starch']] [rootMeans [['date']] == '2017-11-03'] +  
+               rootSDs [['starch']] [rootMeans [['date']] == '2017-11-03'],
+          y0 = rootMeans [['treatment']] [rootMeans [['date']] == '2017-11-03'],
+          col = '#999999', code = 3, length = 0.05, angle = 90, lwd = 2)
+  points (x = rootMeans [['starch']] [rootMeans [['date']] == '2017-11-03'],
+          y = rootMeans [['treatment']] [rootMeans [['date']] == '2017-11-03'],
+          col = colours [rootMeans [['treatment']] [rootMeans [['date']] == '2017-11-03']], 
+          pch = 21, bg = 'white', lwd = 2, cex = 2)
 dev.off ()
