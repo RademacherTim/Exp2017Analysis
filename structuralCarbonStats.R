@@ -128,11 +128,187 @@ qqnorm (resid (M6.1))
 # summary (M7.0)
 M7.1 <- lmer (formula = DRAD ~ (1 | tree) + treatment:height:factor (period) + factor (period), 
               data = woodAnatomy, 
-              REML = FALSE)
+              REML = TRUE)
 summary (M7.1)
 plot (M7.1)
 qqnorm (resid (M7.1))
-anova (M7.0, M7.1)
+#anova (M7.0, M7.1)
+
+# extract the model parameters from the lumen diameter model
+#----------------------------------------------------------------------------------------
+M07Values <- tibble (beta   = getME (M7.1, 'beta'), 
+                     se     = as.numeric (coef (summary (M7.1)) [, 2]), 
+                     tValue = as.numeric (coef (summary (M7.1)) [, 3]))
+M07Values <- add_column (M07Values, .before = 1,
+                         date = c (c ('jul', 'aug', 'oct', 'nov'), rep ('jul', 7), 
+                                   rep ('aug', 7), rep ('oct', 7), rep ('nov', 7)),
+                         treatment = c (rep (1, 4), rep (c (4:2, 4, 4:2), 4)),
+                         height = c (rep ('C', 4), rep (c ('A','A','A','M','B','B','B'), 4)))
+
+# add the date effect
+#----------------------------------------------------------------------------------------
+M07Values [['beta']] [M07Values [['date']] == 'aug'] [2:length (M07Values [['beta']] [M07Values [['date']] == 'aug'])] <- 
+  M07Values [['beta']] [M07Values [['date']] == 'aug'] [2:length (M07Values [['beta']] [M07Values [['date']] == 'aug'])] + 
+  M07Values [['beta']] [M07Values [['date']] == 'aug'] [1]
+M07Values [['beta']] [M07Values [['date']] == 'oct'] [2:length (M07Values [['beta']] [M07Values [['date']] == 'oct'])] <- 
+  M07Values [['beta']] [M07Values [['date']] == 'oct'] [2:length (M07Values [['beta']] [M07Values [['date']] == 'oct'])] + 
+  M07Values [['beta']] [M07Values [['date']] == 'oct'] [1]
+M07Values [['beta']] [M07Values [['date']] == 'nov'] [2:length (M07Values [['beta']] [M07Values [['date']] == 'nov'])] <- 
+  M07Values [['beta']] [M07Values [['date']] == 'nov'] [2:length (M07Values [['beta']] [M07Values [['date']] == 'nov'])] + 
+  M07Values [['beta']] [M07Values [['date']] == 'nov'] [1]
+
+# add the intercept, aka July baseline effect
+#----------------------------------------------------------------------------------------
+M07Values [['beta']] [2:length (M07Values [['beta']])] <-
+  M07Values [['beta']] [2:length (M07Values [['beta']])] + M07Values [['beta']] [1]
+
+# add y Position in plot
+#----------------------------------------------------------------------------------------
+M07Values [['yPos']] <- NA
+M07Values [['yPos']] [M07Values [['treatment']] == 1] <- yPositions [1]
+M07Values [['yPos']] [M07Values [['treatment']] == 2 & M07Values [['height']] == 'B'] <- 
+  yPositions [2]
+M07Values [['yPos']] [M07Values [['treatment']] == 2 & M07Values [['height']] == 'A'] <- 
+  yPositions [3]
+M07Values [['yPos']] [M07Values [['treatment']] == 3 & M07Values [['height']] == 'B'] <- 
+  yPositions [4]
+M07Values [['yPos']] [M07Values [['treatment']] == 3 & M07Values [['height']] == 'A'] <- 
+  yPositions [5]
+M07Values [['yPos']] [M07Values [['treatment']] == 4 & M07Values [['height']] == 'B'] <- 
+  yPositions [6]
+M07Values [['yPos']] [M07Values [['treatment']] == 4 & M07Values [['height']] == 'M'] <- 
+  yPositions [7]
+M07Values [['yPos']] [M07Values [['treatment']] == 4 & M07Values [['height']] == 'A'] <- 
+  yPositions [8]
+
+# add symbols column
+#----------------------------------------------------------------------------------------
+M07Values [['height']] [M07Values [['height']] == 'C'] <- 21
+M07Values [['height']] [M07Values [['height']] == 'A'] <- 24
+M07Values [['height']] [M07Values [['height']] == 'M'] <- 22
+M07Values [['height']] [M07Values [['height']] == 'B'] <- 25
+
+# create layout for the mixed model-based cummulative cell wall area plot 
+#----------------------------------------------------------------------------------------
+layout (matrix (1:4, nrow = 1, byrow = TRUE), widths = c (1.8, 1, 1, 1.1))
+
+# loop over dates to create on plot of fractional cumulative cell wall area for each period
+#----------------------------------------------------------------------------------------
+for (iDate in c ('jul','aug','oct','nov')) {
+  
+  # choose appropriate plot margins 
+  #--------------------------------------------------------------------------------------
+  if (iDate == 'jul') {
+    par (mar = c (5, 10, 1, 0))
+  } else if (iDate == 'aug' | iDate == 'oct') {
+    par (mar = c (5, 0, 1, 0))
+  } else {
+    par (mar = c (5, 0, 1, 1))
+  }
+  
+  # plot the cummulative cell wall area for each period
+  #--------------------------------------------------------------------------------------
+  plot (x = M07Values [['beta']] [M07Values [['date']] == iDate],
+        y = M07Values [['yPos']] [M07Values [['date']] == iDate], 
+        las = 1, xlab = '', ylab = '', axes = FALSE,
+        xlim = c (10, 40), ylim = c (0, 6.6), 
+        col = colours [M07Values [['treatment']] [M07Values [['date']] == iDate]], 
+        bg = ifelse (abs (M07Values [['tValue']] [M07Values [['date']] == iDate]) >= 2, 
+                     colours [M07Values[['treatment']] [M07Values [['date']] == iDate]], 
+                     'white'), lwd = 2, 
+        cex = 2, #abs (M07Values [['tValue']] [M07Values [['date']] == iDate]),
+        pch = as.numeric (M07Values [['height']] [M07Values [['date']] == iDate]))
+  
+  # add rectangle for control standard error
+  #--------------------------------------------------------------------------------------
+  rect (xleft = M07Values [['beta']] [M07Values [['date']] == iDate] [1] - 
+          M07Values [['se']]   [M07Values [['date']] == iDate] [1],
+        xright = M07Values [['beta']] [M07Values [['date']] == iDate] [1] + 
+          M07Values [['se']]   [M07Values [['date']] == iDate] [1],
+        ybottom = 0.6, ytop = 6, lty = 0, col = '#aaaaaa55')
+  
+  # add standard error
+  #--------------------------------------------------------------------------------------
+  arrows (x0 = M07Values [['beta']] [M07Values [['date']] == iDate] - 
+            M07Values [['se']]   [M07Values [['date']] == iDate],
+          x1 = M07Values [['beta']] [M07Values [['date']] == iDate] + 
+            M07Values [['se']]   [M07Values [['date']] == iDate],
+          y0 = M07Values [['yPos']] [M07Values [['date']] == iDate], 
+          code = 3, length = 0.05, angle = 90, lwd = 2, col = '#333333')
+  
+  # plot means
+  #--------------------------------------------------------------------------------------
+  points (x = M07Values [['beta']] [M07Values [['date']] == iDate],
+          y = M07Values [['yPos']] [M07Values [['date']] == iDate],
+          col = colours [M07Values [['treatment']] [M07Values [['date']] == iDate]], 
+          bg = ifelse (abs (M07Values [['tValue']] [M07Values [['date']] == iDate]) >= 2, 
+                       colours [M07Values[['treatment']] [M07Values [['date']] == iDate]], 
+                       'white'), 
+          lwd = 2, cex = 2, #abs (M07Values [['tValue']] [M07Values [['date']] == iDate]),
+          pch = as.numeric (M07Values [['height']] [M07Values [['date']] == iDate]))
+  
+  # add x-axis
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = seq (12, 40.0, by = 12))
+  
+  # add panel labels and axis 
+  #--------------------------------------------------------------------------------------
+  if (iDate == 'jul') {
+    
+    # add y-axis
+    #------------------------------------------------------------------------------------
+    axis (side = 2, at = yPositions, labels = c ('C','B','A','B','A','B','M','A'), 
+          las = 1)
+    
+    # add treatments
+    #------------------------------------------------------------------------------------
+    mtext (side = 2, line = 2, text = 'control',    at = yPositions [1])
+    mtext (side = 2, line = 2, text = 'girdled',    at = mean (yPositions [c(2,3)]))
+    mtext (side = 2, line = 2, text = 'compressed', at = mean (yPositions [c(4,5)]))
+    mtext (side = 2, line = 3, text = 'double',     at = mean (yPositions [c(6,7,8)]))
+    mtext (side = 2, line = 2, text = 'compressed', at = mean (yPositions [c(6,7,8)]))
+    
+    # add title
+    #------------------------------------------------------------------------------------
+    mtext (side = 2, line = 6, text = 'lumen diameter', cex = 1.5)
+    
+    # add panel descriptor
+    #------------------------------------------------------------------------------------
+    text (x = 10, y = 6.6, pos = 4, labels = 'july', cex = 1.3)
+  } else if (iDate == 'aug') {
+    # add panel descriptor
+    #------------------------------------------------------------------------------------
+    text (x = 10, y = 6.6, pos = 4, labels = 'august', cex = 1.3)
+    
+    # add x-axis label
+    #------------------------------------------------------------------------------------
+    mtext (side = 1, line = 3, at = 40, cex = 1.0,
+           text = 'radial lumen diameter (microns)')
+  } else if (iDate == 'oct') {
+    # add panel descriptor
+    #------------------------------------------------------------------------------------
+    text (x = 10, y = 6.6, pos = 4, labels = 'ocotber', cex = 1.3)
+  } else if (iDate == 'nov') {
+    # add panel descriptor
+    #------------------------------------------------------------------------------------
+    text (x = 10, y = 6.6, pos = 4, labels = 'november', cex = 1.3)
+  }
+  
+  # make a line separating the panels
+  #--------------------------------------------------------------------------------------
+  if (iDate != 'nov') abline (v = 41, col = '#666666')
+}
+
+# add typical between tree variation to plot
+#----------------------------------------------------------------------------------------
+betweenTreeVar <- as_tibble (VarCorr (M7.1)) [1, 5] [[1]]
+text (labels = expression (paste (sigma [tree])), x = 34, y = 0.2, 
+      cex = 1.5, pos = 3, col = '#777777')
+segments (x0 = 36 - betweenTreeVar, 
+          x1 = 36, 
+          y0 = 0.2, lwd = 4,
+          col = '#777777', code = 3, angle = 90, length = 0.05)
+
 
 # fit a mixed effects model to look at cell wall thickness
 # M8.0 <- lmer (formula = CWTTAN ~ (1 | tree) + treatment:height:factor (afterOnset) + factor (afterOnset), 
@@ -147,16 +323,203 @@ plot (M8.1)
 qqnorm (resid (M8.1))
 #anova (M8.0, M8.1)
 
-# fit a mixed effects model to look at cell wall thickness
+# fit a mixed effects model to look at cell wall area
 # M9.0 <- lmer (formula = CWA ~ (1 | tree) + treatment:height:factor (afterOnset) + factor (afterOnset), 
 #               data = woodAnatomy, 
 #               REML = FALSE)
 # summary (M9.0)
-M9.1 <- lmer (formula = CWA~ (1 | tree) + treatment:height:factor (period) + factor (period), 
+M9.1 <- lmer (formula = CWA ~ (1 | tree) + treatment:height:factor (period) + factor (period), 
               data = woodAnatomy, 
               REML = TRUE)
 summary (M9.1)
 plot (M9.1)
 qqnorm (resid (M9.1))
 #anova (M9.0, M9.1)
+
+# Change date, tree, treatment, and height to factors
+treeCWA [['date']]      <- factor (treeCWA [['date']])
+treeCWA [['tree']]      <- factor (treeCWA [['tree']])
+treeCWA [['treatment']] <- factor (treeCWA [['treatment']])
+treeCWA [['height']]    <- factor (treeCWA [['height']], levels = c ('A','M','B','C'))
+
+# fit a mixed effects model to look at the cummulative cell wall area for each period
+M10 <- lmer (formula = CCWA ~ (1 | tree) + treatment:height:date + date, 
+             data = treeCWA, 
+             REML = TRUE)
+summary (M10)
+plot (M10)
+qqnorm (resid (M10))
+
+# extract the model parameters
+#----------------------------------------------------------------------------------------
+M10Values <- tibble (beta   = getME (M10, 'beta'), 
+                     se     = as.numeric (coef (summary (M10)) [, 2]), 
+                     tValue = as.numeric (coef (summary (M10)) [, 3]))
+M10Values <- add_column (M10Values, .before = 1,
+                         date = c (c ('jul', 'aug', 'oct', 'nov'), rep ('jul', 7), 
+                                   rep ('aug', 7), rep ('oct', 7), rep ('nov', 7)),
+                         treatment = c (rep (1, 4), rep (c (2:4, 4, 2:4), 4)),
+                         height = c (rep ('C', 4), rep (c ('A','A','A','M','B','B','B'), 4)))
+
+# add the date effect
+#----------------------------------------------------------------------------------------
+M10Values [['beta']] [M10Values [['date']] == 'aug'] [2:length (M10Values [['beta']] [M10Values [['date']] == 'aug'])] <- 
+  M10Values [['beta']] [M10Values [['date']] == 'aug'] [2:length (M10Values [['beta']] [M10Values [['date']] == 'aug'])] + 
+  M10Values [['beta']] [M10Values [['date']] == 'aug'] [1]
+M10Values [['beta']] [M10Values [['date']] == 'oct'] [2:length (M10Values [['beta']] [M10Values [['date']] == 'oct'])] <- 
+  M10Values [['beta']] [M10Values [['date']] == 'oct'] [2:length (M10Values [['beta']] [M10Values [['date']] == 'oct'])] + 
+  M10Values [['beta']] [M10Values [['date']] == 'oct'] [1]
+M10Values [['beta']] [M10Values [['date']] == 'nov'] [2:length (M10Values [['beta']] [M10Values [['date']] == 'nov'])] <- 
+  M10Values [['beta']] [M10Values [['date']] == 'nov'] [2:length (M10Values [['beta']] [M10Values [['date']] == 'nov'])] + 
+  M10Values [['beta']] [M10Values [['date']] == 'nov'] [1]
+
+# add the intercept, aka July baseline effect
+#----------------------------------------------------------------------------------------
+M10Values [['beta']] [2:length (M10Values [['beta']])] <-
+  M10Values [['beta']] [2:length (M10Values [['beta']])] + M10Values [['beta']] [1]
+
+# add y Position in plot
+#----------------------------------------------------------------------------------------
+M10Values [['yPos']] <- NA
+M10Values [['yPos']] [M10Values [['treatment']] == 1] <- yPositions [1]
+M10Values [['yPos']] [M10Values [['treatment']] == 2 & M10Values [['height']] == 'B'] <- 
+  yPositions [2]
+M10Values [['yPos']] [M10Values [['treatment']] == 2 & M10Values [['height']] == 'A'] <- 
+  yPositions [3]
+M10Values [['yPos']] [M10Values [['treatment']] == 3 & M10Values [['height']] == 'B'] <- 
+  yPositions [4]
+M10Values [['yPos']] [M10Values [['treatment']] == 3 & M10Values [['height']] == 'A'] <- 
+  yPositions [5]
+M10Values [['yPos']] [M10Values [['treatment']] == 4 & M10Values [['height']] == 'B'] <- 
+  yPositions [6]
+M10Values [['yPos']] [M10Values [['treatment']] == 4 & M10Values [['height']] == 'M'] <- 
+  yPositions [7]
+M10Values [['yPos']] [M10Values [['treatment']] == 4 & M10Values [['height']] == 'A'] <- 
+  yPositions [8]
+
+# add symbols column
+#----------------------------------------------------------------------------------------
+M10Values [['height']] [M10Values [['height']] == 'C'] <- 21
+M10Values [['height']] [M10Values [['height']] == 'A'] <- 24
+M10Values [['height']] [M10Values [['height']] == 'M'] <- 22
+M10Values [['height']] [M10Values [['height']] == 'B'] <- 25
+
+# create layout for the mixed model-based cummulative cell wall area plot 
+#----------------------------------------------------------------------------------------
+layout (matrix (1:4, nrow = 1, byrow = TRUE), widths = c (1.8, 1, 1, 1.1))
+
+# loop over dates to create on plot of fractional cumulative cell wall area for each period
+#----------------------------------------------------------------------------------------
+for (iDate in c ('jul','aug','oct','nov')) {
+  
+  # choose appropriate plot margins 
+  #--------------------------------------------------------------------------------------
+  if (iDate == 'jul') {
+    par (mar = c (5, 10, 1, 0))
+  } else if (iDate == 'aug' | iDate == 'oct') {
+    par (mar = c (5, 0, 1, 0))
+  } else {
+    par (mar = c (5, 0, 1, 1))
+  }
+  
+  # plot the cummulative cell wall area for each period
+  #--------------------------------------------------------------------------------------
+  plot (x = M10Values [['beta']] [M10Values [['date']] == iDate],
+        y = M10Values [['yPos']] [M10Values [['date']] == iDate], 
+        las = 1, xlab = '', ylab = '', axes = FALSE,
+        xlim = c (0, 1.1), ylim = c (0, 6.6), 
+        col = colours [M10Values [['treatment']] [M10Values [['date']] == iDate]], 
+        bg = ifelse (abs (M10Values [['tValue']] [M10Values [['date']] == iDate]) >= 2, 
+                     colours [M10Values[['treatment']] [M10Values [['date']] == iDate]], 
+                     'white'), lwd = 2, 
+        cex = 2, #abs (M10Values [['tValue']] [M10Values [['date']] == iDate]),
+        pch = as.numeric (M10Values [['height']] [M10Values [['date']] == iDate]))
+  
+  # add rectangle for control standard error
+  #--------------------------------------------------------------------------------------
+  rect (xleft = M10Values [['beta']] [M10Values [['date']] == iDate] [1] - 
+                M10Values [['se']]   [M10Values [['date']] == iDate] [1],
+        xright = M10Values [['beta']] [M10Values [['date']] == iDate] [1] + 
+                 M10Values [['se']]   [M10Values [['date']] == iDate] [1],
+        ybottom = 0.6, ytop = 6, lty = 0, col = '#aaaaaa55')
+  
+  # add standard error
+  #--------------------------------------------------------------------------------------
+  arrows (x0 = M10Values [['beta']] [M10Values [['date']] == iDate] - 
+               M10Values [['se']]   [M10Values [['date']] == iDate],
+          x1 = M10Values [['beta']] [M10Values [['date']] == iDate] + 
+               M10Values [['se']]   [M10Values [['date']] == iDate],
+          y0 = M10Values [['yPos']] [M10Values [['date']] == iDate], 
+          code = 3, length = 0.05, angle = 90, lwd = 2, col = '#333333')
+  
+  # plot means
+  #--------------------------------------------------------------------------------------
+  points (x = M10Values [['beta']] [M10Values [['date']] == iDate],
+          y = M10Values [['yPos']] [M10Values [['date']] == iDate],
+          col = colours [M10Values [['treatment']] [M10Values [['date']] == iDate]], 
+          bg = ifelse (abs (M10Values [['tValue']] [M10Values [['date']] == iDate]) >= 2, 
+                       colours [M10Values[['treatment']] [M10Values [['date']] == iDate]], 
+                       'white'), 
+          lwd = 2, cex = 2, #abs (M10Values [['tValue']] [M10Values [['date']] == iDate]),
+          pch = as.numeric (M10Values [['height']] [M10Values [['date']] == iDate]))
+  
+  # add x-axis
+  #--------------------------------------------------------------------------------------
+  axis (side = 1, at = seq (0, 1.0, by = 0.5))
+  
+  # add panel labels and axis 
+  #--------------------------------------------------------------------------------------
+  if (iDate == 'jul') {
+    
+    # add y-axis
+    #------------------------------------------------------------------------------------
+    axis (side = 2, at = yPositions, labels = c ('C','B','A','B','A','B','M','A'), 
+          las = 1)
+    
+    # add treatments
+    #------------------------------------------------------------------------------------
+    mtext (side = 2, line = 2, text = 'control',    at = yPositions [1])
+    mtext (side = 2, line = 2, text = 'girdled',    at = mean (yPositions [c(2,3)]))
+    mtext (side = 2, line = 2, text = 'compressed', at = mean (yPositions [c(4,5)]))
+    mtext (side = 2, line = 3, text = 'double',     at = mean (yPositions [c(6,7,8)]))
+    mtext (side = 2, line = 2, text = 'compressed', at = mean (yPositions [c(6,7,8)]))
+    
+    # add title
+    #------------------------------------------------------------------------------------
+    mtext (side = 2, line = 6, text = 'cell wall area', cex = 1.5)
+    
+    # add panel descriptor
+    #------------------------------------------------------------------------------------
+    text (x = 0, y = 6.6, pos = 4, labels = 'july', cex = 1.3)
+  } else if (iDate == 'aug') {
+    # add panel descriptor
+    #------------------------------------------------------------------------------------
+    text (x = 0, y = 6.6, pos = 4, labels = 'august', cex = 1.3)
+    
+    # add x-axis label
+    #------------------------------------------------------------------------------------
+    mtext (side = 1, line = 3, at = 1.1, cex = 1.0,
+           text = 'fraction of cummulative cell wall area')
+  } else if (iDate == 'oct') {
+    # add panel descriptor
+    #------------------------------------------------------------------------------------
+    text (x = 0, y = 6.6, pos = 4, labels = 'ocotber', cex = 1.3)
+  } else if (iDate == 'nov') {
+    # add panel descriptor
+    #------------------------------------------------------------------------------------
+    text (x = 0, y = 6.6, pos = 4, labels = 'november', cex = 1.3)
+  }
+  
+  # make a line separating the panels
+  #--------------------------------------------------------------------------------------
+  if (iDate != 'nov') abline (v = 1.1, col = '#666666')
+}
+
+# add typical between tree variation to plot
+#----------------------------------------------------------------------------------------
+betweenTreeVar <- as_tibble (VarCorr (M10)) [1, 5] [[1]]
+text (labels = expression (paste (sigma [tree])), x = 0.9, y = 0.1, 
+      cex = 1.5, pos = 3, col = '#777777')
+segments (x0 = 1.1 - betweenTreeVar,x1 = 1.1, y0 = 0.1, 
+          lwd = 4, col = '#777777', code = 3, angle = 90, length = 0.05)
 #========================================================================================

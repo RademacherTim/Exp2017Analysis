@@ -440,7 +440,7 @@ png (filename = '../fig/Exp2017LeafStarchConcentrations.png', width = 600, heigh
   #--------------------------------------------------------------------------------------
   abline (v = 7.8, col = '#666666')
   
-  # plot november concentrations
+  # plot november leaf starch concentrations
   #----------------------------------------------------------------------------------------
   par (mar = c (6, 0, 6, 1))
   plot (y = leafMeans [['treatment']] [leafMeans [['date']] == '2017-11-03'],
@@ -503,7 +503,7 @@ png (filename = '../fig/Exp2017StemSugarConcentrations.png', width = 600, height
   # add y axis
   #----------------------------------------------------------------------------------------
   axis (side = 2, at = yPositions, 
-        labels = c ('M','B','A','B','A','B','M','A'), 
+        labels = c ('C','B','A','B','A','B','M','A'), 
         tick = 1, las = 1, cex.lab = 1.2)
   
   # add month label
@@ -702,7 +702,7 @@ png (filename = '../fig/Exp2017StemStarchConcentrations.png', width = 600, heigh
   # add y axis
   #----------------------------------------------------------------------------------------
   axis (side = 2, at = yPositions, 
-        labels = c ('M','B','A','B','A','B','M','A'), 
+        labels = c ('C','B','A','B','A','B','M','A'), 
         tick = 1, las = 1, cex.lab = 1.2)
   
   # add month label
