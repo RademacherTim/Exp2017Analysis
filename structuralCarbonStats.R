@@ -5,14 +5,17 @@
 #----------------------------------------------------------------------------------------
 
 # load dependencies
+#----------------------------------------------------------------------------------------
 library ('lme4')
 if (!existsFunction ('add_column')) library ('tidyverse')
 
 # source ring width and other anatomical data
+#----------------------------------------------------------------------------------------
 standardisedRW2017 <- read_csv (file = 'standardisedRW2017.csv',
                                 col_types = cols ())
 
 # wranlge standardised ring width at the end of the experiment
+#----------------------------------------------------------------------------------------
 standardisedRW2017 <- add_column (standardisedRW2017, 
                                   treatment = allometricData [['treatment']] [1:40])
 RW2017 <- tibble (tree = 1, height = 'C', treatment = 1, 
