@@ -114,27 +114,35 @@ allometricData <- read_excel (path = paste0 (getwd (),'/allometricDataExp2017.xl
 setwd ('/home/tim/projects/PlantGrowth/Exp2017Analysis/')
 ```
 
-The estimation of structural carbon gain for each stem section is scaled from the cell wall area of one thinsections sampled at the end of the growing season (3$^{rd}$ of November 2017) and divided into sections grown in each period (e.g., prior, during and after treatment) by association with the proportion of the ring formed at the time. Each sampling date two thinsection were collected and stored in solution (75% ethanol and 25% glacial acedic acid). Where the first thinsection did not fully include the necessary rings or had other quality issues, we cut and processed the second microcore. Between the two microcores, we were able to obtain high-quality image data for 314<!-- TR - Image 06.1 M for 2017/08/09 only contains part of the 2017 ring. And images 06.1 M, 24.4 A and 24.4 B are missing the 2015 ring. There must be two additional rings missing because the numbferOfSamples suggests so!!!--> out of 320 samples (i.e., 4 sampling dates times 40 trees times on average two sampling heights). Only for one tree (tree id: 06; treament: control) both thinsections collected in October did not contain a full set of rings necessary for the analysis. For each image, we identified and divided the ring formed in 2017 into 20 micron-wide discrete zones and derived the average anatomical structure for a cell in each zone using ROXAS [@von_arx_roxas_2014]. In particular, we measured cell wall area, cell wall thickness, as well as tangential and radial cell width. The ring width of the fully formed ring ranged between `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/1000, 2)` and `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [2] / 1000, 2 )`mm with a mean of `r round (mean (unique (data [['MRW']] [data [['YEAR']] == 2017]))/1000, 2)`mm. Thus event he smallest ring was divided into, at least, `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/20)` discrete zones with anatomical data.
+The estimation of structural carbon gain for each stem section is scaled from the cell wall area of one thinsections sampled at the end of the growing season (3$^{rd}$ of November 2017) and divided into sections grown in each period (e.g., prior, during and after treatment) by association with the fraction of the ring formed at each sampling date. For each sampling date two microcores were collected and stored. One microcore was embedded in parafin, cut using a microtome, stained with astra blue and safranin red, and scanned on a sliding scanner. Where the resulting image of the first microcore did not fully include the necessary rings or had other quality issues, we cut and processed the second microcore. Between the two microcores, we were able to obtain high-quality image data for 315<!-- TR - Image 06.1 M for 2017/08/09 only contains part of the 2017 ring. And images 06.1 M, 24.4 A and 24.4 B are missing the 2015 ring. There must be one additional ring missing because the numbferOfSamples suggests so!!!--> out of 320 samples (i.e., 4 sampling dates times 40 trees times on average two sampling heights). Only for one tree (tree id: 06; treament: control) both thinsections collected in October did not contain a full set of rings necessary for the analysis. For each image, we identified and divided the ring formed in 2017 into 20 micron-wide discrete zones and derived the average anatomical structure for cells in each zone using ROXAS [@von_arx_roxas_2014]. In particular, we measured cell wall area, cell wall thickness, as well as tangential and radial lumen diameter. The ring width of the fully formed 2017 ring ranged between `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/1000, 2)` and `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [2] / 1000, 2 )` mm with a mean of `r round (mean (unique (data [['MRW']] [data [['YEAR']] == 2017]))/1000, 2)` mm. Even the smallest ring was divided into `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/20)` discrete zones of a width of 20-microns with anatomical data.
 
-### Dividing cell wall area by period of formation
+### Estimating period of formation for cells 
 
-Standardised ring widths from the thinsections collected at the end of each period, were used to associate proportions of the ring, thus 20-micron wide zones, to specific growth periods. For this purpose we identified and measured ring widths in thinsections taken prior (e.g., 3$^{rd}$ of July 2017) and during the treatment (e.g., 10$^{th}$ of August 2017, and 9$^{th}$ of October 2017), as well as at the end of the growing season (3$^{rd}$ of November). All ring width measurements were performed with the Tree Ring Image Analysis and Database (TRIAD). The accuracy of TRIAD is limited by the resolution of the uploaded images; here roughly 1.5 microns. 
+Standardised ring widths at the different sampling dates were used to associate proportions of the final ring, thus included 20-micron wide zones, to specific growth periods. For this purpose we identified and measured ring widths in thinsections taken prior (e.g., 3$^{rd}$ of July 2017) and during the treatment (e.g., 10$^{th}$ of August 2017, and 9$^{th}$ of October 2017), as well as at the end of the growing season (3$^{rd}$ of November). All ring width measurements were performed with a self-developed webservice called the Tree Ring Image Analysis and Database (TRIAD). The accuracy of TRIAD is ultimately limited by the resolution of the uploaded images; here roughly 1.5 microns. 
 
 ``` {r getRingWidths, echo = FALSE}
 # build data frame with ring width measurements for each of the four thinsections
+#----------------------------------------------------------------------------------------
 ringWidths <- tibble (tree = rep (1:40, 4),
                       treatment = rep (allometricData [['treatment']] [1:40], 4),
                       month = c (rep (7, 40), rep (8, 40), rep (10, 40), rep (11, 40)),
-                      RW2017at250 = NA, RW2017at200 = NA, RW2017at150 = NA, RW2017at100 = NA, RW2017at050 = NA,
-                      RW2016at250 = NA, RW2016at200 = NA, RW2016at150 = NA, RW2016at100 = NA, RW2016at050 = NA,
-                      RW2015at250 = NA, RW2015at200 = NA, RW2015at150 = NA, RW2015at100 = NA, RW2015at050 = NA,
-                      RW2014at250 = NA, RW2014at200 = NA, RW2014at150 = NA, RW2014at100 = NA, RW2014at050 = NA,
-                      RW2013at250 = NA, RW2013at200 = NA, RW2013at150 = NA, RW2013at100 = NA, RW2013at050 = NA,
-                      RW2012at250 = NA, RW2012at200 = NA, RW2012at150 = NA, RW2012at100 = NA, RW2012at050 = NA,
-                      RW2011at250 = NA, RW2011at200 = NA, RW2011at150 = NA, RW2011at100 = NA, RW2011at050 = NA,
-                      RW2010at250 = NA, RW2010at200 = NA, RW2010at150 = NA, RW2010at100 = NA, RW2010at050 = NA,
-                      RW2009at250 = NA, RW2009at200 = NA, RW2009at150 = NA, RW2009at100 = NA, RW2009at050 = NA,
-                      RW2008at250 = NA, RW2008at200 = NA, RW2008at150 = NA, RW2008at100 = NA, RW2008at050 = NA)
+                      RW2017at250 = NA, RW2017at200 = NA, RW2017at150 = NA, 
+                      RW2017at100 = NA, RW2017at050 = NA, RW2016at250 = NA, 
+                      RW2016at200 = NA, RW2016at150 = NA, RW2016at100 = NA, 
+                      RW2016at050 = NA, RW2015at250 = NA, RW2015at200 = NA, 
+                      RW2015at150 = NA, RW2015at100 = NA, RW2015at050 = NA,
+                      RW2014at250 = NA, RW2014at200 = NA, RW2014at150 = NA, 
+                      RW2014at100 = NA, RW2014at050 = NA, RW2013at250 = NA, 
+                      RW2013at200 = NA, RW2013at150 = NA, RW2013at100 = NA, 
+                      RW2013at050 = NA, RW2012at250 = NA, RW2012at200 = NA, 
+                      RW2012at150 = NA, RW2012at100 = NA, RW2012at050 = NA,
+                      RW2011at250 = NA, RW2011at200 = NA, RW2011at150 = NA, 
+                      RW2011at100 = NA, RW2011at050 = NA, RW2010at250 = NA, 
+                      RW2010at200 = NA, RW2010at150 = NA, RW2010at100 = NA,
+                      RW2010at050 = NA, RW2009at250 = NA, RW2009at200 = NA, 
+                      RW2009at150 = NA, RW2009at100 = NA, RW2009at050 = NA,
+                      RW2008at250 = NA, RW2008at200 = NA, RW2008at150 = NA, 
+                      RW2008at100 = NA, RW2008at050 = NA)
 
 
 # set working directory to read json files
@@ -441,20 +449,20 @@ for (i in 1:dim (data) [1]) {
 setwd ('/home/tim/projects/PlantGrowth/Exp2017Analysis/')
 ```
 
-As growth varies locally around the circumference of the stem, we tried to account for local circumferential variations in growth by standardisation with the 2015 ring width fromt the same thinsection. 
+Microcores in August, October and November were punched in close proximity to the July sample. The samples were offset by, at least, 5cm horizontally on the same vertical axis to avoid sampling a wound reaction of the injury inflicted by previous cores. As growth varies locally around the circumference of the stem, sampling relatively close was a first step to minimised local differences in growth between sampling dates. As a second step, we used the 2015 ring width from the same thinsection to correct for local variation in growth between microcores. 
 
 $$
 f_{m,17} = \frac {rw_{m,17} \times rw_{N, 15}} {rw_{m,15}} \times \frac {1} {rw_{N,15}}
 $$
 
-, where $f_{m,17}$ is the fraction of the ring width formed in month $m$, $rw_{m, 15}$ and $rw_{m, 17}$ are respecitvely the 2015 and 2017 ring width in month $m$, and $rw_{N, 15}$ and $rw_{N, 17}$ are respectively the 2015 and 2017 ring widths as measured at the end of the growing season in November. This assumes that the ring was fully formed on the 1$^{st}$ of November, which is about two weeks after the typical end of cell wall thickening for white pine at Harvard Forest. Then, $f_{m, 17}$ theoretically varies between 0 and 1 with 0 meaning non of the ring was formed at the sampling date and 1 meaning that the entire ring was already formed.
+, where $f_{m,17}$ is the fraction of the ring width formed in month $m$ (e.g., July, August, or October), $rw_{m, 15}$ and $rw_{m, 17}$ are respecitvely the 2015 and 2017 ring width in the thinsection collected in month $m$, and $rw_{N, 15}$ and $rw_{N, 17}$ are respectively the 2015 and 2017 ring widths in the thinsection from the November sample. This assumes that the ring was fully formed on the 1$^{st}$ of November, which is about two weeks after the typical end of cell wall thickening for white pine at Harvard Forest. Then, $f_{m, 17}$ theoretically varies between 0 and 1 with 0 meaning none of the ring was formed at the sampling date and 1 meaning that the entire ring was already formed.
 
 ```{r climateData, echo = FALSE}
 metData <- read_csv (url ('https://harvardforest.fas.harvard.edu/data/p30/hf300/hf300-01-annual-m.csv'), 
                      col_types = cols ())
 ```
 
-The number of measurements for growth rings drops off strongly after the 2015 growth ring (table 1), because the older rings are further away from the bark, hence they are less likely within the 15mm reach of the trephor tool [@rossi_trephor:_2006] used to collect the thinsections. Among the recent years with high replication, 2015 was preferred over 2016, because of an abnormally dry growing season in 2016 (total annual precipitation of `r metData [['prec']] [metData [['year']] == 2016]` $mm$, which is `r round (mean (metData [['prec']]) - metData [['prec']] [metData [['year']] == 2016])` below the long-term average of `r round (mean (metData [['prec']]))` $mm$). In contrast the 2015 growing season climate was similar to the 2017 growing season climate with a mean annual temperature of `r metData [['airt']] [metData [['year']] == 2015]` $^{\circ}C$ and a total annual precipitation of `r metData [['prec']] [metData [['year']] == 2015]` $mm$. In fact, about three quraters of trees included in this study showed a intra-annual density fluctuation in 2016 due to the dry growing season and the remaining quarter of trees had a relatively narrower ring. Consequently, standardisation by the 2016 ring would introduce a systematic bias based on the bi-modal ring width distribution in 2016. In contrast, 2015 did not include any outstading climatological events or resulting systematic bias in growth.
+The number of measurements for growth rings drops off strongly after the 2015 growth ring (table 1), because the older rings are further away from the bark, hence they are less likely within the 15mm reach of the trephor tool [@rossi_trephor:_2006] used to collect the microcores. Among the recent years with high replication, 2015 was preferred over 2016, because of an abnormally dry growing season in 2016 (total annual precipitation of `r metData [['prec']] [metData [['year']] == 2016]` $mm$, which is `r round (mean (metData [['prec']]) - metData [['prec']] [metData [['year']] == 2016])` below the long-term average of `r round (mean (metData [['prec']]))` $mm$). In fact, about three quarters of trees included in this study showed a intra-annual density fluctuation in 2016 due to the dry growing season and the remaining quarter of trees had a relatively narrower ring. Consequently, standardisation by the 2016 ring would introduce a systematic bias based on the bi-modal ring width distribution in 2016. In contrast, 2015 did not include any outstading climatological events or resulting systematic bias in growth. Indeed, the 2015 growing season climate was similar to the 2017 growing season climate with a mean annual temperature of `r metData [['airt']] [metData [['year']] == 2015]` $^{\circ}C$ and a total annual precipitation of `r metData [['prec']] [metData [['year']] == 2015]` $mm$.
 
 ``` {r plotBasicRingStats, echo = FALSE, fig.width = 11}
 # Divide into tibble for each sampling date
@@ -577,11 +585,25 @@ kable (numberOfSamples, caption = 'Number of measured growth ring widths for all
 
 On average, `r round (mean (unlist (f_Jul), na.rm = TRUE) * 100.0, 1)`%, `r round (mean (unlist (f_Aug), na.rm = TRUE) * 100.0, 1)`%, and `r round (mean (unlist (f_Oct), na.rm = TRUE) * 100.0, 1)`% of the ring width had respectively grown in July, August and October. Thus, a bit more than half of the ring widths was already formed before the start of the treatment and ring width growth had <i>de facto</i> finished by Ocotober. However, there were substantial differences between treatments and sampling heights for August and October.  
 
-### Associate cell wall area in final ring with period
-
 Using the fractional ring widths as boundaries, each 20-micron zone was associated with one of the four periods: (i) beginning of growing season to start of experiment ($3^{rd}$ of July 2017), (ii) first month of the experiment ($4^{th}$ of July to $9^{th}$ of August 2017), (iii) second month of the experiment ($10^{th}$ of August to $8^{th}$ of October 2017), (iv) end of double compression to end of growing season ($9^{th}$ of October to $3^{rd}$ of November 2017).
 
 ``` {r cellularData, echo = FALSE}
+
+# define yPositions
+#--------------------------------------------------------------------------------------
+yPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
+
+# define tree labels for each group
+#----------------------------------------------------------------------------------------
+controlTrees      <- c ('01M','03M','04M','06M','07M','09M','18M','30M','31M','36M')
+girdledTreesAbove <- c ('05A','11A','15A','16A','19A','23A','29A','35A','39A','40A')
+girdledTreesBelow <- c ('05B','11B','15B','16B','19B','23B','29B','35B','39B','40B')
+compresTreesAbove <- c ('10A','12A','13A','17A','20A','21A','28A','32A','33A','38A')
+compresTreesBelow <- c ('10B','12B','13B','17B','20B','21B','28B','32B','33B','38B')
+douCompTreesAbove <- c ('02A','08A','14A','22A','24A','25A','26A','27A','34A','37A')
+douCompTreesInBet <- c ('02M','08M','14M','22M','24M','25M','26M','27M','34M','37M')
+douCompTreesBelow <- c ('02B','08B','14B','22B','24B','25B','26B','27B','34B','37B')
+
 # add new column to data
 data <- add_column (data, period = NA)
 
@@ -682,7 +704,7 @@ plotCWA <- function (tree, date, treatment, yPos = 1, symbol = 21, alpha = 0.4,
 # function to plot mean fraction of cummulative cell wall area for a treatment 
 #----------------------------------------------------------------------------------------
 plotCWAByTreatment <- function (date, alpha = 0.4, VERBOSE = FALSE) {
-
+  
   # create tibble with cummlative cell wall areas
   #--------------------------------------------------------------------------------------
   treeCWA <- tibble (date = date, tree = NA, treatment = NA, height = NA, CCWA = NA)
@@ -908,24 +930,27 @@ for (iDate in as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03')))
 
 ### Scaling measured cell wall area to stem section 
 
-After we associated each zone with a growth period, we scaled up from the zone cell dimensions and characteristics to the entire circumference of the stem section. Indeed, we multiplied the mean zonal cell wall area by the number of times the average zonal tangential cell width ($w_{t,s}$) fitted into the entire circumference of each stem section. To account for the bark (average bark thickness of 0.8 cm) we reduced the circumference, as measured at the beginning of the experiment ($CBH_{outer,s}$) according to the following equation:
+After we associated each zone with a growth period, each zone is scaled to the circumference of the stem section by multiplication of the mean zonal cell wall area by the number of times the average zonal tangential cell width ($w_{t,s}$) fits into the entire circumference of each stem section. To account for the bark (average bark thickness of 0.8 cm) we reduced the circumference, as measured at the beginning of the experiment ($CBH_{outer,s}$) according to the following equation:
 
 $$
 CBH_{s} = CBH_{outer,s} − 0.8 cm \times 2 \pi
 $$
-To further scale the total circumferential cell wall area to a cell wall volume per stem section, we assume that the measured cell wall area ($CWA_{s,p}$) is representative taraplas for the stem section, hence we can simply multiply it with the height of the stem section (h = 10cm). 
+The zonal cell wall area for each zone is then summed across fractions of the ring were previously associated with the same period of formation. As a result we obtain the total cell wall area formed during each period.
+
+To further scale the total circumferential cell wall area to a cell wall volume per stem section, we assume that the measured cell wall area ($CWA_{s,p}$) is representative of the longitudinal wood profile for the stem section, hence we can simply multiply it with the height of the stem section (h = 10cm). 
 
 $$
 V_{CW,s,p} = \frac {CBH_{s}} {w_{t,s}} \times h_{s} \times \bar {CWA}
 $$
 
-The assumptions circumferential and taraplas representativeness of zonal averages derived from tracheids do not account for other types of tissue than tracheids, such as rays and resin ducts. Tracheids make up 93% of the volume of wood in white pines with resin ducts and rays  accounting for 1% and 6%, respectively [@brown_textbook_1949]. However, since there was no clear treatment effect on the occurance of resin ducts or rays cells, this assumption may only cause a slight over-estimation of structural carbon but no bias in carbon sequestration in strucutre between treatments. 
+Implicitly, this approach assumes that wood is circumferentially and longitudinally homogenous and the measured tracheids are representative of the woody tissue. thus, the approach does not account for other types of tissue than tracheids, such as rays and resin ducts. Tracheids make up 93% of the volume of wood in white pines with resin ducts and rays  accounting for 1% and 6%, respectively [@brown_textbook_1949]. However, since there was no clear treatment effect on the occurance of resin ducts or rays cells, this assumption ought not to cause a bias in carbon sequestration in strucutre between treatments. As ray cells and resin ducts have a slightly lower carbon density, this approach does over estimate carbon density marginally.
 
 ``` {r scalingToCircumference , echo = FALSE}
 # add cell width column to data
 data <- add_column (data, cellRadWidth = NA)
 data <- add_column (data, cellTanWidth = NA)
-data <- add_column (data, zonalCWA = NA)
+data <- add_column (data, zonalCWA     = NA)
+data <- add_column (data, multiplier   = NA)
 
 # find multiplication factor for each radial band
 for (i in 1:dim (data) [1]) {
@@ -938,35 +963,35 @@ for (i in 1:dim (data) [1]) {
   sampleHeight <- substr (data [['TREE']] [i], 3, 3)
   treatment <- as.numeric (substr (data [['PLOT']] [i], 2, 2))
 
-  # calculate zonal average tangential and radial cell width
+  # calculate zonal average tangential and radial cell width (microns)
   data [['cellRadWidth']] [i] <- data [['DRAD']] [i] + 2 * data [['CWTTAN']] [i] 
   data [['cellTanWidth']] [i] <- data [['DTAN']] [i] + 2 * data [['CWTRAD']] [i] 
   
-  # factor to substract bark thickness
-  
+  # factor to account for bark thickness of (8mm or 8000 microns) in circumference
+  fBark <- 2.0 * pi * 8000 
   
   # get circumference (microns) of the appropriate stem section
   if (sampleHeight == 'M') {
-    circumference <- allometricData [['cbh150']] [allometricData [['tree']] == treeID] * 1.0e4
+    circumference <- allometricData [['cbh150']] [allometricData [['tree']] == treeID] * 1.0e4 - fBark
   } else if (treatment == 2 | treatment == 3) {
     if (sampleHeight == 'A') {
-      circumference <- allometricData [['cbh200']] [allometricData [['tree']] == treeID] * 1.0e4
+      circumference <- allometricData [['cbh200']] [allometricData [['tree']] == treeID] * 1.0e4 - fBark
     } else if (sampleHeight == 'B') {
-      circumference <- allometricData [['cbh100']] [allometricData [['tree']] == treeID] * 1.0e4
+      circumference <- allometricData [['cbh100']] [allometricData [['tree']] == treeID] * 1.0e4 - fBark
     }
   } else if (treatment == 4) {
     if (sampleHeight == 'A') {
-      circumference <- allometricData [['cbh250']] [allometricData [['tree']] == treeID] * 1.0e4  
+      circumference <- allometricData [['cbh250']] [allometricData [['tree']] == treeID] * 1.0e4 - fBark
     } else if (sampleHeight == 'B') {
-      circumference <- allometricData [['cbh50']] [allometricData [['tree']] == treeID] * 1.0e4
+      circumference <- allometricData [['cbh50']] [allometricData [['tree']] == treeID] * 1.0e4 - fBark
     }
   }
   
   # determine multiplier
-  multiplier <- circumference / data [['cellRadWidth']] [i]
+  data [['multiplier']] [i] <- circumference / data [['cellRadWidth']] [i]
   
   # calculate new zonal cell wall area (microns2)
-  data [['zonalCWA']] [i] <- data [['CWA']] [i] * multiplier
+  data [['zonalCWA']] [i] <- data [['CWA']] [i] * data [['multiplier']] [i]
   
 }
 ```
@@ -978,7 +1003,8 @@ circumferentialData <- tibble (tree = rep (1:40, 4),
                                            rep (as_date ('2017-08-09'), 40), 
                                            rep (as_date ('2017-10-09'), 40), 
                                            rep (as_date ('2017-11-03'), 40)),
-                               CWAat050 = NA, CWAat100 = NA, CWAat150 = NA, CWAat200 = NA, CWAat250 = NA) 
+                               CWAat050 = NA, CWAat100 = NA, CWAat150 = NA, 
+                               CWAat200 = NA, CWAat250 = NA) 
 
 # loop over trees
 for (iTree in 1:40) {
@@ -1056,9 +1082,11 @@ for (iTree in 1:40) {
 }
 
 # stem section height (m)
+#----------------------------------------------------------------------------------------
 h <- 0.1
 
 # create tibble for volume data
+#----------------------------------------------------------------------------------------
 volumeData <- tibble (tree = rep (1:40, 4),
                       period = c (rep (as_date ('2017-07-03'), 40), 
                                   rep (as_date ('2017-08-09'), 40), 
@@ -1067,25 +1095,31 @@ volumeData <- tibble (tree = rep (1:40, 4),
                       CWVat050 = NA, CWVat100 = NA, CWVat150 = NA, CWVat200 = NA, CWVat250 = NA)
 
 # cell wall volume (mm3)
+#----------------------------------------------------------------------------------------
 volumeData [3:7] <- circumferentialData [3:7] * h * 1000
 ```
 
 ``` {r dryMatterAndCarbonContent, echo = FALSE}
 # create tibble for dry matter in stem section
+#----------------------------------------------------------------------------------------
 dryMatterData <- tibble (tree = rep (1:40, 4),
                          period = c (rep (as_date ('2017-07-03'), 40), 
                                      rep (as_date ('2017-08-09'), 40), 
                                      rep (as_date ('2017-10-09'), 40), 
                                      rep (as_date ('2017-11-03'), 40)),
-                         DMat050 = NA, DMat100 = NA, DMat150 = NA, DMat200 = NA, DMat250 = NA)
+                         DMat050 = NA, DMat100 = NA, DMat150 = NA, DMat200 = NA, 
+                         DMat250 = NA)
 
-# cell wall density (kg m-3)
+# cell wall density (kg m-3) or (g cm-3)
+#----------------------------------------------------------------------------------------
 rhoCW <- 1.489
 
 # estimate dry matter (g)
-dryMatterData [3:7] <- (volumeData [3:7] / 1.0e9) * rhoCW * 1.0e3
+#----------------------------------------------------------------------------------------
+dryMatterData [3:7] <- (volumeData [3:7] / 1.0e3) * rhoCW
 
 # create tibble for dry matter in stem section
+#----------------------------------------------------------------------------------------
 carbonContentData <- tibble (tree = rep (1:40, 4),
                              period = c (rep (as_date ('2017-07-03'), 40), 
                                          rep (as_date ('2017-08-09'), 40), 
@@ -1096,105 +1130,147 @@ carbonContentData <- tibble (tree = rep (1:40, 4),
                              structuralCarbonat250 = NA)
 
 # Carbon content of white pine wood (%)
+#----------------------------------------------------------------------------------------
 CC <- 49.74
 
 # estimate carbon content (g)
-carbonContentData [3:7] <- dryMatterData [3:7] * CC / 100.0
+#----------------------------------------------------------------------------------------
+carbonContentData [3:7] <- dryMatterData [3:7] * (CC / 100.0)
 
 # Export data if necessary
+#----------------------------------------------------------------------------------------
 WRITE <- TRUE
 if (WRITE) {
   write_csv (carbonContentData,  path = 'structuralCarbonData.csv')
 }
 ```
 
-Finally, the cell wall volume for each ring portion of the stem section ($V_{CW,s,p}$) is multiplied by a fixed cell wall density ($\rho_{CW}$) and carbon content () to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in g). Here, we use a cell wall density of `r rhoCW` $kgDM \, m^{−3}$ (measured for Scots pine by @plotze_porosity_2011) and carbon content of 49.74% for white pine [@lamlom_reassessment_2003].
+Finally, the cell wall volume for each ring portion of the stem section ($V_{CW,s,p}$) is multiplied by a fixed cell wall density ($\rho_{CW}$) of `r rhoCW` $kg \, m^{-3}$  (measured for Scots pine by @plotze_porosity_2011) and a carbon content of `r CC` %  for white pine [@lamlom_reassessment_2003] to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in g). 
 
 $$
 M_{s,p} = V_{CW,s,p} \times \rho_{CW} \times 49.74\%
 $$
-``` {r estimateDateOfFormation, echo = FALSE}
-# TR - I should focus on the carbon in each section and not the estimated date of formation.
-# If I want a date of formation I ought to  actually fit a Gompertz function to the percentage ring widths and interpolating using the Gompertz. At the moment the code only interpolates linearly between the sampling dates as hard boundaries, so the large majority of end dates falls on a sampling date. 
-# 
-# # add new column to data
-# data <- add_column (data, formationDate = NA)
-# 
-# # iTree = 1
-# # iHeight = 3
-# # plot (x = as_date (c ('2017-07-5','2017-08-10','2017-10-09','2017-11-03')),
-# #       y = c (f_Jul [iTree, iHeight], f_Aug [iTree, iHeight], f_Oct [iTree, iHeight], 1),
-# #       typ = 'p', las = 1)
-# 
-# # estimate date of formation for each zone
-# for (iDate in as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03'))) {
-# 
-#   # loop over trees
-#   for (iTree in 1:40) {
-#     
-#     # get treatment and determine heights
-#     if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T1') {
-#       heights <-  c ('M')
-#     } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T2' |
-#                unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T3' ) {
-#       heights <-  c ('A', 'B')
-#     } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T4') {
-#       heights <-  c ('A', 'M', 'B')
-#     }
-# 
-#     # loop over sampling heights
-#     for (iHeight in heights) {
-# 
-#       if (iTree < 10) {
-#         treeID <- paste0 ('0',iTree,iHeight)
-#       } else {
-#         treeID <- paste0 (iTree, iHeight)
-#       }
-# 
-#       # determine number of zones associated with each date
-#       condition <- data [['YEAR']] == 2017 & data [['TREE']] == treeID & data [['period']] == iDate
-#       numberOfZones <- sum (condition, na.rm = TRUE)
-#       
-#       # Divide period into equally into numberOfZones and associate a date of formation with each
-#       if (as_date (iDate) == '2017-07-03') {
-#         startDate <- as_date ('2017-03-01')
-#       } else if (as_date (iDate) == '2017-08-09') {
-#         startDate <- as_date ('2017-07-04')
-#       } else if (as_date (iDate) == '2017-10-09') {
-#         startDate <- as_date ('2017-08-10')
-#       } else if (as_date (iDate) == '2017-11-03') {
-#         startDate <- as_date ('2017-10-10')
-#       }
-#       
-#       # estimate date of formation for each sector by linearly interpolating
-#       if (numberOfZones > 0) {
-#         incr <- as.numeric (as_date (iDate) - startDate) / (numberOfZones - 1)
-#         data [['formationDate']] [condition] <- seq (startDate, as_date (iDate), by = incr)
-#       }
-#     } # close height loop
-# 
-#   } # close tree loop
-# 
-# } # close period loop
-# 
-# # interpolate linearly for sample 06M which was fully formed by October sampling
-# condition <- data [['YEAR']] == 2017 & data [['TREE']] == '06M'
-# numberOfZones <- sum (condition, na.rm = TRUE)
-# incr <- as.numeric (as_date ('2017-10-09') - as_date ('2017-03-01')) / (numberOfZones - 1)
-# data [['formationDate']] [condition] <- seq (as_date ('2017-03-01'),
-#                                              as_date ('2017-10-09'), by = incr)
-# 
-# 
-# # interpolate linearly for sample 24A and 24B assuming it was fully formed by November
-# condition <- data [['YEAR']] == 2017 & data [['TREE']] == '24A'
-# numberOfZones <- sum (condition, na.rm = TRUE)
-# incr <- as.numeric (as_date ('2017-11-03') - as_date ('2017-03-01')) / (numberOfZones - 1)
-# data [['formationDate']] [condition] <- seq (as_date ('2017-03-01'),
-#                                              as_date ('2017-11-03'), by = incr)
-# condition <- data [['YEAR']] == 2017 & data [['TREE']] == '24B'
-# numberOfZones <- sum (condition, na.rm = TRUE)
-# incr <- as.numeric (as_date ('2017-11-03') - as_date ('2017-03-01')) / (numberOfZones - 1)
-# data [['formationDate']] [condition] <- seq (as_date ('2017-03-01'),
-#                                              as_date ('2017-11-03'), by = incr)
+
+### Alternative estimate using wood density
+
+Alternatively, the carbon could simply be estimated as a product of the volume of wood and an average wood density. X-ray densiometry was performed on 18 increment cores from the ten control trees. 
+
+```{r simpleEstimate, echo = FALSE}
+# declare mean stem wood density (kg m-3)
+#----------------------------------------------------------------------------------------
+rho <- 189.9 
+
+# declare height of stem section (m)
+#----------------------------------------------------------------------------------------
+h <- 0.1
+
+# create factor to account for bark thickness of 8mm
+#----------------------------------------------------------------------------------------
+fBark <- 2.0 * pi * 0.8
+
+# create tibble of Cestimated
+#----------------------------------------------------------------------------------------
+simpleEstimate <- tibble (tree = 1, treatment = 1, height = 'C', fJul = NA, fAug = NA,
+                          fOct = NA, RW = NA, circumference = NA, A = NA, V = NA, 
+                          DM = NA, CEst = NA)
+
+# loop over trees and sampling heights to produce estimate of carbon for each
+#----------------------------------------------------------------------------------------
+for (iTree in 1:40) {
+  
+  # find treatment
+  #--------------------------------------------------------------------------------------
+  treatment <- allometricData [['treatment']] [allometricData [['tree']] == iTree]
+    
+  # identify sampling heights
+  #--------------------------------------------------------------------------------------
+  if (treatment == 1) {
+    heights <- 'C'
+  } else if (treatment == 2 | treatment == 3) {
+    heights <- c ('A', 'B')
+  } else if (treatment == 4) {
+    heights <- c ('A', 'M', 'B')
+  }
+    
+  # loop over sampling height
+  #--------------------------------------------------------------------------------------
+  for (iH in heights) {
+    # get circumference of the section and fraction of ring width for July, August, and 
+    # October
+    #------------------------------------------------------------------------------------
+    if (treatment == 1) {
+      circumference <- allometricData [['cbh150']] [allometricData [['tree']] == iTree] -
+                       fBark
+      fJul <- f_Jul [iTree, 3]
+      fAug <- f_Aug [iTree, 3]
+      fOct <- f_Oct [iTree, 3]
+      RW <- filter (ringWidthsNov, tree == iTree) [[6]]
+    } else if ((treatment == 2 | treatment == 3) & iH == 'A') {
+      circumference <- allometricData [['cbh200']] [allometricData [['tree']] == iTree] -
+                       fBark
+      fJul <- f_Jul [iTree, 2]
+      fAug <- f_Aug [iTree, 2]
+      fOct <- f_Oct [iTree, 2]
+      RW <- filter (ringWidthsNov, tree == iTree) [[5]]
+    } else if ((treatment == 2 | treatment == 3) & iH == 'B') {
+      circumference <- allometricData [['cbh100']] [allometricData [['tree']] == iTree] -
+                       fBark
+      fJul <- f_Jul [iTree, 4]
+      fAug <- f_Aug [iTree, 4]
+      fOct <- f_Oct [iTree, 4]
+      RW <- filter (ringWidthsNov, tree == iTree) [[7]]
+    } else if (treatment == 4 & iH == 'A') {
+      circumference <- allometricData [['cbh250']] [allometricData [['tree']] == iTree] -
+                       fBark
+      fJul <- f_Jul [iTree, 1]
+      fAug <- f_Aug [iTree, 1]
+      fOct <- f_Oct [iTree, 1]
+      RW <- filter (ringWidthsNov, tree == iTree) [[4]]
+    } else if (treatment == 4 & iH == 'M') {
+      circumference <- allometricData [['cbh150']] [allometricData [['tree']] == iTree] -
+                       fBark
+      fJul <- f_Jul [iTree, 3]
+      fAug <- f_Aug [iTree, 3]
+      fOct <- f_Oct [iTree, 3]
+      RW <- filter (ringWidthsNov, tree == iTree) [[6]]
+    } else if (treatment == 4 & iH == 'B') {
+      circumference <- allometricData [['cbh50']] [allometricData [['tree']] == iTree] -
+                       fBark
+      fJul <- f_Jul [iTree, 5]
+      fAug <- f_Aug [iTree, 5]
+      fOct <- f_Oct [iTree, 5]
+      RW <- filter (ringWidthsNov, tree == iTree) [[8]]
+    }
+    
+    # estimate carbon gain (g)
+    #------------------------------------------------------------------------------------
+    A_out <- circumference^2 / (4.0 * pi)
+    A_in  <- (circumference - (RW / 10))^2 / (4.0 * pi)
+    A <- A_out - A_in
+    V <- A * h
+    DM <- V * rho
+    CEst <- DM * 0.4979
+    
+    # save the values
+    #------------------------------------------------------------------------------------
+    if (iTree == 1) {
+      simpleEstimate [['circumference']] <- circumference
+      simpleEstimate [['fJul']] <- fJul
+      simpleEstimate [['fAug']] <- fAug
+      simpleEstimate [['fOct']] <- fOct
+      simpleEstimate [['A']]    <- A
+      simpleEstimate [['V']]    <- V
+      simpleEstimate [['RW']]   <- RW
+      simpleEstimate [['DM']]   <- DM
+      simpleEstimate [['CEst']] <- CEst 
+    } else {
+      simpleEstimate <- add_row (simpleEstimate, tree = iTree, treatment = treatment,
+                                 height = iH, circumference = circumference, fJul = fJul,
+                                 fAug = fAug, fOct = fOct, RW = RW, DM = DM, CEst = CEst,
+                                 A = A, V = V)
+    }
+  }
+}
 ```
+
 # References
