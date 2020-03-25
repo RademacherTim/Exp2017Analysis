@@ -531,7 +531,7 @@ png (filename = '../fig/Exp2017LeafDeltaSugar.png', width = 600, height = 500)
   betweenTreeVar <- as_tibble (VarCorr (M3)) [1, 5] [[1]]
   text (labels = expression (paste (sigma [tree])), x = 4.5, y = 0.5, 
         cex = 2, pos = 2, col = '#777777')
-  segments (x0 = 4.5 - betweenTreeVar, x1 = 4.5, y0 = 0.4, 
+  segments (x0 = 4.5 - betweenTreeVar, x1 = 4.5, y0 = 0.3, 
             lwd = 4, col = '#777777')
 dev.off ()
 
@@ -669,7 +669,7 @@ png (filename = '../fig/Exp2017LeafDeltaStarch.png', width = 600, height = 500)
   betweenTreeVar <- as_tibble (VarCorr (M4)) [1, 5] [[1]]
   text (labels = expression (paste (sigma [tree])), x = 2, y = 0.5, 
         cex = 2, pos = 2, col = '#777777')
-  segments (x0 = 2 - betweenTreeVar, x1 = 2, y0 = 0.4, 
+  segments (x0 = 2 - betweenTreeVar, x1 = 2, y0 = 0.3, 
             lwd = 4, col = '#777777')
 dev.off ()
 
@@ -815,7 +815,7 @@ M6 <- lmer (formula = deltaStarch ~ (1 | tree) + date + treatment:date,
             REML = TRUE)
 summary (M6)
 
-# extract the model parameters from the lumen diameter model
+# extract the model parameters from the root starch model
 #----------------------------------------------------------------------------------------
 M06Values <- tibble (beta   = getME (M6, 'beta'), 
                      se     = as.numeric (coef (summary (M6)) [, 2]), 
