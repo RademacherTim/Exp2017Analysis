@@ -33,15 +33,18 @@ $$
 
 The stem respiration rate over this surface area was then determined by multiplication of the instanteanous respiration flux (in $g \, m^{-2} \,day^{-1}$) by the surface area to get the respiration rate (in $g \, day_{-1}$).
 ```{r integrateAcrossSpace}
-# Get the tree measurements of circumference from spreadsheet
+# get the tree measurements of circumference from spreadsheet
+#----------------------------------------------------------------------------------------
 allometricData <- read_excel (path = '/media/tim/dataDisk/PlantGrowth/data/allometry/Exp2017/allometricDataExp2017.xlsx', 
                               sheet = 'allometricData', 
                               na = "NA")
 
-# Define height of the section (h; in m)
+# define height of the section (h; in m)
+#--------------------------------------------------------------------------------------
 h <- 0.1
 
 # create a tibble with the responseVariables
+#--------------------------------------------------------------------------------------
 if (!exists ('responseVariables')) {
   responseVariables <- tibble (year  = 2017,
                                month = c (rep (7, 40), rep (8, 40),
@@ -58,16 +61,19 @@ if (!exists ('responseVariables')) {
                                     resp150 = NA,	resp100 = NA, resp50 = NA, A250 = NA, 
                                     A200 = NA, A150 = NA, A100 = NA, A50 = NA)
 }
-# Loop over each tree create surface area for each section
+# loop over each treeto calculate surface area for each section
+#----------------------------------------------------------------------------------------
 for (r in 1:dim (responseVariables) [1]) {
   iTree <- responseVariables [['tree']] [r]
   
   # Check whether this tree has only one chamber (i.e. control group)
+  #--------------------------------------------------------------------------------------
   if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 1) {
     responseVariables [['A150']] [r] <- 
       allometricData [['cbh150']] [allometricData [['tree']] == iTree] / 100.0 * h
 
   # Check whether this tree has two chambers (i.e. gridled or single compression)
+  #--------------------------------------------------------------------------------------
   } else if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 2 | 
              allometricData [['treatment']] [allometricData [['tree']] == iTree] == 3) {
     responseVariables [['A100']] [r] <- 
@@ -75,7 +81,8 @@ for (r in 1:dim (responseVariables) [1]) {
     responseVariables [['A200']] [r] <- 
       allometricData [['cbh200']] [allometricData [['tree']] == iTree] / 100.0 * h
 
-  # Check whether this tree has three chambers (i.e. double compression)
+  # check whether this tree has three chambers (i.e. double compression)
+  #--------------------------------------------------------------------------------------
   } else if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 4) {
     responseVariables [['A50']]  [r] <- 
       allometricData [['cbh50']]  [allometricData [['tree']] == iTree] / 100.0 * h
@@ -86,45 +93,61 @@ for (r in 1:dim (responseVariables) [1]) {
   }
 }
 
-# process the respiration data
+# read processed the respiration data
 #----------------------------------------------------------------------------------------
 source ('../stemCO2Efflux/readProcessedRespData.R')
+
+# source function to convert units from RespChamberFlux package
+#----------------------------------------------------------------------------------------
+source ('../stemCO2Efflux/RespChamberProc/R/convertUnits.R')
 
 # read 2017 respiration rates derived using RespChamberProc package.
 #----------------------------------------------------------------------------------------
 respRates2017 <- filter (respData, study == 'Exp2017' & tree <= 40); rm (respData)
 
-# Integrate the respiration rate over space 
+# convert flux from micro mol per second per square meter to g per square meter per day 
 #----------------------------------------------------------------------------------------
-respRates2017 <- add_column (respRates2017, flux_g_day = NA)
+respRates2017 [['fluxRaw_g']] <- convert_mumolPers_to_gPerday (respRates2017 [['fluxRaw']])
+
+# integrate the respiration rate over space 
+#----------------------------------------------------------------------------------------
+respRates2017 <- add_column (respRates2017, fluxRaw_g_day = NA)
+
+# loop over all trees to calculate the respiration flux in g per day 
+#----------------------------------------------------------------------------------------
 for (iTree in 1:40) {
-  # Check whether this tree has only one chamber (i.e. control group)
+
+  # check whether this tree has only one chamber (i.e. control group)
   #--------------------------------------------------------------------------------------
   if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 1) {
-    respRates2017 [['flux_g_day']] [respRates2017 [['tree']] == iTree] <- respRates2017 [['flux_g']] [respRates2017 [['tree']] == iTree] * unique (responseVariables [['A150']] [responseVariables [['tree']] == iTree])
+    respRates2017 [['fluxRaw_g_day']] [respRates2017 [['tree']] == iTree] <- respRates2017 [['fluxRaw_g']] [respRates2017 [['tree']] == iTree] * unique (responseVariables [['A150']] [responseVariables [['tree']] == iTree])
+  # check whether this tree has two chambers (i.e. girdled and compressed group)
+  #--------------------------------------------------------------------------------------
   } else if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 2 |
              allometricData [['treatment']] [allometricData [['tree']] == iTree] == 3) {
     condition <- respRates2017 [['tree']] == iTree & respRates2017 [['chamber']] == 1
-    respRates2017 [['flux_g_day']] [condition] <- 
-      respRates2017 [['flux_g']] [condition] * 
+    respRates2017 [['fluxRaw_g_day']] [condition] <- 
+      respRates2017 [['fluxRaw_g']] [condition] * 
       unique (responseVariables [['A100']] [responseVariables [['tree']] == iTree])
 
     condition <- respRates2017 [['tree']] == iTree & respRates2017 [['chamber']] == 2
-    respRates2017 [['flux_g_day']] [condition] <- 
-      respRates2017 [['flux_g']] [condition] * 
+    respRates2017 [['fluxRaw_g_day']] [condition] <- 
+      respRates2017 [['fluxRaw_g']] [condition] * 
       unique (responseVariables [['A200']] [responseVariables [['tree']] == iTree])
+  # check whether this tree has three chambers (i.e. double compressed group)
+  #--------------------------------------------------------------------------------------
   } else if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 4) {
     condition <- respRates2017 [['tree']] == iTree & respRates2017 [['chamber']] == 1
-    respRates2017 [['flux_g_day']] [condition] <- 
-      respRates2017 [['flux_g']] [condition] * 
+    respRates2017 [['fluxRaw_g_day']] [condition] <- 
+      respRates2017 [['fluxRaw_g']] [condition] * 
       unique (responseVariables [['A50']] [responseVariables [['tree']] == iTree])
     condition <- respRates2017 [['tree']] == iTree & respRates2017 [['chamber']] == 2
-    respRates2017 [['flux_g_day']] [condition] <- 
-      respRates2017 [['flux_g']] [condition] * 
+    respRates2017 [['fluxRaw_g_day']] [condition] <- 
+      respRates2017 [['fluxRaw_g']] [condition] * 
       unique (responseVariables [['A150']] [responseVariables [['tree']] == iTree])
     condition <- respRates2017 [['tree']] == iTree & respRates2017 [['chamber']] == 3
-    respRates2017 [['flux_g_day']] [condition] <- 
-      respRates2017 [['flux_g']] [condition] * 
+    respRates2017 [['fluxRaw_g_day']] [condition] <- 
+      respRates2017 [['fluxRaw_g']] [condition] * 
       unique (responseVariables [['A250']] [responseVariables [['tree']] == iTree])
   }
 }
@@ -142,36 +165,39 @@ $$
 , where n is the number of weekly sampling dates during each period.
 
 ``` {r temporalIntegration}
-# Set period boundaries
+# set period boundaries
+#----------------------------------------------------------------------------------------
 boundaries <- as.POSIXct (c ('2017-07-05','2017-08-10','2017-10-09','2017-11-01'), tz = 'EST')
 
-# Calculate the geometric mean for each period for each stem section
+# calculate the geometric mean for each period for each stem section
+#----------------------------------------------------------------------------------------
 for (period in 1:4) {
   if (period == 1) {
-    periodData <- filter (respRates2017, respRates2017 [['date']] <= boundaries [period])
-    pLen <- boundaries [period] - as.POSIXct (min (periodData [['date']]), tz = 'EST')
+    periodData <- filter (respRates2017, respRates2017 [['timestamp']] <= boundaries [period])
+    pLen <- boundaries [period] - as.POSIXct (min (periodData [['timestamp']]), tz = 'EST')
   } else if (period > 1 & period < 5) {
-    periodData <- filter (respRates2017, respRates2017 [['date']] > boundaries [period-1] &
-                                         respRates2017 [['date']] <= boundaries [period])
+    periodData <- filter (respRates2017, respRates2017 [['timestamp']] > boundaries [period-1] &
+                                         respRates2017 [['timestamp']] <= boundaries [period])
     pLen <- boundaries [period] - boundaries [period-1]
-  } else {
-    periodData <- filter (respRates2017, respRates2017$date >  boundaries [period])
-    pLen <- as.POSIXct (max (periodData$date, na.rm = T), tz = 'EST') - boundaries [period]
-  }
+  } 
   
-  # Aggregate the mean respiration over each period by chamber and tree (g day-1)
+  # aggregate the mean respiration over each period by chamber and tree (g day-1)
+  #--------------------------------------------------------------------------------------
   tmpResp <- periodData %>% 
     group_by (tree, chamber) %>% 
-    summarize (meanResp = mean (flux_g_day, na.rm = T))
+    summarize (meanResp = mean (fluxRaw_g_day, na.rm = T))
   
-  # Add a period column to temporary tibble
+  # add a period column to temporary tibble
+  #--------------------------------------------------------------------------------------
   tmpResp$period <- period
   
-  # Multiply mean respiration rate by length of period to get the total respiratory carbon loss (g period-1)
+  # multiply mean respiration rate by length of period to get the total respiratory carbon loss (g period-1)
+  #--------------------------------------------------------------------------------------
   tmpResp$totalResp <- tmpResp$meanResp * as.numeric (pLen, 'days')
   
-  # Add the period specific data to the responseVariables tibble
-  for (iTree in 1:41){
+  # add the period specific data to the responseVariables tibble
+  #--------------------------------------------------------------------------------------
+  for (iTree in 1:40){
     condition <- responseVariables [['month']] == month (boundaries [period]) &
                  responseVariables [['tree']]  == iTree
     if (allometricData [['treatment']] [iTree] == 1) {
@@ -197,15 +223,19 @@ for (period in 1:4) {
 
 ``` {r plotResp}
 # add treatments to the responseVariables
-responseVariables <- add_column (responseVariables, treatment = rep (allometricData [['treatment']], 4))
+#----------------------------------------------------------------------------------------
+responseVariables <- add_column (responseVariables, treatment = rep (allometricData [['treatment']] [1:40], 4))
 
 # calculate mean
+#----------------------------------------------------------------------------------------
 suppressWarnings (tmp50  <- responseVariables %>% group_by (month, treatment) %>% summarise (mean = mean (resp50, na.rm = T), min = min (resp50, na.rm = T), max = max (resp50, na.rm = T)))
 suppressWarnings (tmp100 <- responseVariables %>% group_by (month, treatment) %>% summarise (mean = mean (resp100, na.rm = T), min = min (resp100, na.rm = T), max = max (resp100, na.rm = T)))
 suppressWarnings (tmp150 <- responseVariables %>% group_by (month, treatment) %>% summarise (mean = mean (resp150, na.rm = T), min = min (resp150, na.rm = T), max = max (resp150, na.rm = T)))
 suppressWarnings (tmp200 <- responseVariables %>% group_by (month, treatment) %>% summarise (mean = mean (resp200, na.rm = T), min = min (resp200, na.rm = T), max = max (resp200, na.rm = T)))
 suppressWarnings (tmp250 <- responseVariables %>% group_by (month, treatment) %>% summarise (mean = mean (resp250, na.rm = T), min = min (resp250, na.rm = T), max = max (resp250, na.rm = T)))
 
+# plot respiration losses
+#----------------------------------------------------------------------------------------
 par (mfrow = c (2, 2))
 par (mar = c (5,5,1,1))
 plot (x = tmp150 [['month']] [tmp150 [['treatment']] == 1],
@@ -285,8 +315,5 @@ polygon (x = c (tmp250 [['month']] [tmp250 [['treatment']] == 4],
                rev (tmp250 [['min']] [tmp250 [['treatment']] == 4])),
         col = '#5C4A7233', lty = 0)
 ```
-
-### To-do list and comments
-- add the 2018 data and therefore a fifth period.
 
 # References
