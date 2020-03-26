@@ -15,7 +15,7 @@ library ('lubridate')
 library ('googledrive')
 
 # set colour scheme for control, girdled, compressed, double compressed and chilled
-colours <- c ('#91b9a4','#C0334D','#F18904','#5C4A72','#23345C')
+colours <- c ('#91b9a4','#C0334D','#F18904','#5C4A72')
 ```
 
 ## Estimating respiratory losses for stem sections
@@ -34,7 +34,7 @@ $$
 The stem respiration rate over this surface area was then determined by multiplication of the instanteanous respiration flux (in $g \, m^{-2} \,day^{-1}$) by the surface area to get the respiration rate (in $g \, day_{-1}$).
 ```{r integrateAcrossSpace}
 # Get the tree measurements of circumference from spreadsheet
-allometricData <- read_excel (path = '/media/tim/dataDisk/PlantGrowth/data/allometry/allometricDataExp2017.xlsx', 
+allometricData <- read_excel (path = '/media/tim/dataDisk/PlantGrowth/data/allometry/Exp2017/allometricDataExp2017.xlsx', 
                               sheet = 'allometricData', 
                               na = "NA")
 
@@ -86,15 +86,20 @@ for (r in 1:dim (responseVariables) [1]) {
   }
 }
 
-# Read 2017 respiration rates derived using RespChamberProc package.
-respRates2017 <- read_csv ('../data/resp_compression_2017_11_01.csv',      
-                           col_types = cols ())
-respRates2017 <- respRates2017 [-1, ]
+# process the respiration data
+#----------------------------------------------------------------------------------------
+source ('../stemCO2Efflux/readProcessedRespData.R')
+
+# read 2017 respiration rates derived using RespChamberProc package.
+#----------------------------------------------------------------------------------------
+respRates2017 <- filter (respData, study == 'Exp2017' & tree <= 40); rm (respData)
 
 # Integrate the respiration rate over space 
+#----------------------------------------------------------------------------------------
 respRates2017 <- add_column (respRates2017, flux_g_day = NA)
 for (iTree in 1:40) {
   # Check whether this tree has only one chamber (i.e. control group)
+  #--------------------------------------------------------------------------------------
   if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 1) {
     respRates2017 [['flux_g_day']] [respRates2017 [['tree']] == iTree] <- respRates2017 [['flux_g']] [respRates2017 [['tree']] == iTree] * unique (responseVariables [['A150']] [responseVariables [['tree']] == iTree])
   } else if (allometricData [['treatment']] [allometricData [['tree']] == iTree] == 2 |
