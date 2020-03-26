@@ -8,6 +8,7 @@
 library ('lme4')
 library ('tidyverse')
 library ('readxl') 
+library ('lubridate')
 
 # load waterpotential data
 #----------------------------------------------------------------------------------------
@@ -31,15 +32,30 @@ phiBranches <- read_excel (path = '../data/waterPotential/waterPotentialMeasurem
 # wrangle data
 #----------------------------------------------------------------------------------------
 phi <- pivot_longer (phiNeedles, cols = 3:dim (phiNeedles) [2], values_to = 'needles',
-                     names_to = 'week')
+                     names_to = 'week', names_prefix = 'week')
 phi <- merge (phi, pivot_longer (phiBranches, cols = 3:dim (phiBranches) [2], 
-                                 names_to = 'week', values_to = 'branches'))
+                                 names_to = 'week', values_to = 'branches', 
+                                 names_prefix = 'week'))
+phi [['tree']] <- factor (phi [['tree']])
+phi [['treatment']] <- factor (phi [['treatment']])
 
-#  fit mixed effects model with tree as random effect
+
+# replace week count with dates
 #----------------------------------------------------------------------------------------
-M1 <- lmer (formula = needles ~ (1 | tree) + treatment, 
+phi [['date']] <- factor (as_date (as.numeric (phi [['week']]) * 7 + as_date ('2017-07-03')))
+
+#  fit mixed effects model for needle water potential with tree as random effect
+#----------------------------------------------------------------------------------------
+M1 <- lmer (formula = needles ~ (1 | tree) + date + date:treatment, 
             data = phi,
             REML = TRUE)
 summary (M1)
+
+#  fit mixed effects model for branch water potential with tree as random effect
+#----------------------------------------------------------------------------------------
+M2 <- lmer (formula = branches ~ (1 | tree) + date + date:treatment, 
+            data = phi,
+            REML = TRUE)
+summary (M2)
 
 #========================================================================================
