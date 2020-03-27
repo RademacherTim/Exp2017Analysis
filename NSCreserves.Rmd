@@ -69,8 +69,10 @@ allometricData <- add_column (allometricData,
 ```
 
 ``` {r getSugarConcentration}
-# Read the sugar and starch concentration (means for needles and roots and first centimeter for wood sections)
-suppressMessages (source ('/home/trademacehr/projects/PlantGrowth/nonstructuralCarbon/processExpNSCData.R'))
+# Read the sugar and starch concentration for needles, roots and first centimeter of wood
+#----------------------------------------------------------------------------------------
+suppressMessages (source ('/home/tim/projects/PlantGrowth/nonstructuralCarbon/processExpNSCData.R'))
+
 
 # Create responseVariables tibble
 responseVariables <- tibble (year = 2017,

@@ -4,10 +4,11 @@
 #----------------------------------------------------------------------------------------
 
 # load dependencies
+#----------------------------------------------------------------------------------------
 library ('lme4')
 library ('tidyverse')
 
-# Read the sugar and starch concentration (means for needles and roots and first centimeter for wood sections)
+# read the sugar and starch concentration for needles, roots and first cm of wood
 #----------------------------------------------------------------------------------------
 suppressMessages (source ('/home/tim/projects/PlantGrowth/nonstructuralCarbon/processExpNSCData.R'))
 
