@@ -3,8 +3,8 @@ title: 'Scaling nonstructural carbon reserves (SI 2)'
 author: Tim Rademacher
 date: "06/09/2019"
 output: html_document
-bibliography: "/home/trademacehr/projects/PlantGrowth/bib/Exp2017.bib"
-csl: "/home/trademacehr/projects/PlantGrowth/bib/harvard.csl"
+bibliography: "/home/tim/projects/PlantGrowth/bib/Exp2017.bib"
+csl: "/home/tim/projects/PlantGrowth/bib/harvard.csl"
 ---
 
 ```{r setup, include=FALSE}
@@ -19,7 +19,7 @@ To estimate changes in soluble sugars and starch (measured as glucose equivalent
 
 ## For stem sections
 
-We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith [@hoch_non-structural_2003;furze_whole-tree_2018], we only consider nonstructural carbon reserves in the first centimeter underlying the bark for each stem section. We limit our analysis to these shallow reserves, because deeper reserves are assumed to be more difficult [@REF], and thus less likely, to be accessed on timescales considered here (i.e. months).
+We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith [@hoch_non-structural_2003;furze_whole-tree_2018], we only consider nonstructural carbon reserves in the first centimeter underlying the bark for each stem section. We limit our analysis to these shallow reserves, because deeper reserves are assumed to less accessible [@carbone_age_2013],especially on timescales considered here (i.e. months).
 <!-- The decline in @hoch_non-structural_2003 is actually more exponential than linear, but let's start with linear. Morgan might have better data for Pinus strobus that can help me scale more adequately.--> 
 
 Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an accurate average of these reserves, we derive the total mass of nonstructural carbon in sugars and strach ($M_{sugar,i}$ and $M_{starch,i}$, respectively) by multiplying the dry matter of the hollow cylinder ($M_{i}$) of each stem section $i$ with the section's measured concentrations of sugar and starch ($c_{sugar,i}$ and $c_{starch,i}$, respectively). For sugar this is expressed as:
@@ -27,15 +27,16 @@ Assuming that the bulk of easily accessible nonstructural carbon can be found in
 $$
  M_{sugar,i} = c_{sugar,i} \times M_{i} = V_{i} \times \rho_w \times c_{sugar,i}
 $$
-The mass of a hollow cylinder representing the outeter most centimeter of material is derived from its volume ($V_{i}$) and an average density of the wood ($\rho_w$). In turn the volume calculated using a height ($h$) of 10 cm and the section's circumference ($cbh_{i}$; in $cm$), which was measured in the field using a tape measure. Here, 289.9$\pm$ 40.4$kg \, m^{-3}$ was used as for the density of wood, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film [@bjoerklund_scientific_2019].
+The mass of a hollow cylinder representing the outeter most centimeter of material is derived from its volume ($V_{i}$) and an average density of the wood ($\rho_w$). In turn the volume calculated using a height ($h$) of 10 cm and the section's circumference ($cbh_{i}$; in $cm$), which was measured in the field using a tape measure. Here, 289.9$\pm$ 40.4$kg \, m^{-3}$ was used as for the density of wood, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film [@bjorklund_scientific_2019].
 
 $$
 M_{i} = V_{i} \times \rho_{w} =  \pi \times h \times \rho_{w} \Big (\Big (\frac {cbh_{i}}{2 \pi}\Big)^2 - \Big (\frac {cbh_{i}}{2 \pi} - 0.01\Big)^2 \Big)
 $$
 
 ``` {r calculateStemSectionNSCs, warning = FALSE}
-# Get the tree measurements of circumference from spreadsheet
-allometricData <- read_excel (path = '/media/TREE/PlantGrowth/data/allometry/allometricDataExp2017.xlsx', 
+# get the tree measurements of circumference from spreadsheet
+#----------------------------------------------------------------------------------------
+allometricData <- read_excel (path = '/media/tim/dataDisk/PlantGrowth/data/allometry/Exp2017/allometricDataExp2017.xlsx', 
                               sheet = 'allometricData', 
                               na = "NA")
 
@@ -59,7 +60,8 @@ allometricData <- add_column (allometricData,
                           V250 = (allometricData[['cbh250']]/(100.0*2.0*pi))^2.0*pi*h - 
                                  ((allometricData[['cbh250']]/(100.0*2.0*pi)-0.01)^2.0*pi*h))
 
-# Determine the mass of each stem section (Msection, kg)
+# determine the mass of each stem section (Msection, kg)
+#----------------------------------------------------------------------------------------
 allometricData <- add_column (allometricData,
                           M50  = allometricData [['V50']]  * rho_w,
                           M100 = allometricData [['V100']] * rho_w,
@@ -69,12 +71,18 @@ allometricData <- add_column (allometricData,
 ```
 
 ``` {r getSugarConcentration}
-# Read the sugar and starch concentration for needles, roots and first centimeter of wood
+# read the sugar and starch concentration for needles, roots and first centimeter of wood
 #----------------------------------------------------------------------------------------
-suppressMessages (source ('/home/tim/projects/PlantGrowth/nonstructuralCarbon/processExpNSCData.R'))
+suppressMessages (source (file = '/home/tim/projects/PlantGrowth/nonstructuralCarbon/processExpNSCData.R'))
 
+# select only relevant data
+#----------------------------------------------------------------------------------------
+leafData2017 <- filter (leafData2017, treeID <= 40)
+rootData2017 <- filter (rootData2017, treeID <= 40)
+stemData2017 <- filter (stemData2017, treeID <= 40)
 
-# Create responseVariables tibble
+# create responseVariables tibble
+#----------------------------------------------------------------------------------------
 responseVariables <- tibble (year = 2017,
                              month    = c (rep (7, 40), rep (8, 40), 
                                            rep (10, 40), rep (11, 40)),
@@ -216,17 +224,20 @@ Root biomass was also estimated as a fraction of total aboveground biomass with 
 For each organ and the entire tree we multiplied the respecitve biomass with the average sugar and starch concentration (in $% dry weight$) derived from colourimetric assays. The total nonstructural carbon estimates are the sum of the mass of sugar and starch. 
 
 ```{r totalFoliage reserves}
-# Determine tissue sugar reserves
+# determine tissue sugar reserves
+#----------------------------------------------------------------------------------------
 responseVariables [['sugarRoot']]   <- rootData2017 [['sugar']] * rootMass
 responseVariables [['sugarNeedle']] <- leafData2017 [['sugar']] * foliMass
 
-# Determine tissue starch reserves
+# determine tissue starch reserves
+#----------------------------------------------------------------------------------------
 responseVariables [['starchRoot']]   <- rootData2017 [['starch']] * rootMass
 responseVariables [['starchNeedle']] <- leafData2017 [['starch']] * foliMass
 # TR I could also calculate sugar in branches and bark in the future with the samples we still have at NAU. Furthermore, I could average the stem section of the control to derive stem values.
 
-# Export data if necessary
-WRITE <- FALSE
+# export data if necessary
+#----------------------------------------------------------------------------------------
+WRITE <- TRUE
 if (WRITE) {
   write_csv (tibble (responseVariables [['sugarNeedle']]),  path = 'sugarNeedles.csv')
   write_csv (tibble (responseVariables [['starchNeedle']]), path = 'starchNeedles.csv')

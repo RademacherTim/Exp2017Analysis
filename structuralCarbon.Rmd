@@ -536,7 +536,13 @@ f_Oct <- (ringWidthsOct [4:8] / ringWidthsOct [14:18]) * ringWidthsNov [14:18] /
 
 # standardised ring width at the end of the season
 #----------------------------------------------------------------------------------------
-standardisedRW2017 <- ringWidthsNov [4:8] / ringWidthsNov [14:18]
+standardisedRW2017 <- rbind (ringWidthsNov [4:8] / ringWidthsNov [14:18],
+                             ringWidthsOct [4:8] / ringWidthsOct [14:18],
+                             ringWidthsAug [4:8] / ringWidthsAug [14:18],
+                             ringWidthsJul [4:8] / ringWidthsJul [14:18])
+standardisedRW2017 <- add_column (standardisedRW2017, 
+                                  month = c (rep (11, 40), rep (10, 40), rep (8, 40), 
+                                             rep (7, 40)))
   
 WRITE <- FALSE
 if (WRITE) {

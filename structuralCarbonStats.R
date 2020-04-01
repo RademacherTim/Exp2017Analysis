@@ -17,7 +17,7 @@ standardisedRW2017 <- read_csv (file = 'standardisedRW2017.csv',
 # wranlge standardised ring width at the end of the experiment
 #----------------------------------------------------------------------------------------
 standardisedRW2017 <- add_column (standardisedRW2017, 
-                                  treatment = allometricData [['treatment']] [1:40])
+                                  treatment = rep (allometricData [['treatment']] [1:40], 4))
 RW2017 <- tibble (tree = 1, height = 'C', treatment = 1, 
                   RW = standardisedRW2017 [['RW2017at150']] [1])
 for (i in 2:40) {
