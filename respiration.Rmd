@@ -218,6 +218,10 @@ for (period in 1:4) {
     } 
   }
 }
+
+# write response variable as a csv file
+#----------------------------------------------------------------------------------------
+WRITE <- TRUE; if (WRITE) write_csv (x = responseVariables, path = 'respiratoryLosses.csv')
 ```
 
 
@@ -228,11 +232,26 @@ responseVariables <- add_column (responseVariables, treatment = rep (allometricD
 
 # calculate mean
 #----------------------------------------------------------------------------------------
-suppressWarnings (tmp50  <- responseVariables %>% group_by (month, treatment) %>% summarise (mean = mean (resp50, na.rm = T), min = min (resp50, na.rm = T), max = max (resp50, na.rm = T)))
-suppressWarnings (tmp100 <- responseVariables %>% group_by (month, treatment) %>% summarise (mean = mean (resp100, na.rm = T), min = min (resp100, na.rm = T), max = max (resp100, na.rm = T)))
-suppressWarnings (tmp150 <- responseVariables %>% group_by (month, treatment) %>% summarise (mean = mean (resp150, na.rm = T), min = min (resp150, na.rm = T), max = max (resp150, na.rm = T)))
-suppressWarnings (tmp200 <- responseVariables %>% group_by (month, treatment) %>% summarise (mean = mean (resp200, na.rm = T), min = min (resp200, na.rm = T), max = max (resp200, na.rm = T)))
-suppressWarnings (tmp250 <- responseVariables %>% group_by (month, treatment) %>% summarise (mean = mean (resp250, na.rm = T), min = min (resp250, na.rm = T), max = max (resp250, na.rm = T)))
+suppressWarnings (tmp50  <- responseVariables %>% group_by (month, treatment) %>% 
+                                                  summarise (mean = mean (resp50, na.rm = T), 
+                                                             min = min (resp50, na.rm = T), 
+                                                             max = max (resp50, na.rm = T)))
+suppressWarnings (tmp100 <- responseVariables %>% group_by (month, treatment) %>% 
+                                                  summarise (mean = mean (resp100, na.rm = T), 
+                                                             min = min (resp100, na.rm = T), 
+                                                             max = max (resp100, na.rm = T)))
+suppressWarnings (tmp150 <- responseVariables %>% group_by (month, treatment) %>% 
+                                                  summarise (mean = mean (resp150, na.rm = T), 
+                                                             min = min (resp150, na.rm = T), 
+                                                             max = max (resp150, na.rm = T)))
+suppressWarnings (tmp200 <- responseVariables %>% group_by (month, treatment) %>% 
+                                                  summarise (mean = mean (resp200, na.rm = T), 
+                                                             min = min (resp200, na.rm = T), 
+                                                             max = max (resp200, na.rm = T)))
+suppressWarnings (tmp250 <- responseVariables %>% group_by (month, treatment) %>% 
+                                                  summarise (mean = mean (resp250, na.rm = T), 
+                                                             min = min (resp250, na.rm = T), 
+                                                             max = max (resp250, na.rm = T)))
 
 # plot respiration losses
 #----------------------------------------------------------------------------------------

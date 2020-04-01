@@ -1009,8 +1009,8 @@ circumferentialData <- tibble (tree = rep (1:40, 4),
                                            rep (as_date ('2017-08-09'), 40), 
                                            rep (as_date ('2017-10-09'), 40), 
                                            rep (as_date ('2017-11-03'), 40)),
-                               CWAat050 = NA, CWAat100 = NA, CWAat150 = NA, 
-                               CWAat200 = NA, CWAat250 = NA) 
+                               CWAat250 = NA, CWAat200 = NA, CWAat150 = NA, 
+                               CWAat100 = NA, CWAat050 = NA) 
 
 # loop over trees
 for (iTree in 1:40) {
@@ -1098,7 +1098,8 @@ volumeData <- tibble (tree = rep (1:40, 4),
                                   rep (as_date ('2017-08-09'), 40), 
                                   rep (as_date ('2017-10-09'), 40), 
                                   rep (as_date ('2017-11-03'), 40)),
-                      CWVat050 = NA, CWVat100 = NA, CWVat150 = NA, CWVat200 = NA, CWVat250 = NA)
+                      CWVat250 = NA, CWVat200 = NA, CWVat150 = NA, CWVat100 = NA, 
+                      CWVat050 = NA)
 
 # cell wall volume (mm3)
 #----------------------------------------------------------------------------------------
@@ -1113,8 +1114,8 @@ dryMatterData <- tibble (tree = rep (1:40, 4),
                                      rep (as_date ('2017-08-09'), 40), 
                                      rep (as_date ('2017-10-09'), 40), 
                                      rep (as_date ('2017-11-03'), 40)),
-                         DMat050 = NA, DMat100 = NA, DMat150 = NA, DMat200 = NA, 
-                         DMat250 = NA)
+                         DMat250 = NA, DMat200 = NA, DMat150 = NA, DMat100 = NA, 
+                         DMat050 = NA)
 
 # cell wall density (kg m-3) or (g cm-3)
 #----------------------------------------------------------------------------------------
@@ -1131,9 +1132,9 @@ carbonContentData <- tibble (tree = rep (1:40, 4),
                                          rep (as_date ('2017-08-09'), 40), 
                                          rep (as_date ('2017-10-09'), 40), 
                                          rep (as_date ('2017-11-03'), 40)),
-                             structuralCarbonat050 = NA, structuralCarbonat100 = NA, 
-                             structuralCarbonat150 = NA, structuralCarbonat200 = NA, 
-                             structuralCarbonat250 = NA)
+                             structuralCarbonat250 = NA, structuralCarbonat200 = NA, 
+                             structuralCarbonat150 = NA, structuralCarbonat100 = NA, 
+                             structuralCarbonat050 = NA)
 
 # Carbon content of white pine wood (%)
 #----------------------------------------------------------------------------------------
