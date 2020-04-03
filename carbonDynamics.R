@@ -9,6 +9,11 @@ library ('tidyverse')
 library ('lubridate')
 library ('readxl')
 
+# create colours array 
+#---------------------------------------------------------------------------------------
+colours <- tibble (colour   = c ('#8073ac','#e08214','#5aae61'), 
+                   variable = c ('NSC'    ,'resp'   ,'SC'))
+
 # read file with response variables 
 #----------------------------------------------------------------------------------------
 data <- read_csv ('/home/tim/Downloads/2017ExperimentalData - responseVariables.csv',
@@ -91,13 +96,14 @@ summaryData <- allData %>% group_by (treatment, height, month) %>%
 
 # create panel of three barplot for period changes 
 #----------------------------------------------------------------------------------------
-par (mfrow = c (1, 3))
+png (filename = '../fig/Exp2017carbonDynamics.png', width = 800, height = 400)
+layout (matrix (1:3, nrow = 1, byrow = TRUE), width = c (1.3,1,1))
 for (m in c ('august','october','november')) {
 
   # get two matrices, one for structural carbon gain
   #----------------------------------------------------------------------------------------
   summaryDataPos <- summaryData %>% ungroup %>% filter (month == m) %>% 
-                    select (meanResp, meanSC, meanSugar, meanStarch)
+                    select (meanResp, meanSC, meanNSC)
   summaryLabels <- summaryData %>% filter (month == m) %>% 
                    select (treatment, height)
   summaryLabels <- summaryLabels [8:1, ]
@@ -107,38 +113,45 @@ for (m in c ('august','october','november')) {
   
   # Switch order of rows
   #----------------------------------------------------------------------------------------
-  summaryDataPos <- summaryDataPos [, c (4, 3, 2, 1)]
-  summaryDataNeg <- summaryDataNeg [, c (3, 4, 1, 2)]
+  summaryDataPos <- summaryDataPos [, 3:1]
+  summaryDataNeg <- summaryDataNeg [, 3:1]
 
   # draw stacked barplot
   #----------------------------------------------------------------------------------------
-  if (m == 'august') {par (mar = c (5, 5, 2, 1))} else {par (mar = c (5, 1, 2, 1))}
+  if (m == 'august') {par (mar = c (5, 6, 2, 1))} else {par (mar = c (5, 1, 2, 1))}
   barplot (height = t (as.matrix (summaryDataPos)), horiz = TRUE, 
-           xlab ='change (g Carbon)', xlim = c (-20, 25), 
-           border = 0, col = c ('#542788','#b2abd2','#1b7837','#b35806'),
-           space = c (1,2,1,2,1,2,1,1))
+           xlab ='', xlim = c (-20, 25), ylim = c (0, 20.5), axes = F,
+           border = 0, col = colours [['colour']] [c (1, 3, 2)],
+           space = c (1,2,1,2,1,2,1,1), cex.axis = 1.5, cex = 1.5)
   barplot (height = t (as.matrix (summaryDataNeg)), horiz = TRUE, add = TRUE,
-           border = 0, col = c ('#542788','#b2abd2','#b35806','#1b7837'),
-           space = c (1,2,1,2,1,2,1,1))
+           border = 0, col = colours [['colour']] [c (1, 3, 2)],
+           space = c (1,2,1,2,1,2,1,1), axes = FALSE)
+  abline (v = 0, col = '#99999999', lwd = 2)
+  axis (side = 1, cex.axis = 1.5)
+  mtext (side = 1, line = 3, text = 'carbon increment (g)')
   if (m == 'august') {
     axis (side = 2, at = c (1.5, 4.5, 6.5, 9.5, 11.5, 14.5, 16.5, 18.5), las = 1,
-          labels = c ('C','B','A','B','A','B','M','A'))
-    mtext (side = 2, line = 2, at = c(1.5, 5.5, 10.5, 16.5), 
+          labels = c ('C','B','A','B','A','B','M','A'), cex.axis = 1.5)
+    mtext (side = 2, line = 2.5, at = c(1.5, 5.5, 10.5, 16.5), 
            text = c ('control','girdled','compressed','double \n compressed'))
-  }
-  abline (v = 0, col = '#666666')
-  if (m == 'august') {
-    descriptor <- expression (paste (1^st,' month'))
+    descriptor <- expression (paste ('1'))
   } else if (m == 'october') {
-    descriptor <- expression (paste (2^nd, ' & ', 3^rd,' month'))
+    descriptor <- expression (paste ('2'))
   } else {
-    descriptor <- expression (paste (4^th,' month'))
+    descriptor <- expression (paste ('3'))
+    # text (x = -13, y = 19, labels = 'respiratory loss', col = '#b35806', cex = 1.0)
+    # text (x =  10, y = 19, labels = 'growth', col = '#1b7837', cex = 1.0)
+    # text (x =  -8, y = 17.3, labels = expression (paste ('sugar')), col = '#542788', cex = 1.0)
+    # text (x =  -8, y = 15.7, labels = expression (paste ('starch')), col = '#b2abd2', cex = 1.0)
   }
-  mtext (side = 3, at = -12, text = descriptor, col = '#333333')
+  text (x = -17, y = 20, pos = 4, labels = descriptor, col = '#003e74', cex = 2)
+  
+  # add line to separate the panels/plots
+  if (m != 'november') abline (v = 25, col = '#333333', lwd = 2)
 }
-legend ('right', legend = c ('respiratory loss', expression (paste (delta, ' starch')), 
-                             expression (paste (delta, ' sugar')),'growth'),
-        fill = c ('#b35806','#542788','#b2abd2','#1b7837'), box.lty = 0, border = 0, 
-        bg = 'transparent', cex = 0.8)
+# legend ('right', legend = c ('respiratory loss', expression (paste (delta, ' starch')), 
+#                              expression (paste (delta, ' sugar')),'growth'),
+#         fill = c ('#b35806','#542788','#b2abd2','#1b7837'), box.lty = 0, border = 0, 
+#         bg = 'transparent', cex = 0.8)
+dev.off ()
 #========================================================================================
-
