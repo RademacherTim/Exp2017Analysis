@@ -86,16 +86,23 @@ png (filename = '../fig/Exp2017StemCO2Efflux.png', width = 600, height = 400)
   plot (x = M01Values [['date']] [M01Values [['treatment']] == 1],
         y = M01Values [['beta']] [M01Values [['treatment']] == 1],
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (-0.3, 5.5),
-        typ = 'l', col = colours [1], axes = FALSE, cex.lab = 1.2,
+        typ = 'l', col = tColours [['colour']] [1], axes = FALSE, cex.lab = 1.2,
         las = 1, xlab = '', lwd = 2,
         ylab = expression (paste (CO[2],' efflux (',mu,' mol ',s^-1, m^-2,')')))
+  
+  # draw vertical lines for critical dates
+  #--------------------------------------------------------------------------------------
+  abline (v = as_date ('2017-07-03'), col = '#99999999', lty = 2) # start date
+  
+  # add shading for uncertainty (plus minus estiamted standard error)
+  #--------------------------------------------------------------------------------------
   polygon (x = c (M01Values [['date']] [M01Values [['treatment']] == 1], 
                   rev (M01Values [['date']] [M01Values [['treatment']] == 1])),
            y = c (M01Values [['beta']] [M01Values [['treatment']] == 1] - 
                   M01Values [['se']] [M01Values [['treatment']] == 1], 
                   rev (M01Values [['beta']] [M01Values [['treatment']] == 1] + 
                        M01Values [['se']] [M01Values [['treatment']] == 1])), 
-                  col = addOpacity (colours [1], 0.4), lty = 0)
+                  col = addOpacity (tColours [['colour']] [1], 0.4), lty = 0)
   
   # add y-axis 
   axis (side = 2, at = 0:5, las = 1, cex.axis = 1.3)
@@ -105,11 +112,12 @@ png (filename = '../fig/Exp2017StemCO2Efflux.png', width = 600, height = 400)
         cex = 1.5)
   
   # draw separating line
+  #--------------------------------------------------------------------------------------
   abline (v = as_date ('2017-11-15'), col = '#999999')
   abline (h = -0.5, col = '#999999')
   
   # add legend 
-  legend (x = as_date ('2017-09-20'), y = 5.4, box.lty = 0, lwd = 2, lty = c (1, 2, 4, 3), 
+  legend (x = as_date ('2017-09-10'), y = 5.4, box.lty = 0, lwd = 2, lty = c (1, 2, 4, 3), 
           legend = c ('control','above','inbetween','below'), col = '#999999', 
           bg = 'transparent')
   
@@ -121,6 +129,11 @@ png (filename = '../fig/Exp2017StemCO2Efflux.png', width = 600, height = 400)
         typ = 'l', col = '#999999', axes = FALSE, 
         las = 1, xlab = '', lwd = 1,
         ylab = '')
+  
+  # draw vertical lines for critical dates
+  #--------------------------------------------------------------------------------------
+  abline (v = as_date ('2017-07-03'), col = '#99999999', lty = 2) # start date
+  
   polygon (x = c (M01Values [['date']] [M01Values [['treatment']] == 1], 
                   rev (M01Values [['date']] [M01Values [['treatment']] == 1])),
            y = c (M01Values [['beta']] [M01Values [['treatment']] == 1] - 
@@ -131,21 +144,21 @@ png (filename = '../fig/Exp2017StemCO2Efflux.png', width = 600, height = 400)
   con <- M01Values [['treatment']] == 2 & M01Values [['height']] == 25
   lines (x = M01Values [['date']] [con],
          y = M01Values [['beta']] [con],
-         pch = 25, col = colours [2], lty = 3, lwd = 2)
+         pch = 25, col = tColours [['colour']] [2], lty = 3, lwd = 2)
   polygon (x = c (M01Values [['date']] [con], rev (M01Values [['date']] [con])),
            y = c (M01Values [['beta']] [con] - M01Values [['se']] [con], 
                   rev (M01Values [['beta']] [con] + M01Values [['se']] [con])), 
-           col = addOpacity (colours [2], 0.3), lty = 0)
+           col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
   
   # plot above the girdle 
   con <- M01Values [['treatment']] == 2 & M01Values [['height']] == 24
   lines (x = M01Values [['date']] [con],
          y = M01Values [['beta']] [con],
-         pch = 24, col = colours [2], lty = 2, lwd = 2)
+         pch = 24, col = tColours [['colour']] [2], lty = 2, lwd = 2)
   polygon (x = c (M01Values [['date']] [con], rev (M01Values [['date']] [con])),
            y = c (M01Values [['beta']] [con] - M01Values [['se']] [con], 
                   rev (M01Values [['beta']] [con] + M01Values [['se']] [con])), 
-           col = addOpacity (colours [2], 0.3), lty = 0)
+           col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
   
   # add panel descriptor
   text (x = as_date ('2017-06-20'), y = 5.4, labels = 'girdled', pos = 4, col = '#333333', 
@@ -162,6 +175,12 @@ png (filename = '../fig/Exp2017StemCO2Efflux.png', width = 600, height = 400)
         typ = 'l', col = '#999999', axes = FALSE, cex.lab = 1.2,
         las = 1, xlab = 'date', lwd = 1,
         ylab = expression (paste (CO[2],' efflux (',mu,' mol ',s^-1, m^-2,')')))
+  
+  # draw vertical lines for critical dates
+  #--------------------------------------------------------------------------------------
+  abline (v = as_date ('2017-07-03'), col = '#99999999', lty = 2) # start date
+  abline (v = as_date ('2017-08-09'), col = '#99999999', lty = 2) # end date double compression
+  
   polygon (x = c (M01Values [['date']] [M01Values [['treatment']] == 1], 
                   rev (M01Values [['date']] [M01Values [['treatment']] == 1])),
            y = c (M01Values [['beta']] [M01Values [['treatment']] == 1] - 
@@ -172,21 +191,21 @@ png (filename = '../fig/Exp2017StemCO2Efflux.png', width = 600, height = 400)
   con <- M01Values [['treatment']] == 3 & M01Values [['height']] == 25
   lines (x = M01Values [['date']] [con],
          y = M01Values [['beta']] [con],
-         pch = 25, col = colours [3], lty = 3, lwd = 2)
+         pch = 25, col = tColours [['colour']] [3], lty = 3, lwd = 2)
   polygon (x = c (M01Values [['date']] [con], rev (M01Values [['date']] [con])),
            y = c (M01Values [['beta']] [con] - M01Values [['se']] [con], 
                   rev (M01Values [['beta']] [con] + M01Values [['se']] [con])), 
-           col = addOpacity (colours [3], 0.3), lty = 0)
+           col = addOpacity (tColours [['colour']] [3], 0.3), lty = 0)
   
   # plot above the compression 
   con <- M01Values [['treatment']] == 3 & M01Values [['height']] == 24
   lines (x = M01Values [['date']] [con],
          y = M01Values [['beta']] [con],
-         pch = 24, col = colours [3], lty = 2, lwd = 2)
+         pch = 24, col = tColours [['colour']] [3], lty = 2, lwd = 2)
   polygon (x = c (M01Values [['date']] [con], rev (M01Values [['date']] [con])),
            y = c (M01Values [['beta']] [con] - M01Values [['se']] [con], 
                   rev (M01Values [['beta']] [con] + M01Values [['se']] [con])), 
-           col = addOpacity (colours [3], 0.3), lty = 0)
+           col = addOpacity (tColours [['colour']] [3], 0.3), lty = 0)
   
   # add x-axis 
   axis (side = 1, at = as_date (c ('2017-07-01', '2017-08-01','2017-09-01','2017-10-01',
@@ -211,6 +230,12 @@ png (filename = '../fig/Exp2017StemCO2Efflux.png', width = 600, height = 400)
         typ = 'l', col = '#999999', axes = FALSE, cex.lab = 1.2,
         las = 1, xlab = 'date', lwd = 1,
         ylab = '')
+  
+  # draw vertical lines for critical dates
+  #--------------------------------------------------------------------------------------
+  abline (v = as_date ('2017-07-03'), col = '#99999999', lty = 2) # start date
+  abline (v = as_date ('2017-10-08'), col = '#99999999', lty = 2) # end date double compression
+  
   polygon (x = c (M01Values [['date']] [M01Values [['treatment']] == 1], 
                   rev (M01Values [['date']] [M01Values [['treatment']] == 1])),
            y = c (M01Values [['beta']] [M01Values [['treatment']] == 1] - 
@@ -221,31 +246,31 @@ png (filename = '../fig/Exp2017StemCO2Efflux.png', width = 600, height = 400)
   con <- M01Values [['treatment']] == 4 & M01Values [['height']] == 25
   lines (x = M01Values [['date']] [con],
          y = M01Values [['beta']] [con],
-         pch = 25, col = colours [4], lty = 3, lwd = 2)
+         pch = 25, col = tColours [['colour']] [4], lty = 3, lwd = 2)
   polygon (x = c (M01Values [['date']] [con], rev (M01Values [['date']] [con])),
            y = c (M01Values [['beta']] [con] - M01Values [['se']] [con], 
                   rev (M01Values [['beta']] [con] + M01Values [['se']] [con])), 
-           col = addOpacity (colours [4], 0.3), lty = 0)
+           col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
   
   # plot inbetwen the double compression 
   con <- M01Values [['treatment']] == 4 & M01Values [['height']] == 22
   lines (x = M01Values [['date']] [con],
          y = M01Values [['beta']] [con],
-         pch = 22, col = colours [4], lty = 4, lwd = 2)
+         pch = 22, col = tColours [['colour']] [4], lty = 4, lwd = 2)
   polygon (x = c (M01Values [['date']] [con], rev (M01Values [['date']] [con])),
            y = c (M01Values [['beta']] [con] - M01Values [['se']] [con], 
                   rev (M01Values [['beta']] [con] + M01Values [['se']] [con])), 
-           col = addOpacity (colours [4], 0.3), lty = 0)
+           col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
   
   # plot above the double compression 
   con <- M01Values [['treatment']] == 4 & M01Values [['height']] == 24
   lines (x = M01Values [['date']] [con],
          y = M01Values [['beta']] [con],
-         pch = 24, col = colours [4], lty = 2, lwd = 2)
+         pch = 24, col = tColours [['colour']] [4], lty = 2, lwd = 2)
   polygon (x = c (M01Values [['date']] [con], rev (M01Values [['date']] [con])),
            y = c (M01Values [['beta']] [con] - M01Values [['se']] [con], 
                   rev (M01Values [['beta']] [con] + M01Values [['se']] [con])), 
-           col = addOpacity (colours [4], 0.3), lty = 0)
+           col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
   
   # add x-axis 
   axis (side = 1, at = as_date (c ('2017-07-01', '2017-08-01','2017-09-01','2017-10-01',

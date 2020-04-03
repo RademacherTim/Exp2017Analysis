@@ -262,7 +262,7 @@ plot (x = tmp150 [['month']] [tmp150 [['treatment']] == 1],
       y = tmp150 [['mean']] [tmp150 [['treatment']] == 1],
       xlab = 'month', ylab  = 'respiratory loss (gC)', las = 1,
       typ = 'l', lwd = 2,
-      col = colours [1],
+      col = tColours [['colour']] [1],
       ylim =  c (0, 30))
 polygon (x = c (tmp150 [['month']] [tmp150 [['treatment']] == 1], 
                 rev (tmp150 [['month']] [tmp150 [['treatment']] == 1])),
@@ -273,7 +273,7 @@ plot (x = tmp100 [['month']] [tmp100 [['treatment']] == 2],
        y = tmp100 [['mean']]  [tmp100 [['treatment']] == 2],
       xlab = 'month', ylab  = 'respiratory loss (gC)', las = 1,
       typ = 'l', lwd = 2, lty = 2,
-      col = colours [2],
+      col = tColours [['colour']] [2],
       ylim =  c (0, 30))
 polygon (x = c (tmp100 [['month']] [tmp100 [['treatment']] == 2], 
                 rev (tmp100 [['month']] [tmp100 [['treatment']] == 2])),
@@ -282,7 +282,7 @@ polygon (x = c (tmp100 [['month']] [tmp100 [['treatment']] == 2],
         col = '#C0334D33', lty = 0)
 lines (x = tmp200 [['month']] [tmp200 [['treatment']] == 2],
        y = tmp200 [['mean']]  [tmp200 [['treatment']] == 2],
-       lty = 1, lwd = 2, col = colours [2])
+       lty = 1, lwd = 2, col = tColours [['colour']] [2])
 polygon (x = c (tmp200 [['month']] [tmp200 [['treatment']] == 2], 
                 rev (tmp200 [['month']] [tmp200 [['treatment']] == 2])),
         y = c (tmp200 [['max']] [tmp200 [['treatment']] == 2], 
@@ -292,7 +292,7 @@ plot (x = tmp100 [['month']] [tmp100 [['treatment']] == 3],
        y = tmp100 [['mean']]  [tmp100 [['treatment']] == 3],
       xlab = 'month', ylab  = 'respiratory loss (gC)', las = 1,
       typ = 'l', lwd = 2, lty = 2,
-      col = colours [3],
+      col = tColours [['colour']] [3],
       ylim =  c (0, 30))
 polygon (x = c (tmp100 [['month']] [tmp100 [['treatment']] == 3], 
                 rev (tmp100 [['month']] [tmp100 [['treatment']] == 3])),
@@ -301,7 +301,7 @@ polygon (x = c (tmp100 [['month']] [tmp100 [['treatment']] == 3],
         col = '#F1890433', lty = 0)
 lines (x = tmp200 [['month']] [tmp200 [['treatment']] == 3],
        y = tmp200 [['mean']]  [tmp200 [['treatment']] == 3],
-       lty = 1, lwd = 2, col = colours [3])
+       lty = 1, lwd = 2, col = tColours [['colour']] [3])
 polygon (x = c (tmp200 [['month']] [tmp200 [['treatment']] == 3], 
                 rev (tmp200 [['month']] [tmp200 [['treatment']] == 3])),
         y = c (tmp200 [['max']] [tmp200 [['treatment']] == 3], 
@@ -311,7 +311,7 @@ plot (x = tmp50 [['month']] [tmp50 [['treatment']] == 4],
        y = tmp50 [['mean']]  [tmp50 [['treatment']] == 4],
       xlab = 'month', ylab  = 'respiratory loss (gC)', las = 1,
       typ = 'l', lwd = 2, lty = 2,
-      col = colours [4],
+      col = tColours [['colour']] [4],
       ylim =  c (0, 30))
 polygon (x = c (tmp50 [['month']] [tmp50 [['treatment']] == 4], 
                 rev (tmp50 [['month']] [tmp50 [['treatment']] == 4])),
@@ -320,7 +320,7 @@ polygon (x = c (tmp50 [['month']] [tmp50 [['treatment']] == 4],
         col = '#5C4A7233', lty = 0)
 lines (x = tmp150 [['month']] [tmp150 [['treatment']] == 4],
        y = tmp150 [['mean']]  [tmp150 [['treatment']] == 4],
-      col = colours [4], lwd = 2, lty = 3)
+      col = tColours [['colour']] [4], lwd = 2, lty = 3)
 polygon (x = c (tmp150 [['month']] [tmp150 [['treatment']] == 4], 
                 rev (tmp150 [['month']] [tmp150 [['treatment']] == 4])),
         y = c (tmp150 [['max']] [tmp150 [['treatment']] == 4], 
@@ -328,7 +328,7 @@ polygon (x = c (tmp150 [['month']] [tmp150 [['treatment']] == 4],
         col = '#5C4A7233', lty = 0)
 lines (x = tmp250 [['month']] [tmp250 [['treatment']] == 4],
        y = tmp250 [['mean']]  [tmp250 [['treatment']] == 4],
-      col = colours [4], lwd = 2, lty = 1)
+      col = tColours [['colour']] [4], lwd = 2, lty = 1)
 polygon (x = c (tmp250 [['month']] [tmp250 [['treatment']] == 4], 
                 rev (tmp150 [['month']] [tmp250 [['treatment']] == 4])),
         y = c (tmp250 [['max']] [tmp250 [['treatment']] == 4], 
