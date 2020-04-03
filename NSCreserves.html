@@ -598,22 +598,7 @@ responseVariables [['starchNeedle']] &lt;- leafData2017 [['starch']] * foliMass
 # export data if necessary
 #----------------------------------------------------------------------------------------
 WRITE &lt;- TRUE
-if (WRITE) {
-  write_csv (tibble (responseVariables [['sugarNeedle']]),  path = 'sugarNeedles.csv')
-  write_csv (tibble (responseVariables [['starchNeedle']]), path = 'starchNeedles.csv')
-  write_csv (tibble (responseVariables [['sugarRoot']]),    path = 'sugarRoots.csv')
-  write_csv (tibble (responseVariables [['starchRoot']]),   path = 'starchRoots.csv')
-  write_csv (tibble (responseVariables [['sugarW50']]),     path = 'sugarW50.csv')
-  write_csv (tibble (responseVariables [['starchW50']]),    path = 'starchW50.csv')
-  write_csv (tibble (responseVariables [['sugarW100']]),    path = 'sugarW100.csv')
-  write_csv (tibble (responseVariables [['starchW100']]),   path = 'starchW100.csv')
-  write_csv (tibble (responseVariables [['sugarW150']]),    path = 'sugarW150.csv')
-  write_csv (tibble (responseVariables [['starchW150']]),   path = 'starchW150.csv')
-  write_csv (tibble (responseVariables [['sugarW200']]),    path = 'sugarW200.csv')
-  write_csv (tibble (responseVariables [['starchW200']]),   path = 'starchW200.csv')
-  write_csv (tibble (responseVariables [['sugarW250']]),    path = 'sugarW250.csv')
-  write_csv (tibble (responseVariables [['starchW250']]),   path = 'starchW250.csv')
-}</code></pre>
+if (WRITE) write_csv (responseVariables,  path = 'nonstructuralCarbon.csv')</code></pre>
 <!-- Finally, the whole-tree nonstructural carbon reserve  ($R_{NSC,t}$) in tree $t$ is the sum of the sugar and starch reserves in all five tissues (i.e. roots, stems, bark, branches, and leaves).  -->
 <!-- $$ -->
 <!-- R_{NSC,t} = \sum_{i=1}^{5} (R_{sugar,i} + R_{starch,i}) -->

@@ -1,15 +1,92 @@
-#----------------------------------------------------------------------------------------
-# draw stacked barplots of absolute values for structural carbon gain, change in 
+#========================================================================================
+# Draw stacked barplots of absolute values for structural carbon gain, change in 
 # nonstructural carbon, and respiratory losses. 
 #----------------------------------------------------------------------------------------
+
+# load dependencies
+#----------------------------------------------------------------------------------------
+library ('tidyverse')
+library ('lubridate')
+library ('readxl')
+
+# read file with response variables 
+#----------------------------------------------------------------------------------------
+data <- read_csv ('/home/tim/Downloads/2017ExperimentalData - responseVariables.csv',
+                  col_types = cols ())
+
+# read file with response variables 
+#----------------------------------------------------------------------------------------
+allometricData <- read_excel (path = '/media/tim/dataDisk/PlantGrowth/data/allometry/Exp2017/allometricDataExp2017.xlsx',
+                              sheet = 'allometricData')
+allometricData <- filter (allometricData, tree <= 40)
+
+# calculate change in concentration for NSC data
+#----------------------------------------------------------------------------------------
+data [['deltaSugarW250']] <- NA; data [['deltaStarchW250']] <- NA
+data [['deltaSugarW200']] <- NA; data [['deltaStarchW200']] <- NA
+data [['deltaSugarW150']] <- NA; data [['deltaStarchW150']] <- NA
+data [['deltaSugarW100']] <- NA; data [['deltaStarchW100']] <- NA
+data [['deltaSugarW50']]  <- NA; data [['deltaStarchW50']]  <- NA
+for (i in 41:160) {
+  data [['deltaSugarW250']] [i] <- data [['sugarW250']] [i] - data [['sugarW250']] [i-40]
+  data [['deltaSugarW200']] [i] <- data [['sugarW200']] [i] - data [['sugarW200']] [i-40]
+  data [['deltaSugarW150']] [i] <- data [['sugarW150']] [i] - data [['sugarW150']] [i-40]
+  data [['deltaSugarW100']] [i] <- data [['sugarW100']] [i] - data [['sugarW100']] [i-40]
+  data [['deltaSugarW50']]  [i] <- data [['sugarW50']]  [i] - data [['sugarW50']]  [i-40]
+  data [['deltaStarchW250']] [i] <- data [['starchW250']] [i] - data [['starchW250']] [i-40]
+  data [['deltaStarchW200']] [i] <- data [['starchW200']] [i] - data [['starchW200']] [i-40]
+  data [['deltaStarchW150']] [i] <- data [['starchW150']] [i] - data [['starchW150']] [i-40]
+  data [['deltaStarchW100']] [i] <- data [['starchW100']] [i] - data [['starchW100']] [i-40]
+  data [['deltaStarchW50']]  [i] <- data [['starchW50']]  [i] - data [['starchW50']]  [i-40]
+}
+
+# wrangle data to long format with unique labels
+#----------------------------------------------------------------------------------------
+respData <- data %>% select (c (2:3, 18:22)) %>% pivot_longer (cols =  c (3:7), 
+                                                               names_to = 'height',
+                                                               names_prefix = 'resp',
+                                                               values_to = 'resp')
+respData [['height']] [respData [['height']] == '050'] <- '50'
+respData [['resp']] <- -respData [['resp']]
+struData <- data %>% select (c (2:3, 28:32)) %>% pivot_longer (cols =  c (3:7), 
+                                                               names_to = 'height',
+                                                               names_prefix = 'structuralCarbonat',
+                                                               values_to = 'SC')
+struData [['height']] [struData [['height']] == '050'] <- '50'
+nonsData <- data %>% select (c (2:3, seq (33, 42, by = 2))) %>% 
+            pivot_longer (cols =  c (3:7), names_to = 'height',
+                          names_prefix = 'deltaSugarW', values_to = 'sugar')
+nonsData <- data %>% select (c (2:3, seq (34, 42, by = 2))) %>% 
+            pivot_longer (cols =  c (3:7), names_to = 'height',
+                          names_prefix = 'deltaStarchW', values_to = 'starch') %>%
+            right_join (nonsData, by = c ('month', 'tree', 'height'))
+nonsData [['total']] <- nonsData [['sugar']] + nonsData [['starch']]
+allData <- right_join (respData, struData, by = c ('month', 'tree', 'height')) %>% 
+           right_join (nonsData, by = c ('month', 'tree', 'height')) %>%
+           filter (month != 'july')
+
+# add treatment to the data
+#----------------------------------------------------------------------------------------
+allData [['treatment']] <- allometricData [['treatment']] [allData [['tree']]]
+
+# change height for plotting symbol 
+#----------------------------------------------------------------------------------------
+allData <- filter (allData, !(height != 150 & treatment == 1))
+allData <- filter (allData, !(height %in% c (50, 150, 250) & treatment %in% 2:3))
+allData <- filter (allData, !(height %in% c (100, 200) & treatment == 4))
+allData [['height']] <- as.numeric (allData[['height']])
+allData [['height']] [allData [['height']] == 100 | allData [['height']]    == 50]  <- 'B' # below
+allData [['height']] [allData [['height']] == 150 & allData [['treatment']] == 4]   <- 'M' # middle
+allData [['height']] [allData [['height']] == 150 & allData [['treatment']] == 1]   <- 'C' # control
+allData [['height']] [allData [['height']] == 200 | allData [['height']]    == 250] <- 'A' # above
 
 # summarise data by group
 #----------------------------------------------------------------------------------------
 summaryData <- allData %>% group_by (treatment, height, month) %>% 
-               summarise (meanResp = mean (resp, na.rm = TRUE), 
-                          meanSC   = mean (SC, na.rm = TRUE), 
-                          meanNSC  = mean (total, na.rm = TRUE),
-                          meanSugar = mean (sugar, na.rm = TRUE),
+               summarise (meanResp   = mean (resp,   na.rm = TRUE), 
+                          meanSC     = mean (SC,     na.rm = TRUE), 
+                          meanNSC    = mean (total,  na.rm = TRUE),
+                          meanSugar  = mean (sugar,  na.rm = TRUE),
                           meanStarch = mean (starch, na.rm = TRUE))
 
 # create panel of three barplot for period changes 
