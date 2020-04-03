@@ -8,6 +8,10 @@
 library ('lme4')
 library ('tidyverse')
 
+# source colour schemes and ploting functions
+#----------------------------------------------------------------------------------------
+source ('plotingFunctions.R')
+
 # read the sugar and starch concentration for needles, roots and first cm of wood
 #----------------------------------------------------------------------------------------
 suppressMessages (source ('/home/tim/projects/PlantGrowth/nonstructuralCarbon/processExpNSCData.R'))
@@ -139,9 +143,9 @@ png (filename = '../fig/Exp2017StemDeltaSugar.png', width = 600, height = 400)
           y = M01Values [['yPos']] [M01Values [['date']] == iDate], 
           las = 1, xlab = '', ylab = '', axes = FALSE,
           xlim = c (-0.4, 0.6), ylim = c (0, 6.6), 
-          col = colours [M01Values [['treatment']] [M01Values [['date']] == iDate]], 
+          col = tColours [['colour']] [M01Values [['treatment']] [M01Values [['date']] == iDate]], 
           bg = ifelse (abs (M01Values [['tValue']] [M01Values [['date']] == iDate]) >= 2, 
-                       colours [M01Values[['treatment']] [M01Values [['date']] == iDate]], 
+                       tColours [['colour']] [M01Values[['treatment']] [M01Values [['date']] == iDate]], 
                        'white'), lwd = 2, 
           cex = 2, #abs (M01Values [['tValue']] [M01Values [['date']] == iDate]),
           pch = as.numeric (M01Values [['height']] [M01Values [['date']] == iDate]))
@@ -171,9 +175,9 @@ png (filename = '../fig/Exp2017StemDeltaSugar.png', width = 600, height = 400)
     #--------------------------------------------------------------------------------------
     points (x = M01Values [['beta']] [M01Values [['date']] == iDate],
             y = M01Values [['yPos']] [M01Values [['date']] == iDate],
-            col = colours [M01Values [['treatment']] [M01Values [['date']] == iDate]], 
+            col = tColours [['colour']] [M01Values [['treatment']] [M01Values [['date']] == iDate]], 
             bg = ifelse (abs (M01Values [['tValue']] [M01Values [['date']] == iDate]) >= 2, 
-                         colours [M01Values[['treatment']] [M01Values [['date']] == iDate]], 
+                         tColours [['colour']] [M01Values[['treatment']] [M01Values [['date']] == iDate]], 
                          'white'), 
             lwd = 2, cex = 2, #abs (M01Values [['tValue']] [M01Values [['date']] == iDate]),
             pch = as.numeric (M01Values [['height']] [M01Values [['date']] == iDate]))
@@ -302,9 +306,9 @@ png (filename = '../fig/Exp2017StemDeltaStarch.png', width = 600, height = 400)
           y = M02Values [['yPos']] [M02Values [['date']] == iDate], 
           las = 1, xlab = '', ylab = '', axes = FALSE,
           xlim = c (-0.6, 0.3), ylim = c (0, 6.6), 
-          col = colours [M02Values [['treatment']] [M02Values [['date']] == iDate]], 
+          col = tColours [['colour']] [M02Values [['treatment']] [M02Values [['date']] == iDate]], 
           bg = ifelse (abs (M02Values [['tValue']] [M02Values [['date']] == iDate]) >= 2, 
-                       colours [M02Values[['treatment']] [M02Values [['date']] == iDate]], 
+                       tColours [['colour']] [M02Values[['treatment']] [M02Values [['date']] == iDate]], 
                        'white'), lwd = 2, 
           cex = 2, #abs (M02Values [['tValue']] [M02Values [['date']] == iDate]),
           pch = as.numeric (M02Values [['height']] [M02Values [['date']] == iDate]))
@@ -334,9 +338,9 @@ png (filename = '../fig/Exp2017StemDeltaStarch.png', width = 600, height = 400)
     #--------------------------------------------------------------------------------------
     points (x = M02Values [['beta']] [M02Values [['date']] == iDate],
             y = M02Values [['yPos']] [M02Values [['date']] == iDate],
-            col = colours [M02Values [['treatment']] [M02Values [['date']] == iDate]], 
+            col = tColours [['colour']] [M02Values [['treatment']] [M02Values [['date']] == iDate]], 
             bg = ifelse (abs (M02Values [['tValue']] [M02Values [['date']] == iDate]) >= 2, 
-                         colours [M02Values[['treatment']] [M02Values [['date']] == iDate]], 
+                         tColours [['colour']] [M02Values[['treatment']] [M02Values [['date']] == iDate]], 
                          'white'), 
             lwd = 2, cex = 2, #abs (M02Values [['tValue']] [M02Values [['date']] == iDate]),
             pch = as.numeric (M02Values [['height']] [M02Values [['date']] == iDate]))
@@ -435,9 +439,9 @@ png (filename = '../fig/Exp2017LeafDeltaSugar.png', width = 600, height = 500)
           y = M03Values [['treatment']] [M03Values [['date']] == iDate], 
           las = 1, xlab = '', ylab = '', axes = FALSE,
           xlim = c (-2.4, 4.5), ylim = c (0.3, 4.6), 
-          col = colours [M03Values [['treatment']] [M03Values [['date']] == iDate]], 
+          col = tColours [['colour']] [M03Values [['treatment']] [M03Values [['date']] == iDate]], 
           bg = ifelse (abs (M03Values [['tValue']] [M03Values [['date']] == iDate]) >= 2, 
-                       colours [M03Values[['treatment']] [M03Values [['date']] == iDate]], 
+                       tColours [['colour']] [M03Values[['treatment']] [M03Values [['date']] == iDate]], 
                        'white'), lwd = 2, 
           cex = 2, #abs (M03Values [['tValue']] [M03Values [['date']] == iDate]),
           pch = ifelse (M03Values [['treatment']] [M03Values [['date']] == iDate] == 1, 
@@ -468,9 +472,9 @@ png (filename = '../fig/Exp2017LeafDeltaSugar.png', width = 600, height = 500)
     #--------------------------------------------------------------------------------------
     points (x = M03Values [['beta']] [M03Values [['date']] == iDate],
             y = M03Values [['treatment']] [M03Values [['date']] == iDate],
-            col = colours [M03Values [['treatment']] [M03Values [['date']] == iDate]], 
+            col = tColours [['colour']] [M03Values [['treatment']] [M03Values [['date']] == iDate]], 
             bg = ifelse (abs (M03Values [['tValue']] [M03Values [['date']] == iDate]) >= 2, 
-                         colours [M03Values[['treatment']] [M03Values [['date']] == iDate]], 
+                         tColours [['colour']] [M03Values[['treatment']] [M03Values [['date']] == iDate]], 
                          'white'), 
             lwd = 2, cex = 2, #abs (M03Values [['tValue']] [M03Values [['date']] == iDate]),
             pch = ifelse (M03Values [['treatment']] [M03Values [['date']] == iDate] == 1, 
@@ -577,9 +581,9 @@ png (filename = '../fig/Exp2017LeafDeltaStarch.png', width = 600, height = 500)
           y = M04Values [['treatment']] [M04Values [['date']] == iDate], 
           las = 1, xlab = '', ylab = '', axes = FALSE,
           xlim = c (-2.4, 2.0), ylim = c (0.3, 4.6), 
-          col = colours [M04Values [['treatment']] [M04Values [['date']] == iDate]], 
+          col = tColours [['colour']] [M04Values [['treatment']] [M04Values [['date']] == iDate]], 
           bg = ifelse (abs (M04Values [['tValue']] [M04Values [['date']] == iDate]) >= 2, 
-                       colours [M04Values[['treatment']] [M04Values [['date']] == iDate]], 
+                       tColours [['colour']] [M04Values[['treatment']] [M04Values [['date']] == iDate]], 
                        'white'), lwd = 2, 
           cex = 2, #abs (M04Values [['tValue']] [M04Values [['date']] == iDate]),
           pch = ifelse (M04Values [['treatment']] [M04Values [['date']] == iDate] == 1, 
@@ -610,9 +614,9 @@ png (filename = '../fig/Exp2017LeafDeltaStarch.png', width = 600, height = 500)
     #--------------------------------------------------------------------------------------
     points (x = M04Values [['beta']] [M04Values [['date']] == iDate],
             y = M04Values [['treatment']] [M04Values [['date']] == iDate],
-            col = colours [M04Values [['treatment']] [M04Values [['date']] == iDate]], 
+            col = tColours [['colour']] [M04Values [['treatment']] [M04Values [['date']] == iDate]], 
             bg = ifelse (abs (M04Values [['tValue']] [M04Values [['date']] == iDate]) >= 2, 
-                         colours [M04Values[['treatment']] [M04Values [['date']] == iDate]], 
+                         tColours [['colour']] [M04Values[['treatment']] [M04Values [['date']] == iDate]], 
                          'white'), 
             lwd = 2, cex = 2, #abs (M04Values [['tValue']] [M04Values [['date']] == iDate]),
             pch = ifelse (M04Values [['treatment']] [M04Values [['date']] == iDate] == 1, 
@@ -715,9 +719,9 @@ png (filename = '../fig/Exp2017RootDeltaSugar.png', width = 600, height = 450)
           y = M05Values [['treatment']] [M05Values [['date']] == iDate], 
           las = 1, xlab = '', ylab = '', axes = FALSE,
           xlim = c (-0.8, 0.8), ylim = c (0.3, 4.6), 
-          col = colours [M05Values [['treatment']] [M05Values [['date']] == iDate]], 
+          col = tColours [['colour']] [M05Values [['treatment']] [M05Values [['date']] == iDate]], 
           bg = ifelse (abs (M05Values [['tValue']] [M05Values [['date']] == iDate]) >= 2, 
-                       colours [M05Values[['treatment']] [M05Values [['date']] == iDate]], 
+                       tColours [['colour']] [M05Values[['treatment']] [M05Values [['date']] == iDate]], 
                        'white'), lwd = 2, 
           cex = 2, #abs (M05Values [['tValue']] [M05Values [['date']] == iDate]),
           pch = ifelse (M05Values [['treatment']] [M05Values [['date']] == iDate] == 1, 
@@ -748,9 +752,9 @@ png (filename = '../fig/Exp2017RootDeltaSugar.png', width = 600, height = 450)
     #--------------------------------------------------------------------------------------
     points (x = M05Values [['beta']] [M05Values [['date']] == iDate],
             y = M05Values [['treatment']] [M05Values [['date']] == iDate],
-            col = colours [M05Values [['treatment']] [M05Values [['date']] == iDate]], 
+            col = tColours [['colour']] [M05Values [['treatment']] [M05Values [['date']] == iDate]], 
             bg = ifelse (abs (M05Values [['tValue']] [M05Values [['date']] == iDate]) >= 2, 
-                         colours [M05Values[['treatment']] [M05Values [['date']] == iDate]], 
+                         tColours [['colour']] [M05Values[['treatment']] [M05Values [['date']] == iDate]], 
                          'white'), 
             lwd = 2, cex = 2, #abs (M05Values [['tValue']] [M05Values [['date']] == iDate]),
             pch = ifelse (M05Values [['treatment']] [M05Values [['date']] == iDate] == 1, 
@@ -850,9 +854,9 @@ png (filename = '../fig/Exp2017RootDeltaStarch.png', width = 600, height = 450)
           y = M06Values [['treatment']] [M06Values [['date']] == iDate], 
           las = 1, xlab = '', ylab = '', axes = FALSE,
           xlim = c (-0.8, 0.6), ylim = c (0.3, 4.6), 
-          col = colours [M06Values [['treatment']] [M06Values [['date']] == iDate]], 
+          col = tColours [['colour']] [M06Values [['treatment']] [M06Values [['date']] == iDate]], 
           bg = ifelse (abs (M06Values [['tValue']] [M06Values [['date']] == iDate]) >= 2, 
-                       colours [M06Values[['treatment']] [M06Values [['date']] == iDate]], 
+                       tColours [['colour']] [M06Values[['treatment']] [M06Values [['date']] == iDate]], 
                        'white'), lwd = 2, 
           cex = 2, #abs (M06Values [['tValue']] [M06Values [['date']] == iDate]),
           pch = ifelse (M06Values [['treatment']] [M06Values [['date']] == iDate] == 1, 
@@ -883,9 +887,9 @@ png (filename = '../fig/Exp2017RootDeltaStarch.png', width = 600, height = 450)
     #--------------------------------------------------------------------------------------
     points (x = M06Values [['beta']] [M06Values [['date']] == iDate],
             y = M06Values [['treatment']] [M06Values [['date']] == iDate],
-            col = colours [M06Values [['treatment']] [M06Values [['date']] == iDate]], 
+            col = tColours [['colour']] [M06Values [['treatment']] [M06Values [['date']] == iDate]], 
             bg = ifelse (abs (M06Values [['tValue']] [M06Values [['date']] == iDate]) >= 2, 
-                         colours [M06Values[['treatment']] [M06Values [['date']] == iDate]], 
+                         tColours [['colour']] [M06Values[['treatment']] [M06Values [['date']] == iDate]], 
                          'white'), 
             lwd = 2, cex = 2, #abs (M06Values [['tValue']] [M06Values [['date']] == iDate]),
             pch = ifelse (M06Values [['treatment']] [M06Values [['date']] == iDate] == 1, 

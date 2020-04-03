@@ -20,4 +20,8 @@ addOpacity <- function (colour, alpha = 1) {
   apply (sapply (colour, col2rgb) / 255, 2, 
          function (x) rgb (x [1], x [2], x [3], alpha = alpha))
 }
+
+# y-axis positions of treatment and sampling height combinations
+#----------------------------------------------------------------------------------------
+yPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
 #========================================================================================
