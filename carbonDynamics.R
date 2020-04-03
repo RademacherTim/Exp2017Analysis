@@ -9,10 +9,7 @@ library ('tidyverse')
 library ('lubridate')
 library ('readxl')
 
-# create colours array 
-#---------------------------------------------------------------------------------------
-colours <- tibble (colour   = c ('#8073ac','#e08214','#5aae61'), 
-                   variable = c ('NSC'    ,'resp'   ,'SC'))
+source ('plotingFunctions.R')
 
 # read file with response variables 
 #----------------------------------------------------------------------------------------

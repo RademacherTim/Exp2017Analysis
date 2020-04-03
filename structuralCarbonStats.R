@@ -9,6 +9,14 @@
 library ('lme4')
 if (!existsFunction ('add_column')) library ('tidyverse')
 
+# set colour scheme for control, girdled, compressed, double compressed and chilled
+#----------------------------------------------------------------------------------------
+colours <- c ('#91b9a4','#C0334D','#F18904','#5C4A72','#23345C')
+
+# y-axis positions of treatment and sampling height combinations
+#----------------------------------------------------------------------------------------
+yPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
+
 # source ring width and other anatomical data
 #----------------------------------------------------------------------------------------
 standardisedRW2017 <- read_csv (file = 'standardisedRW2017.csv',

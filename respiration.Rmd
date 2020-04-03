@@ -14,9 +14,9 @@ library ('readxl')
 library ('lubridate')
 library ('googledrive')
 
-# set colour scheme for control, girdled, compressed, double compressed and chilled
+# source ploting funtions and colour schemes
 #----------------------------------------------------------------------------------------
-colours <- c ('#91b9a4','#C0334D','#F18904','#5C4A72')
+source ('plotingFunctions.R')
 ```
 
 ## Estimating respiratory losses for stem sections

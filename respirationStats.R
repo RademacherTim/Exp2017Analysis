@@ -9,11 +9,15 @@ library ('lme4')
 library ('tidyverse')
 library ('lubridate')
 
-# Read processed respiration data
+# read processed respiration data
 #----------------------------------------------------------------------------------------
 source ('/home/tim/projects/PlantGrowth/stemCO2Efflux/readProcessedRespData.R')
 
-# Get rid of tree 41 
+# get colours and opacity function
+#----------------------------------------------------------------------------------------
+source ('plotingFunctions.R')
+
+# get rid of tree 41 
 #----------------------------------------------------------------------------------------
 respData <- filter (respData, tree <= 40 & study == 'Exp2017' & 
                       respData [['timestamp']] <= as_datetime ('2018-01-01') & 

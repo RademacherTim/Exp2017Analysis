@@ -22,6 +22,7 @@ library ('zoo')
 options (gargle_oauth_email = "tr625@nau.edu")
 
 # set colour scheme for control, girdled, compressed, double compressed and chilled
+#----------------------------------------------------------------------------------------
 colours <- c ('#91b9a4','#C0334D','#F18904','#5C4A72','#23345C')
 #colours <- c ('','#ea7125','#8f2bbc','#d6083b','#0072cf')
 
