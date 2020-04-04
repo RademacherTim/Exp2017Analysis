@@ -118,12 +118,12 @@ for (m in c ('august','october','november')) {
   if (m == 'august') {par (mar = c (5, 6, 2, 1))} else {par (mar = c (5, 1, 2, 1))}
   barplot (height = t (as.matrix (summaryDataPos)), horiz = TRUE, 
            xlab ='', xlim = c (-20, 25), ylim = c (0, 20.5), axes = F,
-           border = 0, col = colours [['colour']] [c (1, 3, 2)],
+           border = 0, col = sColours [['colour']] [c (1, 3, 2)],
            space = c (1,2,1,2,1,2,1,1), cex.axis = 1.5, cex = 1.5)
   barplot (height = t (as.matrix (summaryDataNeg)), horiz = TRUE, add = TRUE,
-           border = 0, col = colours [['colour']] [c (1, 3, 2)],
+           border = 0, col = sColours [['colour']] [c (1, 3, 2)],
            space = c (1,2,1,2,1,2,1,1), axes = FALSE)
-  abline (v = 0, col = '#99999999', lwd = 2)
+  abline (v = 0, col = '#99999999', lwd = 1, lty = 2)
   axis (side = 1, cex.axis = 1.5)
   mtext (side = 1, line = 3, text = 'carbon increment (g)')
   if (m == 'august') {

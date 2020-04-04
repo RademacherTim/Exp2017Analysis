@@ -829,6 +829,8 @@ M06Values <- add_column (M06Values, .before = 1,
                          treatment = c (rep (1, 3), c (2, 2, 2, 3, 3, 3, 4, 4, 4)),
                          date = rep (c ('aug', 'oct', 'nov'), 4))
 
+# TR- Below seems fine now, but only the below. I will have to change the other plots!!
+
 # create layout for the mixed model-based figure of change in starch 
 #----------------------------------------------------------------------------------------
 png (filename = '../fig/Exp2017RootDeltaStarch.png', width = 600, height = 450) 
@@ -841,11 +843,11 @@ png (filename = '../fig/Exp2017RootDeltaStarch.png', width = 600, height = 450)
     # choose appropriate plot margins 
     #--------------------------------------------------------------------------------------
     if (iDate == 'aug') {
-      par (mar = c (5, 5, 1, 0))
+      par (mar = c (6, 6, 1, 0))
     } else if (iDate == 'oct') {
-      par (mar = c (5, 0, 1, 0))
+      par (mar = c (6, 0, 1, 0))
     } else {
-      par (mar = c (5, 0, 1, 1))
+      par (mar = c (6, 0, 1, 1))
     }
     
     # plot the cummulative cell wall area for each period
@@ -891,13 +893,13 @@ png (filename = '../fig/Exp2017RootDeltaStarch.png', width = 600, height = 450)
             bg = ifelse (abs (M06Values [['tValue']] [M06Values [['date']] == iDate]) >= 2, 
                          tColours [['colour']] [M06Values[['treatment']] [M06Values [['date']] == iDate]], 
                          'white'), 
-            lwd = 2, cex = 2, #abs (M06Values [['tValue']] [M06Values [['date']] == iDate]),
+            lwd = 3, cex = 4, #abs (M06Values [['tValue']] [M06Values [['date']] == iDate]),
             pch = ifelse (M06Values [['treatment']] [M06Values [['date']] == iDate] == 1, 
                           21, 24))
     
     # add x-axis
     #--------------------------------------------------------------------------------------
-    axis (side = 1, at = seq (-0.8, 0.6, by = 0.4), cex.axis = 1.5)
+    axis (side = 1, at = seq (-0.8, 0.6, by = 0.4), cex.axis = 2, mgp = c (3, 2, 0))
     
     # add panel labels and axis 
     #--------------------------------------------------------------------------------------
@@ -905,11 +907,11 @@ png (filename = '../fig/Exp2017RootDeltaStarch.png', width = 600, height = 450)
       
       # add treatments
       #------------------------------------------------------------------------------------
-      mtext (side = 2, line = 2,   text = 'control',    at = 1, cex = 1.2)
-      mtext (side = 2, line = 2,   text = 'girdled',    at = 2, cex = 1.2)
-      mtext (side = 2, line = 2,   text = 'compressed', at = 3, cex = 1.2)
-      mtext (side = 2, line = 3.5, text = 'double',     at = 4, cex = 1.2)
-      mtext (side = 2, line = 2,   text = 'compressed', at = 4, cex = 1.2)
+      mtext (side = 2, line = 2,   text = 'control',    at = 0.9, cex = 1.4)
+      mtext (side = 2, line = 2,   text = 'girdled',    at = 1.95, cex = 1.4)
+      mtext (side = 2, line = 2,   text = 'compressed', at = 3, cex = 1.4)
+      mtext (side = 2, line = 3.5, text = 'double',     at = 4.2, cex = 1.4)
+      mtext (side = 2, line = 2,   text = 'compressed', at = 4.2, cex = 1.4)
       
       # add y-axis
       #--------------------------------------------------------------------------------------
@@ -917,20 +919,20 @@ png (filename = '../fig/Exp2017RootDeltaStarch.png', width = 600, height = 450)
       
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -0.8, y = 4.6, pos = 4, labels = 'august', cex = 2)
+      text (x = -0.8, y = 4.6, pos = 4, labels = 'august', cex = 3)
     } else if (iDate == 'oct') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -0.8, y = 4.6, pos = 4, labels = 'october', cex = 2)
+      text (x = -0.8, y = 4.6, pos = 4, labels = 'october', cex = 3)
       
       # add x-axis label
       #------------------------------------------------------------------------------------
-      mtext (side = 1, line = 4, at = -0.1, cex = 1.5,
+      mtext (side = 1, line = 5, at = -0.1, cex = 2,
              text = expression (paste ('concentration (% dry weight)')))
     } else if (iDate == 'nov') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -0.8, y = 4.6, pos = 4, labels = 'november', cex = 2)
+      text (x = -0.8, y = 4.6, pos = 4, labels = 'november', cex = 3)
     }
     
     # make a line separating the panels
@@ -941,8 +943,9 @@ png (filename = '../fig/Exp2017RootDeltaStarch.png', width = 600, height = 450)
   # add typical between tree variation to plot
   #----------------------------------------------------------------------------------------
   betweenTreeVar <- as_tibble (VarCorr (M6)) [1, 5] [[1]]
-  text (labels = expression (paste (sigma [tree])), x = 0.6, y = 0.5, 
-        cex = 2, pos = 2, col = '#777777')
+  text (labels = expression (paste (sigma [tree])), x = 0.62, y = 0.5, 
+        cex = 2.5, pos = 2, col = '#777777')
   segments (x0 = 0.6 - betweenTreeVar, x1 = 0.6, y0 = 0.3, 
             lwd = 4, col = '#777777')
 dev.off ()
+
