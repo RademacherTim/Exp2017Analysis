@@ -125,7 +125,7 @@ for (m in c ('august','october','november')) {
            space = c (1,2,1,2,1,2,1,1), axes = FALSE)
   abline (v = 0, col = '#99999999', lwd = 1, lty = 2)
   axis (side = 1, cex.axis = 1.5)
-  mtext (side = 1, line = 3, text = 'carbon increment (g)')
+  mtext (side = 1, line = 3, text = expression (paste (delta, ' carbon (g)')))
   if (m == 'august') {
     axis (side = 2, at = c (1.5, 4.5, 6.5, 9.5, 11.5, 14.5, 16.5, 18.5), las = 1,
           labels = c ('C','B','A','B','A','B','M','A'), cex.axis = 1.5)

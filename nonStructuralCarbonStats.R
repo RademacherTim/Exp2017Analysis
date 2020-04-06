@@ -215,7 +215,7 @@ png (filename = '../fig/Exp2017StemDeltaSugar.png', width = 600, height = 400)
       # add x-axis label
       #------------------------------------------------------------------------------------
       mtext (side = 1, line = 4, at = 0.1, cex = 1.5,
-             text = expression (paste ('concentration (% dry weight)')))
+             text = expression (paste ('change in concentration (% dry weight)')))
     } else if (iDate == 'nov') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
@@ -377,7 +377,7 @@ png (filename = '../fig/Exp2017StemDeltaStarch.png', width = 600, height = 400)
       # add x-axis label
       #------------------------------------------------------------------------------------
       mtext (side = 1, line = 4, at = -0.1, cex = 1.5, 
-             text = 'concentration (% dry weight)')
+             text = 'change in concentration (% dry weight)')
     } else if (iDate == 'nov') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
@@ -515,7 +515,7 @@ png (filename = '../fig/Exp2017LeafDeltaSugar.png', width = 600, height = 500)
       # add x-axis label
       #------------------------------------------------------------------------------------
       mtext (side = 1, line = 4, at = 0.75, cex = 1.5,
-             text = expression (paste ('concentration (% dry weight)')))
+             text = expression (paste ('change in concentration (% dry weight)')))
       
       # add title
       #----------------------------------------------------------------------------------
@@ -657,7 +657,7 @@ png (filename = '../fig/Exp2017LeafDeltaStarch.png', width = 600, height = 500)
       # add x-axis label
       #------------------------------------------------------------------------------------
       mtext (side = 1, line = 4, at = -0.2, cex = 1.5,
-             text = 'concentration (% dry weight)')
+             text = 'change in concentration (% dry weight)')
     } else if (iDate == 'nov') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
@@ -792,7 +792,7 @@ png (filename = '../fig/Exp2017RootDeltaSugar.png', width = 600, height = 450)
       # add x-axis label
       #------------------------------------------------------------------------------------
       mtext (side = 1, line = 4, at = 0, cex = 1.5,
-             text = expression (paste ('concentration (% dry weight)')))
+             text = expression (paste ('change in concentration (% dry weight)')))
     } else if (iDate == 'nov') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
@@ -928,7 +928,7 @@ png (filename = '../fig/Exp2017RootDeltaStarch.png', width = 600, height = 450)
       # add x-axis label
       #------------------------------------------------------------------------------------
       mtext (side = 1, line = 5, at = -0.1, cex = 2,
-             text = expression (paste ('concentration (% dry weight)')))
+             text = expression (paste ('change in concentration (% dry weight)')))
     } else if (iDate == 'nov') {
       # add panel descriptor
       #------------------------------------------------------------------------------------

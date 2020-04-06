@@ -118,7 +118,7 @@ png (filename = '../fig/Exp2017StemCO2Efflux.png', width = 600, height = 400)
   
   # add legend 
   legend (x = as_date ('2017-09-10'), y = 5.4, box.lty = 0, lwd = 2, lty = c (1, 2, 4, 3), 
-          legend = c ('control','above','inbetween','below'), col = '#999999', 
+          legend = c ('control','above','middle','below'), col = '#999999', 
           bg = 'transparent')
   
   # plot girdled group
