@@ -3,6 +3,11 @@
 # nonstructural carbon, and respiratory losses. 
 #----------------------------------------------------------------------------------------
 
+# To-do list:
+#----------------------------------------------------------------------------------------
+# -TR Add a fourth panel with cumulative changes from baseline in July to November.
+
+
 # load dependencies
 #----------------------------------------------------------------------------------------
 library ('tidyverse')

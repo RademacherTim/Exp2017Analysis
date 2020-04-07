@@ -10,7 +10,7 @@ tColours <- tibble (colour = c ('#91b9a4','#C0334D','#F18904','#5C4A72','#23345C
 
 # set colours for carbon sinks: growth, respiration, change in NSC concentrations. 
 #----------------------------------------------------------------------------------------
-sColours <- tibble (colour   = c ('#8073ac','#e08214','#5aae61'), 
+sColours <- tibble (colour   = c ('#8073ac','#f3bd48','#aab300'), 
                     variable = c ('NSC'    ,'resp'   ,'SC'))
 
 # function to add opacity to a colour

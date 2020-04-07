@@ -15,23 +15,35 @@ library ('readxl')
 
 ## Calculating nonstructural carbon reserves for the 2017 experiment at Harvard Forest
 
-To estimate changes in soluble sugars and starch (measured as glucose equivalent) for various tissue, we scaled the concentrations derived using colorimetric assays as described in the methods. Below, we describe the scaling for easily accessible nonstrucutral carbon reserves in stem sections, for entire stem, roots and leaves, as well as the whole-tree reserves. The net differences in reserves over time (i.e., four sampling points) provide estimates of net gains or losses of soluble sugars and starch for each stem section, organ and tree. Generally, scaling involved multiplication of nonstructural carbon concentration by an estimate of tissue dry matter similar to @furze_whole-tree_2019. Below we provideexact methods and examples for each tissue.
+To estimate changes in soluble sugars and starch (measured as glucose equivalent) for various tissue, we scaled the concentrations derived using colorimetric assays as described in the methods. Below, we describe the scaling for easily accessible nonstrucutral carbon reserves in stem sections, for entire stems, roots and leaves, as well as the whole-tree reserves. The net differences in reserves over time (i.e., four sampling points) provide estimates of net gains or losses of soluble sugars and starch for each stem section, organ and tree. Generally, scaling involved multiplication of nonstructural carbon concentration by an estimate of tissue dry matter similar to @furze_whole-tree_2019. Below we provide exact methods and examples for each tissue.
 
 ## For stem sections
 
-We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith [@hoch_non-structural_2003;furze_whole-tree_2018], we only consider nonstructural carbon reserves in the first centimeter underlying the bark for each stem section. We limit our analysis to these shallow reserves, because deeper reserves are assumed to less accessible [@carbone_age_2013],especially on timescales considered here (i.e. months).
-<!-- The decline in @hoch_non-structural_2003 is actually more exponential than linear, but let's start with linear. Morgan might have better data for Pinus strobus that can help me scale more adequately.--> 
+We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith [@hoch_non-structural_2003;@furze_whole-tree_2018], we only consider nonstructural carbon reserves in the first centimeter underlying the bark for each stem section. We limit our analysis to these shallow reserves, because deeper reserves are assumed to less accessible [@carbone_age_2013],especially on timescales considered here (i.e. months).
 
-Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an accurate average of these reserves, we derive the total mass of nonstructural carbon in sugars and strach ($M_{sugar,i}$ and $M_{starch,i}$, respectively) by multiplying the dry matter of the hollow cylinder ($M_{i}$) of each stem section $i$ with the section's measured concentrations of sugar and starch ($c_{sugar,i}$ and $c_{starch,i}$, respectively). For sugar this is expressed as:
+Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an adequate average of these reserves, we derive the total mass of nonstructural carbon in sugars and strach ($M_{sugar,i}$ and $M_{starch,i}$, respectively) by multiplying the dry matter of the hollow cylinder ($M_{i}$) of each stem section $i$ with the section's measured concentrations of sugar and starch ($c_{sugar,i}$ and $c_{starch,i}$, respectively). For sugar this is expressed as:
 
 $$
  M_{sugar,i} = c_{sugar,i} \times M_{i} = V_{i} \times \rho_w \times c_{sugar,i}
 $$
-The mass of a hollow cylinder representing the outeter most centimeter of material is derived from its volume ($V_{i}$) and an average density of the wood ($\rho_w$). In turn the volume calculated using a height ($h$) of 10 cm and the section's circumference ($cbh_{i}$; in $cm$), which was measured in the field using a tape measure. Here, 289.9$\pm$ 40.4$kg \, m^{-3}$ was used as for the density of wood, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film [@bjorklund_scientific_2019].
+The mass of a hollow cylinder representing the outter most centimeter of material is derived from its volume ($V_{i}$) and an average wood density ($\rho_w$). In turn the volume is calculated using a height ($h$) of 10 cm and the section's circumference ($cbh_{i}$; in $cm$), which was measured in the field using a tape measure. Here, 289.9$\pm$ 40.4 $kg \, m^{-3}$ was used as wood density, which is the mean $\pm$ standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film [@bjorklund_scientific_2019].
 
 $$
 M_{i} = V_{i} \times \rho_{w} =  \pi \times h \times \rho_{w} \Big (\Big (\frac {cbh_{i}}{2 \pi}\Big)^2 - \Big (\frac {cbh_{i}}{2 \pi} - 0.01\Big)^2 \Big)
 $$
+``` {r processNSCConcentrations}
+# read the sugar and starch concentration for needles, roots and first centimeter of wood
+#----------------------------------------------------------------------------------------
+suppressMessages (source (file = '/home/tim/projects/PlantGrowth/nonstructuralCarbon/processExpNSCData.R'))
+
+# select only relevant data
+#----------------------------------------------------------------------------------------
+leafData2017 <- filter (leafData2017, treeID <= 40)
+rootData2017 <- filter (rootData2017, treeID <= 40)
+stemData2017 <- filter (stemData2017, treeID <= 40)
+```
+
+For example, a 10 $cm$ high stem section of 20 $cm$ diameter, would have a volume of 628 $cm^3$ and a mass of 182.06 $g$. At an average measured sugar and starch concentration of `r round (mean (stemData2017 [['sugar']] [stemData2017 [['date']] [1] == as_datetime("2017-07-05")], na.rm = TRUE), 2)` and `r round (mean (stemData2017 [['starch']] [stemData2017 [['date']] [1] == as_datetime("2017-07-05")], na.rm = TRUE), 2)` $\% \, dry \, mass$ in July, this equates to a total nonstructural carbon reserve of roughly 2 $g$ or 1 $g$ of easily accessible carbon in that stem section.
 
 ``` {r calculateStemSectionNSCs, warning = FALSE}
 # get the tree measurements of circumference from spreadsheet
@@ -71,16 +83,6 @@ allometricData <- add_column (allometricData,
 ```
 
 ``` {r getSugarConcentration}
-# read the sugar and starch concentration for needles, roots and first centimeter of wood
-#----------------------------------------------------------------------------------------
-suppressMessages (source (file = '/home/tim/projects/PlantGrowth/nonstructuralCarbon/processExpNSCData.R'))
-
-# select only relevant data
-#----------------------------------------------------------------------------------------
-leafData2017 <- filter (leafData2017, treeID <= 40)
-rootData2017 <- filter (rootData2017, treeID <= 40)
-stemData2017 <- filter (stemData2017, treeID <= 40)
-
 # create responseVariables tibble
 #----------------------------------------------------------------------------------------
 responseVariables <- tibble (year = 2017,
