@@ -94,40 +94,73 @@ summaryData <- allData %>% group_by (treatment, height, month) %>%
                           meanSC     = mean (SC,     na.rm = TRUE), 
                           meanNSC    = mean (total,  na.rm = TRUE),
                           meanSugar  = mean (sugar,  na.rm = TRUE),
-                          meanStarch = mean (starch, na.rm = TRUE))
+                          meanStarch = mean (starch, na.rm = TRUE),
+                          sdResp   = sd (resp,   na.rm = TRUE), 
+                          sdSC     = sd (SC,     na.rm = TRUE), 
+                          sdNSC    = sd (total,  na.rm = TRUE),
+                          sdSugar  = sd (sugar,  na.rm = TRUE),
+                          sdStarch = sd (starch, na.rm = TRUE))
 
+# summarise data by group
+#----------------------------------------------------------------------------------------
+cumulativeData <- allData %>% group_by (tree, height, treatment) %>% 
+                  summarise (SC   = sum (SC, na.rm = TRUE),
+                             Resp = sum (resp, na.rm = TRUE),
+                             NSC  = sum (total, na.rm = TRUE))
+cumulativeData <- cumulativeData %>% group_by (treatment, height) %>% 
+                  summarise (meanSC   = mean (SC,   na.rm = TRUE),
+                             meanNSC  = mean (NSC,  na.rm = TRUE),
+                             meanResp = mean (Resp, na.rm = TRUE),
+                             sdSC   = sd (SC,   na.rm = TRUE),
+                             sdNSC  = sd (NSC,  na.rm = TRUE),
+                             sdResp = sd (Resp, na.rm = TRUE))
+  
 # create panel of three barplot for period changes 
 #----------------------------------------------------------------------------------------
-png (filename = '../fig/Exp2017carbonDynamics.png', width = 800, height = 400)
-layout (matrix (1:3, nrow = 1, byrow = TRUE), width = c (1.3,1,1))
-for (m in c ('august','october','november')) {
+png (filename = '../fig/Exp2017carbonDynamicsWithTotal.png', width = 1000, height = 400)
+layout (matrix (1:4, nrow = 1, byrow = TRUE), width = c (1.3,1,1,1.3))
+for (m in c ('august','october','november','total')) {
 
+  # Check whether it is a single period or the cumulative total 
+  #----------------------------------------------------------------------------------------
+  if (m != 'total') {
   # get two matrices, one for structural carbon gain
   #----------------------------------------------------------------------------------------
-  summaryDataPos <- summaryData %>% ungroup %>% filter (month == m) %>% 
-                    select (meanResp, meanSC, meanNSC)
-  summaryLabels <- summaryData %>% filter (month == m) %>% 
-                   select (treatment, height)
-  summaryLabels <- summaryLabels [8:1, ]
-  summaryDataNeg <- summaryDataPos [8:1, ]; summaryDataPos <- summaryDataPos [8:1, ]
-  summaryDataPos [summaryDataPos < 0] <- 0
-  summaryDataNeg [summaryDataNeg > 0] <- 0
+    dataPos <- summaryData %>% ungroup %>% filter (month == m) %>% 
+               select (meanResp, meanSC, meanNSC, sdResp, sdSC, sdNSC)  
+  } else {
+    dataPos <- cumulativeData %>% ungroup %>% 
+               select (meanResp, meanSC, meanNSC, sdResp, sdSC, sdNSC)
+  }
+  dataNeg <- dataPos [8:1, ]; dataPos <- dataPos [8:1, ]
+  dataPos [dataPos < 0] <- 0
+  dataNeg [dataNeg > 0] <- 0
   
-  # Switch order of rows
+  # switch order of rows and wrangle for barplot format
   #----------------------------------------------------------------------------------------
-  summaryDataPos <- summaryDataPos [, 3:1]
-  summaryDataNeg <- summaryDataNeg [, 3:1]
-
+  error <- dataPos [, 6:4] / sqrt (10)
+  dataPos <- t (as.matrix (dataPos [, 3:1]))
+  dataNeg <- t (as.matrix (dataNeg [, 3:1]))
+    
   # draw stacked barplot
   #----------------------------------------------------------------------------------------
   if (m == 'august') {par (mar = c (5, 6, 2, 1))} else {par (mar = c (5, 1, 2, 1))}
-  barplot (height = t (as.matrix (summaryDataPos)), horiz = TRUE, 
-           xlab ='', xlim = c (-20, 25), ylim = c (0, 20.5), axes = F,
+  barplot (height = dataPos, horiz = TRUE, 
+           xlab ='', xlim = c (ifelse (m != 'total', -20, -34), ifelse (m!= 'total', 25, 37)), 
+           ylim = c (0, 20.5), axes = F,
            border = 0, col = sColours [['colour']] [c (1, 3, 2)],
            space = c (1,2,1,2,1,2,1,1), cex.axis = 1.5, cex = 1.5)
-  barplot (height = t (as.matrix (summaryDataNeg)), horiz = TRUE, add = TRUE,
+  arrows (x0 = dataPos [2, ] - error [['sdSC']], 
+          y0 = c (1.5, 4.5, 6.5, 9.5, 11.5, 14.5, 16.5, 18.5), 
+          x1 = dataPos [2, ] + error [['sdSC']],
+          length = 0.05, code = 3, angle = 90, col = '#4e5b31')
+  barplot (height = dataNeg, horiz = TRUE, add = TRUE,
            border = 0, col = sColours [['colour']] [c (1, 3, 2)],
            space = c (1,2,1,2,1,2,1,1), axes = FALSE)
+  arrows (x0 = dataNeg [3, ] + dataNeg [1, ] - error [['sdResp']], 
+          y0 = c (1.5, 4.5, 6.5, 9.5, 11.5, 14.5, 16.5, 18.5), 
+          x1 = dataNeg [3, ] + dataNeg [1, ] + error [['sdResp']],
+          length = 0.05, code = 3, angle = 90, col = '#be4d00')
   abline (v = 0, col = '#99999999', lwd = 1, lty = 2)
   axis (side = 1, cex.axis = 1.5)
   mtext (side = 1, line = 3, text = expression (paste (delta, ' carbon (g)')))
@@ -149,7 +182,7 @@ for (m in c ('august','october','november')) {
   text (x = -17, y = 20, pos = 4, labels = descriptor, col = '#003e74', cex = 2)
   
   # add line to separate the panels/plots
-  if (m != 'november') abline (v = 25, col = '#333333', lwd = 2)
+  if (m != 'total') abline (v = 25, col = '#333333', lwd = 2)
 }
 # legend ('right', legend = c ('respiratory loss', expression (paste (delta, ' starch')), 
 #                              expression (paste (delta, ' sugar')),'growth'),

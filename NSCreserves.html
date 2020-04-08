@@ -372,52 +372,18 @@ summary {
 
 <div id="calculating-nonstructural-carbon-reserves-for-the-2017-experiment-at-harvard-forest" class="section level2">
 <h2>Calculating nonstructural carbon reserves for the 2017 experiment at Harvard Forest</h2>
-<p>To estimate changes in soluble sugars and starch (measured as glucose equivalent) for various tissue, we scaled the concentrations derived using colorimetric assays as described in the methods. Below, we describe the scaling for easily accessible nonstrucutral carbon reserves in stem sections, for entire stem, roots and leaves, as well as the whole-tree reserves. The net differences in reserves over time (i.e., four sampling points) provide estimates of net gains or losses of soluble sugars and starch for each stem section, organ and tree. Generally, scaling involved multiplication of nonstructural carbon concentration by an estimate of tissue dry matter similar to <span class="citation">Furze et al. (2019)</span>. Below we provideexact methods and examples for each tissue.</p>
+<p>To estimate changes in soluble sugars and starch (measured as glucose equivalent) for various tissue, we scaled the concentrations derived using colorimetric assays as described in the methods. Below, we describe the scaling for easily accessible nonstrucutral carbon reserves in stem sections, for entire stems, roots and leaves, as well as the whole-tree reserves. The net differences in reserves over time (i.e., four sampling points) provide estimates of net gains or losses of soluble sugars and starch for each stem section, organ and tree. Generally, scaling involved multiplication of nonstructural carbon concentration by an estimate of tissue dry matter similar to <span class="citation">Furze et al. (2019)</span>. Below we provide exact methods and examples for each tissue.</p>
 </div>
 <div id="for-stem-sections" class="section level2">
 <h2>For stem sections</h2>
-<p>We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith [<span class="citation">Hoch et al. (2003)</span>;furze_whole-tree_2018], we only consider nonstructural carbon reserves in the first centimeter underlying the bark for each stem section. We limit our analysis to these shallow reserves, because deeper reserves are assumed to less accessible <span class="citation">(Carbone et al., 2013)</span>,especially on timescales considered here (i.e. months). <!-- The decline in @hoch_non-structural_2003 is actually more exponential than linear, but let's start with linear. Morgan might have better data for Pinus strobus that can help me scale more adequately.--></p>
-<p>Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an accurate average of these reserves, we derive the total mass of nonstructural carbon in sugars and strach (<span class="math inline">\(M_{sugar,i}\)</span> and <span class="math inline">\(M_{starch,i}\)</span>, respectively) by multiplying the dry matter of the hollow cylinder (<span class="math inline">\(M_{i}\)</span>) of each stem section <span class="math inline">\(i\)</span> with the section’s measured concentrations of sugar and starch (<span class="math inline">\(c_{sugar,i}\)</span> and <span class="math inline">\(c_{starch,i}\)</span>, respectively). For sugar this is expressed as:</p>
+<p>We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith <span class="citation">(<span class="citeproc-not-found" data-reference-id="furze_whole-tree_2018"><strong>???</strong></span>; Hoch et al., 2003)</span>, we only consider nonstructural carbon reserves in the first centimeter underlying the bark for each stem section. We limit our analysis to these shallow reserves, because deeper reserves are assumed to less accessible <span class="citation">(Carbone et al., 2013)</span>,especially on timescales considered here (i.e. months).</p>
+<p>Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an adequate average of these reserves, we derive the total mass of nonstructural carbon in sugars and strach (<span class="math inline">\(M_{sugar,i}\)</span> and <span class="math inline">\(M_{starch,i}\)</span>, respectively) by multiplying the dry matter of the hollow cylinder (<span class="math inline">\(M_{i}\)</span>) of each stem section <span class="math inline">\(i\)</span> with the section’s measured concentrations of sugar and starch (<span class="math inline">\(c_{sugar,i}\)</span> and <span class="math inline">\(c_{starch,i}\)</span>, respectively). For sugar this is expressed as:</p>
 <p><span class="math display">\[
  M_{sugar,i} = c_{sugar,i} \times M_{i} = V_{i} \times \rho_w \times c_{sugar,i}
-\]</span> The mass of a hollow cylinder representing the outeter most centimeter of material is derived from its volume (<span class="math inline">\(V_{i}\)</span>) and an average density of the wood (<span class="math inline">\(\rho_w\)</span>). In turn the volume calculated using a height (<span class="math inline">\(h\)</span>) of 10 cm and the section’s circumference (<span class="math inline">\(cbh_{i}\)</span>; in <span class="math inline">\(cm\)</span>), which was measured in the field using a tape measure. Here, 289.9<span class="math inline">\(\pm\)</span> 40.4<span class="math inline">\(kg \, m^{-3}\)</span> was used as for the density of wood, which is the mean <span class="math inline">\(\pm\)</span> standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film <span class="citation">(Björklund et al., 2019)</span>.</p>
+\]</span> The mass of a hollow cylinder representing the outter most centimeter of material is derived from its volume (<span class="math inline">\(V_{i}\)</span>) and an average wood density (<span class="math inline">\(\rho_w\)</span>). In turn the volume is calculated using a height (<span class="math inline">\(h\)</span>) of 10 cm and the section’s circumference (<span class="math inline">\(cbh_{i}\)</span>; in <span class="math inline">\(cm\)</span>), which was measured in the field using a tape measure. Here, 289.9<span class="math inline">\(\pm\)</span> 40.4 <span class="math inline">\(kg \, m^{-3}\)</span> was used as wood density, which is the mean <span class="math inline">\(\pm\)</span> standard deviation of wood density of 16 cores from nine trees in the control group as determined using x-ray film <span class="citation">(Björklund et al., 2019)</span>.</p>
 <p><span class="math display">\[
 M_{i} = V_{i} \times \rho_{w} =  \pi \times h \times \rho_{w} \Big (\Big (\frac {cbh_{i}}{2 \pi}\Big)^2 - \Big (\frac {cbh_{i}}{2 \pi} - 0.01\Big)^2 \Big)
 \]</span></p>
-<pre class="r"><code># get the tree measurements of circumference from spreadsheet
-#----------------------------------------------------------------------------------------
-allometricData &lt;- read_excel (path = '/media/tim/dataDisk/PlantGrowth/data/allometry/Exp2017/allometricDataExp2017.xlsx', 
-                              sheet = 'allometricData', 
-                              na = &quot;NA&quot;)
-
-# Declare the height of the stem section (h, m)
-h &lt;- 0.1
-
-# Declare mean stem wood density (rho_s, kg m-3)
-rho_w &lt;- 289.9
-
-# Determine the volume of each stem section (m3) at various height (0.5m, 1m, 1.5m, 2m, 2.5m)
-# cbh is in cm, therefore divide by 100 and by 2.0 and pi to get the sections radius in m
-allometricData &lt;- add_column (allometricData,   
-                          V50  = ((allometricData[['cbh50']]/(100.0*2.0*pi))^2.0*pi*h) - 
-                                 ((allometricData[['cbh50']]/(100.0*2.0*pi)-0.01)^2.0*pi*h),
-                          V100 = (allometricData[['cbh100']]/(100.0*2.0*pi))^2.0*pi*h - 
-                                 ((allometricData[['cbh100']]/(100.0*2.0*pi)-0.01)^2.0*pi*h),
-                          V150 = (allometricData[['cbh150']]/(100.0*2.0*pi))^2.0*pi*h - 
-                                 ((allometricData[['cbh150']]/(100.0*2.0*pi)-0.01)^2.0*pi*h), 
-                          V200 = (allometricData[['cbh200']]/(100.0*2.0*pi))^2.0*pi*h - 
-                                 ((allometricData[['cbh200']]/(100.0*2.0*pi)-0.01)^2.0*pi*h),
-                          V250 = (allometricData[['cbh250']]/(100.0*2.0*pi))^2.0*pi*h - 
-                                 ((allometricData[['cbh250']]/(100.0*2.0*pi)-0.01)^2.0*pi*h))
-
-# determine the mass of each stem section (Msection, kg)
-#----------------------------------------------------------------------------------------
-allometricData &lt;- add_column (allometricData,
-                          M50  = allometricData [['V50']]  * rho_w,
-                          M100 = allometricData [['V100']] * rho_w,
-                          M150 = allometricData [['V150']] * rho_w,
-                          M200 = allometricData [['V200']] * rho_w,
-                          M250 = allometricData [['V250']] * rho_w)</code></pre>
 <pre class="r"><code># read the sugar and starch concentration for needles, roots and first centimeter of wood
 #----------------------------------------------------------------------------------------
 suppressMessages (source (file = '/home/tim/projects/PlantGrowth/nonstructuralCarbon/processExpNSCData.R'))</code></pre>
@@ -454,9 +420,43 @@ suppressMessages (source (file = '/home/tim/projects/PlantGrowth/nonstructuralCa
 #----------------------------------------------------------------------------------------
 leafData2017 &lt;- filter (leafData2017, treeID &lt;= 40)
 rootData2017 &lt;- filter (rootData2017, treeID &lt;= 40)
-stemData2017 &lt;- filter (stemData2017, treeID &lt;= 40)
+stemData2017 &lt;- filter (stemData2017, treeID &lt;= 40)</code></pre>
+<p>For example, a 10 <span class="math inline">\(cm\)</span> high stem section of 20 <span class="math inline">\(cm\)</span> diameter, would have a volume of 628 <span class="math inline">\(cm^3\)</span> and a mass of 182.06 <span class="math inline">\(g\)</span>. At an average measured sugar and starch concentration of 0.82 and 0.3 <span class="math inline">\(\% \, dry \, mass\)</span> in July, this equates to a total nonstructural carbon reserve of roughly 2 <span class="math inline">\(g\)</span>.</p>
+<pre class="r"><code># get the tree measurements of circumference from spreadsheet
+#----------------------------------------------------------------------------------------
+allometricData &lt;- read_excel (path = '/media/tim/dataDisk/PlantGrowth/data/allometry/Exp2017/allometricDataExp2017.xlsx', 
+                              sheet = 'allometricData', 
+                              na = &quot;NA&quot;)
 
-# create responseVariables tibble
+# Declare the height of the stem section (h, m)
+h &lt;- 0.1
+
+# Declare mean stem wood density (rho_s, kg m-3)
+rho_w &lt;- 289.9
+
+# Determine the volume of each stem section (m3) at various height (0.5m, 1m, 1.5m, 2m, 2.5m)
+# cbh is in cm, therefore divide by 100 and by 2.0 and pi to get the sections radius in m
+allometricData &lt;- add_column (allometricData,   
+                          V50  = ((allometricData[['cbh50']]/(100.0*2.0*pi))^2.0*pi*h) - 
+                                 ((allometricData[['cbh50']]/(100.0*2.0*pi)-0.01)^2.0*pi*h),
+                          V100 = (allometricData[['cbh100']]/(100.0*2.0*pi))^2.0*pi*h - 
+                                 ((allometricData[['cbh100']]/(100.0*2.0*pi)-0.01)^2.0*pi*h),
+                          V150 = (allometricData[['cbh150']]/(100.0*2.0*pi))^2.0*pi*h - 
+                                 ((allometricData[['cbh150']]/(100.0*2.0*pi)-0.01)^2.0*pi*h), 
+                          V200 = (allometricData[['cbh200']]/(100.0*2.0*pi))^2.0*pi*h - 
+                                 ((allometricData[['cbh200']]/(100.0*2.0*pi)-0.01)^2.0*pi*h),
+                          V250 = (allometricData[['cbh250']]/(100.0*2.0*pi))^2.0*pi*h - 
+                                 ((allometricData[['cbh250']]/(100.0*2.0*pi)-0.01)^2.0*pi*h))
+
+# determine the mass of each stem section (Msection, kg)
+#----------------------------------------------------------------------------------------
+allometricData &lt;- add_column (allometricData,
+                          M50  = allometricData [['V50']]  * rho_w,
+                          M100 = allometricData [['V100']] * rho_w,
+                          M150 = allometricData [['V150']] * rho_w,
+                          M200 = allometricData [['V200']] * rho_w,
+                          M250 = allometricData [['V250']] * rho_w)</code></pre>
+<pre class="r"><code># create responseVariables tibble
 #----------------------------------------------------------------------------------------
 responseVariables &lt;- tibble (year = 2017,
                              month    = c (rep (7, 40), rep (8, 40), 
