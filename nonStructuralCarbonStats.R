@@ -120,7 +120,7 @@ M01Values [['height']] [M01Values [['height']] == 'B'] <- 25
 
 # create layout for the mixed model-based figure of change in sugar
 #----------------------------------------------------------------------------------------
-png (filename = '../fig/Exp2017StemDeltaSugar.png', width = 600, height = 400) 
+png (filename = '../fig/Exp2017StemDeltaSugar.png', width = 600, height = 450) 
   layout (matrix (1:3, nrow = 1, byrow = TRUE), widths = c (1.6, 1, 1.1))
   
   # loop over dates to create on plot of fractional cumulative cell wall area for each period
@@ -130,11 +130,46 @@ png (filename = '../fig/Exp2017StemDeltaSugar.png', width = 600, height = 400)
     # choose appropriate plot margins 
     #--------------------------------------------------------------------------------------
     if (iDate == 'aug') {
-      par (mar = c (5, 10, 1, 0))
+      par (mar = c (7, 10, 1, 0))
     } else if (iDate == 'oct') {
-      par (mar = c (5, 0, 1, 0))
+      par (mar = c (7, 0, 1, 0))
     } else {
-      par (mar = c (5, 0, 1, 1))
+      par (mar = c (7, 0, 1, 1))
+    }
+    
+    # check effect size and colour symbols accordingly
+    #--------------------------------------------------------------------------------------
+    deltaMu <- M01Values [['beta']] [M01Values [['date']] == iDate] - 
+               M01Values [['beta']] [M01Values [['date']] == iDate] [1]
+    d <- 0.5
+    for (i in 2:8) {
+      # determine treatment and sampling height
+      if (i >= 3) {
+        if (i == 2) {
+          t <- 2; h <- 'B'
+        } else {
+          t <- 2; h <- 'A'
+        }
+      } else if (i <= 5) {
+        if (i == 4) {
+          t <- 3; h <- 'B'
+        } else {
+          t <- 3; h <- 'A'
+        }
+      } else {
+        if (i == 6) {
+          t <- 4; h <- 'B'
+        } else if (i == 7) {
+          t <- 4; h <- 'M'
+        } else {
+          t <- 4; h <- 'A'
+        }
+      }
+      d <- c (d, abs (deltaMu [i]) / 
+                (sd (stemData2017 [['deltaSugar']] [stemData2017 [['treatment']] %in% c (1, t) & 
+                                                    stemData2017 [['height']] %in% c ('C',h)   &
+                                                    as_date (stemData2017 [['date']]) > as_date ('2017-07-05')], 
+                     na.rm = TRUE)))
     }
     
     # plot the cummulative cell wall area for each period
@@ -144,10 +179,10 @@ png (filename = '../fig/Exp2017StemDeltaSugar.png', width = 600, height = 400)
           las = 1, xlab = '', ylab = '', axes = FALSE,
           xlim = c (-0.4, 0.6), ylim = c (0, 6.6), 
           col = tColours [['colour']] [M01Values [['treatment']] [M01Values [['date']] == iDate]], 
-          bg = ifelse (abs (M01Values [['tValue']] [M01Values [['date']] == iDate]) >= 2, 
+          bg = ifelse (d >= 0.5, 
                        tColours [['colour']] [M01Values[['treatment']] [M01Values [['date']] == iDate]], 
-                       'white'), lwd = 2, 
-          cex = 2, #abs (M01Values [['tValue']] [M01Values [['date']] == iDate]),
+                       'white'), 
+          lwd = 2, cex = 2 + d,
           pch = as.numeric (M01Values [['height']] [M01Values [['date']] == iDate]))
     
     # add zero line
@@ -176,15 +211,15 @@ png (filename = '../fig/Exp2017StemDeltaSugar.png', width = 600, height = 400)
     points (x = M01Values [['beta']] [M01Values [['date']] == iDate],
             y = M01Values [['yPos']] [M01Values [['date']] == iDate],
             col = tColours [['colour']] [M01Values [['treatment']] [M01Values [['date']] == iDate]], 
-            bg = ifelse (abs (M01Values [['tValue']] [M01Values [['date']] == iDate]) >= 2, 
+            bg = ifelse (d >= 0.5, 
                          tColours [['colour']] [M01Values[['treatment']] [M01Values [['date']] == iDate]], 
                          'white'), 
-            lwd = 2, cex = 2, #abs (M01Values [['tValue']] [M01Values [['date']] == iDate]),
+            lwd = 2, cex = 2+d, 
             pch = as.numeric (M01Values [['height']] [M01Values [['date']] == iDate]))
     
     # add x-axis
     #--------------------------------------------------------------------------------------
-    axis (side = 1, at = seq (-0.3, 0.6, by = 0.3), cex.axis = 1.5)
+    axis (side = 1, at = seq (-0.2, 0.4, by = 0.2), cex.axis = 2)
     
     # add panel labels and axis 
     #--------------------------------------------------------------------------------------
@@ -193,33 +228,33 @@ png (filename = '../fig/Exp2017StemDeltaSugar.png', width = 600, height = 400)
       # add y-axis
       #------------------------------------------------------------------------------------
       axis (side = 2, at = yPositions, labels = c ('C','B','A','B','A','B','M','A'), 
-            las = 1, cex.axis = 1.5)
+            las = 1, cex.axis = 2)
       
       # add treatments
       #------------------------------------------------------------------------------------
-      mtext (side = 2, line = 3,   text = 'control',    cex = 1.2, at = yPositions [1])
-      mtext (side = 2, line = 3,   text = 'girdled',    cex = 1.2, at = mean (yPositions [c(2,3)]))
-      mtext (side = 2, line = 3,   text = 'compressed', cex = 1.2, at = mean (yPositions [c(4,5)]))
-      mtext (side = 2, line = 4.5, text = 'double',     cex = 1.2, at = mean (yPositions [c(6,7,8)]))
-      mtext (side = 2, line = 3,   text = 'compressed', cex = 1.2, at = mean (yPositions [c(6,7,8)]))
+      mtext (side = 2, line = 3,   text = 'control',    cex = 1.4, at = yPositions [1])
+      mtext (side = 2, line = 3,   text = 'girdled',    cex = 1.4, at = mean (yPositions [c(2,3)]))
+      mtext (side = 2, line = 3,   text = 'compressed', cex = 1.4, at = mean (yPositions [c(4,5)]))
+      mtext (side = 2, line = 4.5, text = 'double',     cex = 1.4, at = mean (yPositions [c(6,7,8)]))
+      mtext (side = 2, line = 3,   text = 'compressed', cex = 1.4, at = mean (yPositions [c(6,7,8)]))
       mtext (side = 2, line = 7,   text = 'wood', cex = 3, at = 3.3)
 
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -0.4, y = 6.6, pos = 4, labels = 'august', cex = 2)
+      text (x = -0.4, y = 6.6, pos = 4, labels = 'august', cex = 3)
     } else if (iDate == 'oct') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -0.4, y = 6.6, pos = 4, labels = 'october', cex = 2)
+      text (x = -0.4, y = 6.6, pos = 4, labels = 'october', cex = 3)
     
       # add x-axis label
       #------------------------------------------------------------------------------------
-      mtext (side = 1, line = 4, at = 0.1, cex = 1.5,
+      mtext (side = 1, line = 5, at = 0.1, cex = 2,
              text = expression (paste ('change in concentration (% dry weight)')))
     } else if (iDate == 'nov') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -0.4, y = 6.6, pos = 4, labels = 'november', cex = 2)
+      text (x = -0.4, y = 6.6, pos = 4, labels = 'november', cex = 3)
     }
     
     # make a line separating the panels
@@ -231,7 +266,7 @@ png (filename = '../fig/Exp2017StemDeltaSugar.png', width = 600, height = 400)
   #----------------------------------------------------------------------------------------
   betweenTreeVar <- as_tibble (VarCorr (M1)) [1, 5] [[1]]
   text (labels = expression (paste (sigma [tree])), x = 0.6, y = 0.4, 
-        cex = 2, pos = 2, col = '#777777')
+        cex = 2.5, pos = 2, col = '#777777')
   segments (x0 = 0.6 - betweenTreeVar, x1 = 0.6, y0 = 0.2, 
             lwd = 4, col = '#777777')
 dev.off ()
@@ -283,7 +318,7 @@ M02Values [['height']] [M02Values [['height']] == 'B'] <- 25
 
 # create layout for the mixed model-based figure of change in starch
 #----------------------------------------------------------------------------------------
-png (filename = '../fig/Exp2017StemDeltaStarch.png', width = 600, height = 400) 
+png (filename = '../fig/Exp2017StemDeltaStarch.png', width = 600, height = 450) 
   layout (matrix (1:3, nrow = 1, byrow = TRUE), widths = c (1.4, 1, 1.1))
   
   # loop over dates to create on plot of stem starch concentration for each period
@@ -293,11 +328,46 @@ png (filename = '../fig/Exp2017StemDeltaStarch.png', width = 600, height = 400)
     # choose appropriate plot margins 
     #--------------------------------------------------------------------------------------
     if (iDate == 'aug') {
-      par (mar = c (5, 6, 1, 0))
+      par (mar = c (7, 6, 1, 0))
     } else if (iDate == 'oct') {
-      par (mar = c (5, 0, 1, 0))
+      par (mar = c (7, 0, 1, 0))
     } else {
-      par (mar = c (5, 0, 1, 1))
+      par (mar = c (7, 0, 1, 1))
+    }
+    
+    # check effect size and colour symbols accordingly
+    #--------------------------------------------------------------------------------------
+    deltaMu <- M02Values [['beta']] [M02Values [['date']] == iDate] - 
+               M02Values [['beta']] [M02Values [['date']] == iDate] [1]
+    d <- 0.5
+    for (i in 2:8) {
+      # determine treatment and sampling height
+      if (i >= 3) {
+        if (i == 2) {
+          t <- 2; h <- 'B'
+        } else {
+          t <- 2; h <- 'A'
+        }
+      } else if (i <= 5) {
+        if (i == 4) {
+          t <- 3; h <- 'B'
+        } else {
+          t <- 3; h <- 'A'
+        }
+      } else {
+        if (i == 6) {
+          t <- 4; h <- 'B'
+        } else if (i == 7) {
+          t <- 4; h <- 'M'
+        } else {
+          t <- 4; h <- 'A'
+        }
+      }
+      d <- c (d, abs (deltaMu [i]) / 
+                (sd (stemData2017 [['deltaStarch']] [stemData2017 [['treatment']] %in% c (1, t) & 
+                                                      stemData2017 [['height']] %in% c ('C',h)   &
+                                                      as_date (stemData2017 [['date']]) > as_date ('2017-07-05')], 
+                     na.rm = TRUE)))
     }
     
     # plot the cummulative cell wall area for each period
@@ -307,10 +377,10 @@ png (filename = '../fig/Exp2017StemDeltaStarch.png', width = 600, height = 400)
           las = 1, xlab = '', ylab = '', axes = FALSE,
           xlim = c (-0.6, 0.3), ylim = c (0, 6.6), 
           col = tColours [['colour']] [M02Values [['treatment']] [M02Values [['date']] == iDate]], 
-          bg = ifelse (abs (M02Values [['tValue']] [M02Values [['date']] == iDate]) >= 2, 
+          bg = ifelse (d >= 0.5, 
                        tColours [['colour']] [M02Values[['treatment']] [M02Values [['date']] == iDate]], 
                        'white'), lwd = 2, 
-          cex = 2, #abs (M02Values [['tValue']] [M02Values [['date']] == iDate]),
+          cex = 2 + d,
           pch = as.numeric (M02Values [['height']] [M02Values [['date']] == iDate]))
     
     # add zero line
@@ -339,15 +409,15 @@ png (filename = '../fig/Exp2017StemDeltaStarch.png', width = 600, height = 400)
     points (x = M02Values [['beta']] [M02Values [['date']] == iDate],
             y = M02Values [['yPos']] [M02Values [['date']] == iDate],
             col = tColours [['colour']] [M02Values [['treatment']] [M02Values [['date']] == iDate]], 
-            bg = ifelse (abs (M02Values [['tValue']] [M02Values [['date']] == iDate]) >= 2, 
+            bg = ifelse (d >= 0.5, 
                          tColours [['colour']] [M02Values[['treatment']] [M02Values [['date']] == iDate]], 
                          'white'), 
-            lwd = 2, cex = 2, #abs (M02Values [['tValue']] [M02Values [['date']] == iDate]),
+            lwd = 2, cex = 2 + d,            
             pch = as.numeric (M02Values [['height']] [M02Values [['date']] == iDate]))
     
     # add x-axis
     #--------------------------------------------------------------------------------------
-    axis (side = 1, at = seq (-0.4, 0.2, by = 0.2), cex.axis = 1.5)
+    axis (side = 1, at = seq (-0.4, 0.2, by = 0.2), cex.axis = 2)
     
     # add panel labels and axis 
     #--------------------------------------------------------------------------------------
@@ -356,32 +426,32 @@ png (filename = '../fig/Exp2017StemDeltaStarch.png', width = 600, height = 400)
       # add y-axis
       #------------------------------------------------------------------------------------
       axis (side = 2, at = yPositions, labels = c ('C','B','A','B','A','B','M','A'), 
-            las = 1, cex.axis = 1.5)
+            las = 1, cex.axis = 2)
       
       # add treatments
       #------------------------------------------------------------------------------------
-      mtext (side = 2, line = 3,   text = 'control',    cex = 1.2, at = yPositions [1])
-      mtext (side = 2, line = 3,   text = 'girdled',    cex = 1.2, at = mean (yPositions [c(2,3)]))
-      mtext (side = 2, line = 3,   text = 'compressed', cex = 1.2, at = mean (yPositions [c(4,5)]))
-      mtext (side = 2, line = 4.5, text = 'double',     cex = 1.2, at = mean (yPositions [c(6,7,8)]))
-      mtext (side = 2, line = 3,   text = 'compressed', cex = 1.2, at = mean (yPositions [c(6,7,8)]))
+      mtext (side = 2, line = 3,   text = 'control',    cex = 1.4, at = yPositions [1])
+      mtext (side = 2, line = 3,   text = 'girdled',    cex = 1.4, at = mean (yPositions [c(2,3)]))
+      mtext (side = 2, line = 3,   text = 'compressed', cex = 1.4, at = mean (yPositions [c(4,5)]))
+      mtext (side = 2, line = 4.5, text = 'double',     cex = 1.4, at = mean (yPositions [c(6,7,8)]))
+      mtext (side = 2, line = 3,   text = 'compressed', cex = 1.4, at = mean (yPositions [c(6,7,8)]))
       
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -0.5, y = 6.6, pos = 4, labels = 'august', cex = 2)
+      text (x = -0.5, y = 6.6, pos = 4, labels = 'august', cex = 3)
     } else if (iDate == 'oct') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -0.6, y = 6.6, pos = 4, labels = 'october', cex = 2)
+      text (x = -0.6, y = 6.6, pos = 4, labels = 'october', cex = 3)
       
       # add x-axis label
       #------------------------------------------------------------------------------------
-      mtext (side = 1, line = 4, at = -0.1, cex = 1.5, 
+      mtext (side = 1, line = 5, at = -0.1, cex = 2, 
              text = 'change in concentration (% dry weight)')
     } else if (iDate == 'nov') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -0.6, y = 6.6, pos = 4, labels = 'november', cex = 2)
+      text (x = -0.6, y = 6.6, pos = 4, labels = 'november', cex = 3)
     }
     
     # make a line separating the panels
@@ -393,7 +463,7 @@ png (filename = '../fig/Exp2017StemDeltaStarch.png', width = 600, height = 400)
   #----------------------------------------------------------------------------------------
   betweenTreeVar <- as_tibble (VarCorr (M1)) [1, 5] [[1]]
   text (labels = expression (paste (sigma [tree])), x = 0.3, y = 0.4, 
-        cex = 2, pos = 2, col = '#777777')
+        cex = 2.5, pos = 2, col = '#777777')
   segments (x0 = 0.3 - betweenTreeVar, x1 = 0.3, y0 = 0.2, 
             lwd = 4, col = '#777777')
 dev.off ()
@@ -426,11 +496,23 @@ png (filename = '../fig/Exp2017LeafDeltaSugar.png', width = 600, height = 500)
     # choose appropriate plot margins 
     #--------------------------------------------------------------------------------------
     if (iDate == 'aug') {
-      par (mar = c (5, 10, 6, 0))
+      par (mar = c (7, 10, 6, 0))
     } else if (iDate == 'oct') {
-      par (mar = c (5, 0, 6, 0))
+      par (mar = c (7, 0, 6, 0))
     } else {
-      par (mar = c (5, 0, 6, 1))
+      par (mar = c (7, 0, 6, 1))
+    }
+    
+    # check effect size and colour symbols accordingly
+    #--------------------------------------------------------------------------------------
+    deltaMu <- M03Values [['beta']] [M03Values [['date']] == iDate] - 
+               M03Values [['beta']] [M03Values [['date']] == iDate] [1]
+    d <- 0.5
+    for (i in 2:4) {
+      d <- c (d, abs (deltaMu [i]) / 
+                (sd (leafData2017 [['deltaSugar']] [leafData2017 [['treatment']] %in% c (1, t) & 
+                                                    as_date (leafData2017 [['date']]) > as_date ('2017-07-05')], 
+                     na.rm = TRUE)))
     }
     
     # plot the cummulative cell wall area for each period
@@ -440,10 +522,10 @@ png (filename = '../fig/Exp2017LeafDeltaSugar.png', width = 600, height = 500)
           las = 1, xlab = '', ylab = '', axes = FALSE,
           xlim = c (-2.4, 4.5), ylim = c (0.3, 4.6), 
           col = tColours [['colour']] [M03Values [['treatment']] [M03Values [['date']] == iDate]], 
-          bg = ifelse (abs (M03Values [['tValue']] [M03Values [['date']] == iDate]) >= 2, 
+          bg = ifelse (d >= 0.5, 
                        tColours [['colour']] [M03Values[['treatment']] [M03Values [['date']] == iDate]], 
-                       'white'), lwd = 2, 
-          cex = 2, #abs (M03Values [['tValue']] [M03Values [['date']] == iDate]),
+                       'white'), 
+          lwd = 2, cex = 2 + d,
           pch = ifelse (M03Values [['treatment']] [M03Values [['date']] == iDate] == 1, 
                         21, 24))
     
@@ -473,16 +555,16 @@ png (filename = '../fig/Exp2017LeafDeltaSugar.png', width = 600, height = 500)
     points (x = M03Values [['beta']] [M03Values [['date']] == iDate],
             y = M03Values [['treatment']] [M03Values [['date']] == iDate],
             col = tColours [['colour']] [M03Values [['treatment']] [M03Values [['date']] == iDate]], 
-            bg = ifelse (abs (M03Values [['tValue']] [M03Values [['date']] == iDate]) >= 2, 
+            bg = ifelse (d >= 0.5, 
                          tColours [['colour']] [M03Values[['treatment']] [M03Values [['date']] == iDate]], 
                          'white'), 
-            lwd = 2, cex = 2, #abs (M03Values [['tValue']] [M03Values [['date']] == iDate]),
+            lwd = 2, cex = 2 + d,
             pch = ifelse (M03Values [['treatment']] [M03Values [['date']] == iDate] == 1, 
                           21, 24))
     
     # add x-axis
     #--------------------------------------------------------------------------------------
-    axis (side = 1, at = seq (-2, 4, by = 2), cex.axis = 1.5)
+    axis (side = 1, at = seq (-2, 4, by = 2), cex.axis = 2)
     
     # add panel labels and axis 
     #------------------------------------------------------------------------------------
@@ -506,15 +588,15 @@ png (filename = '../fig/Exp2017LeafDeltaSugar.png', width = 600, height = 500)
       
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -2, y = 4.6, pos = 4, labels = 'august', cex = 2)
+      text (x = -2, y = 4.6, pos = 4, labels = 'august', cex = 3)
     } else if (iDate == 'oct') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -2, y = 4.6, pos = 4, labels = 'october', cex = 2)
+      text (x = -2, y = 4.6, pos = 4, labels = 'october', cex = 3)
       
       # add x-axis label
       #------------------------------------------------------------------------------------
-      mtext (side = 1, line = 4, at = 0.75, cex = 1.5,
+      mtext (side = 1, line = 5, at = 0.75, cex = 2,
              text = expression (paste ('change in concentration (% dry weight)')))
       
       # add title
@@ -523,7 +605,7 @@ png (filename = '../fig/Exp2017LeafDeltaSugar.png', width = 600, height = 500)
     } else if (iDate == 'nov') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -2, y = 4.6, pos = 4, labels = 'november', cex = 2)
+      text (x = -2, y = 4.6, pos = 4, labels = 'november', cex = 3)
     }
     
     # make a line separating the panels
@@ -535,7 +617,7 @@ png (filename = '../fig/Exp2017LeafDeltaSugar.png', width = 600, height = 500)
   #----------------------------------------------------------------------------------------
   betweenTreeVar <- as_tibble (VarCorr (M3)) [1, 5] [[1]]
   text (labels = expression (paste (sigma [tree])), x = 4.5, y = 0.5, 
-        cex = 2, pos = 2, col = '#777777')
+        cex = 2.5, pos = 2, col = '#777777')
   segments (x0 = 4.5 - betweenTreeVar, x1 = 4.5, y0 = 0.3, 
             lwd = 4, col = '#777777')
 dev.off ()
@@ -568,11 +650,23 @@ png (filename = '../fig/Exp2017LeafDeltaStarch.png', width = 600, height = 500)
     # choose appropriate plot margins 
     #--------------------------------------------------------------------------------------
     if (iDate == 'aug') {
-      par (mar = c (5, 5, 6, 0))
+      par (mar = c (7, 5, 6, 0))
     } else if (iDate == 'oct') {
-      par (mar = c (5, 0, 6, 0))
+      par (mar = c (7, 0, 6, 0))
     } else {
-      par (mar = c (5, 0, 6, 1))
+      par (mar = c (7, 0, 6, 1))
+    }
+    
+    # check effect size and colour symbols accordingly
+    #--------------------------------------------------------------------------------------
+    deltaMu <- M04Values [['beta']] [M04Values [['date']] == iDate] - 
+               M04Values [['beta']] [M04Values [['date']] == iDate] [1]
+    d <- 0.5
+    for (i in 2:4) {
+      d <- c (d, abs (deltaMu [i]) / 
+                (sd (leafData2017 [['deltaStarch']] [leafData2017 [['treatment']] %in% c (1, t) & 
+                                                      as_date (leafData2017 [['date']]) > as_date ('2017-07-05')], 
+                     na.rm = TRUE)))
     }
     
     # plot the cummulative cell wall area for each period
@@ -582,10 +676,10 @@ png (filename = '../fig/Exp2017LeafDeltaStarch.png', width = 600, height = 500)
           las = 1, xlab = '', ylab = '', axes = FALSE,
           xlim = c (-2.4, 2.0), ylim = c (0.3, 4.6), 
           col = tColours [['colour']] [M04Values [['treatment']] [M04Values [['date']] == iDate]], 
-          bg = ifelse (abs (M04Values [['tValue']] [M04Values [['date']] == iDate]) >= 2, 
+          bg = ifelse (d >= 0.5, 
                        tColours [['colour']] [M04Values[['treatment']] [M04Values [['date']] == iDate]], 
-                       'white'), lwd = 2, 
-          cex = 2, #abs (M04Values [['tValue']] [M04Values [['date']] == iDate]),
+                       'white'), 
+          lwd = 2, cex = 2 + d,          
           pch = ifelse (M04Values [['treatment']] [M04Values [['date']] == iDate] == 1, 
                         21, 24))
     
@@ -615,16 +709,16 @@ png (filename = '../fig/Exp2017LeafDeltaStarch.png', width = 600, height = 500)
     points (x = M04Values [['beta']] [M04Values [['date']] == iDate],
             y = M04Values [['treatment']] [M04Values [['date']] == iDate],
             col = tColours [['colour']] [M04Values [['treatment']] [M04Values [['date']] == iDate]], 
-            bg = ifelse (abs (M04Values [['tValue']] [M04Values [['date']] == iDate]) >= 2, 
+            bg = ifelse (d >= 0.5, 
                          tColours [['colour']] [M04Values[['treatment']] [M04Values [['date']] == iDate]], 
                          'white'), 
-            lwd = 2, cex = 2, #abs (M04Values [['tValue']] [M04Values [['date']] == iDate]),
+            lwd = 2, cex = 2 + d, 
             pch = ifelse (M04Values [['treatment']] [M04Values [['date']] == iDate] == 1, 
                           21, 24))
     
     # add x-axis
     #--------------------------------------------------------------------------------------
-    axis (side = 1, at = seq (-2, 2, by = 2), cex.axis = 1.5)
+    axis (side = 1, at = seq (-2, 2, by = 2), cex.axis = 2)
     
     # add panel labels and axis 
     #--------------------------------------------------------------------------------------
@@ -644,11 +738,11 @@ png (filename = '../fig/Exp2017LeafDeltaStarch.png', width = 600, height = 500)
       
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -2.4, y = 4.7, pos = 4, labels = 'august', cex = 2)
+      text (x = -2.4, y = 4.6, pos = 4, labels = 'august', cex = 3)
     } else if (iDate == 'oct') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -2.4, y = 4.7, pos = 4, labels = 'october', cex = 2)
+      text (x = -2.4, y = 4.6, pos = 4, labels = 'october', cex = 3)
       
       # add title
       #----------------------------------------------------------------------------------
@@ -656,12 +750,12 @@ png (filename = '../fig/Exp2017LeafDeltaStarch.png', width = 600, height = 500)
       
       # add x-axis label
       #------------------------------------------------------------------------------------
-      mtext (side = 1, line = 4, at = -0.2, cex = 1.5,
+      mtext (side = 1, line = 5, at = -0.2, cex = 2,
              text = 'change in concentration (% dry weight)')
     } else if (iDate == 'nov') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -2.4, y = 4.7, pos = 4, labels = 'november', cex = 2)
+      text (x = -2.4, y = 4.6, pos = 4, labels = 'november', cex = 3)
     }
     
     # make a line separating the panels
@@ -673,7 +767,7 @@ png (filename = '../fig/Exp2017LeafDeltaStarch.png', width = 600, height = 500)
   #----------------------------------------------------------------------------------------
   betweenTreeVar <- as_tibble (VarCorr (M4)) [1, 5] [[1]]
   text (labels = expression (paste (sigma [tree])), x = 2, y = 0.5, 
-        cex = 2, pos = 2, col = '#777777')
+        cex = 2.5, pos = 2, col = '#777777')
   segments (x0 = 2 - betweenTreeVar, x1 = 2, y0 = 0.3, 
             lwd = 4, col = '#777777')
 dev.off ()
@@ -706,11 +800,23 @@ png (filename = '../fig/Exp2017RootDeltaSugar.png', width = 600, height = 450)
     # choose appropriate plot margins 
     #--------------------------------------------------------------------------------------
     if (iDate == 'aug') {
-      par (mar = c (5, 10, 1, 0))
+      par (mar = c (7, 10, 1, 0))
     } else if (iDate == 'oct') {
-      par (mar = c (5, 0, 1, 0))
+      par (mar = c (7, 0, 1, 0))
     } else {
-      par (mar = c (5, 0, 1, 1))
+      par (mar = c (7, 0, 1, 1))
+    }
+    
+    # check effect size and colour symbols accordingly
+    #--------------------------------------------------------------------------------------
+    deltaMu <- M05Values [['beta']] [M05Values [['date']] == iDate] - 
+               M05Values [['beta']] [M05Values [['date']] == iDate] [1]
+    d <- 0.5
+    for (i in 2:4) {
+      d <- c (d, abs (deltaMu [i]) / 
+                (sd (rootData2017 [['deltaSugar']] [rootData2017 [['treatment']] %in% c (1, t) & 
+                                                    as_date (rootData2017 [['date']]) > as_date ('2017-07-05')], 
+                     na.rm = TRUE)))
     }
     
     # plot the cummulative cell wall area for each period
@@ -720,10 +826,10 @@ png (filename = '../fig/Exp2017RootDeltaSugar.png', width = 600, height = 450)
           las = 1, xlab = '', ylab = '', axes = FALSE,
           xlim = c (-0.8, 0.8), ylim = c (0.3, 4.6), 
           col = tColours [['colour']] [M05Values [['treatment']] [M05Values [['date']] == iDate]], 
-          bg = ifelse (abs (M05Values [['tValue']] [M05Values [['date']] == iDate]) >= 2, 
+          bg = ifelse (d >= 0.5, 
                        tColours [['colour']] [M05Values[['treatment']] [M05Values [['date']] == iDate]], 
                        'white'), lwd = 2, 
-          cex = 2, #abs (M05Values [['tValue']] [M05Values [['date']] == iDate]),
+          cex = 2 + d, 
           pch = ifelse (M05Values [['treatment']] [M05Values [['date']] == iDate] == 1, 
                         21, 24))
     
@@ -753,16 +859,16 @@ png (filename = '../fig/Exp2017RootDeltaSugar.png', width = 600, height = 450)
     points (x = M05Values [['beta']] [M05Values [['date']] == iDate],
             y = M05Values [['treatment']] [M05Values [['date']] == iDate],
             col = tColours [['colour']] [M05Values [['treatment']] [M05Values [['date']] == iDate]], 
-            bg = ifelse (abs (M05Values [['tValue']] [M05Values [['date']] == iDate]) >= 2, 
+            bg = ifelse (d >= 0.5, 
                          tColours [['colour']] [M05Values[['treatment']] [M05Values [['date']] == iDate]], 
                          'white'), 
-            lwd = 2, cex = 2, #abs (M05Values [['tValue']] [M05Values [['date']] == iDate]),
+            lwd = 2, cex = 2 + d, 
             pch = ifelse (M05Values [['treatment']] [M05Values [['date']] == iDate] == 1, 
                           21, 24))
     
     # add x-axis
     #--------------------------------------------------------------------------------------
-    axis (side = 1, at = seq (-0.5, 0.5, by = 0.5), cex.axis = 1.5)
+    axis (side = 1, at = seq (-0.5, 0.5, by = 0.5), cex.axis = 2)
     
     # add panel labels and axis 
     #--------------------------------------------------------------------------------------
@@ -783,20 +889,20 @@ png (filename = '../fig/Exp2017RootDeltaSugar.png', width = 600, height = 450)
       
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -0.8, y = 4.6, pos = 4, labels = 'august', cex = 2)
+      text (x = -0.8, y = 4.6, pos = 4, labels = 'august', cex = 3)
     } else if (iDate == 'oct') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -0.8, y = 4.6, pos = 4, labels = 'october', cex = 2)
+      text (x = -0.8, y = 4.6, pos = 4, labels = 'october', cex = 3)
       
       # add x-axis label
       #------------------------------------------------------------------------------------
-      mtext (side = 1, line = 4, at = 0, cex = 1.5,
+      mtext (side = 1, line = 5, at = 0, cex = 2,
              text = expression (paste ('change in concentration (% dry weight)')))
     } else if (iDate == 'nov') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = -0.8, y = 4.6, pos = 4, labels = 'november', cex = 2)
+      text (x = -0.8, y = 4.6, pos = 4, labels = 'november', cex = 3)
     }
     
     # make a line separating the panels
@@ -808,7 +914,7 @@ png (filename = '../fig/Exp2017RootDeltaSugar.png', width = 600, height = 450)
   #----------------------------------------------------------------------------------------
   betweenTreeVar <- as_tibble (VarCorr (M5)) [1, 5] [[1]]
   text (labels = expression (paste (sigma [tree])), x = 0.8, y = 0.5, 
-        cex = 2, pos = 2, col = '#777777')
+        cex = 2.5, pos = 2, col = '#777777')
   segments (x0 = 0.8 - betweenTreeVar, x1 = 0.8, y0 = 0.3, 
             lwd = 4, col = '#777777')
 dev.off ()
@@ -829,8 +935,6 @@ M06Values <- add_column (M06Values, .before = 1,
                          treatment = c (rep (1, 3), c (2, 2, 2, 3, 3, 3, 4, 4, 4)),
                          date = rep (c ('aug', 'oct', 'nov'), 4))
 
-# TR- Below seems fine now, but only the below. I will have to change the other plots!!
-
 # create layout for the mixed model-based figure of change in starch 
 #----------------------------------------------------------------------------------------
 png (filename = '../fig/Exp2017RootDeltaStarch.png', width = 600, height = 450) 
@@ -843,11 +947,23 @@ png (filename = '../fig/Exp2017RootDeltaStarch.png', width = 600, height = 450)
     # choose appropriate plot margins 
     #--------------------------------------------------------------------------------------
     if (iDate == 'aug') {
-      par (mar = c (6, 6, 1, 0))
+      par (mar = c (7, 6, 1, 0))
     } else if (iDate == 'oct') {
-      par (mar = c (6, 0, 1, 0))
+      par (mar = c (7, 0, 1, 0))
     } else {
-      par (mar = c (6, 0, 1, 1))
+      par (mar = c (7, 0, 1, 1))
+    }
+    
+    # check effect size and colour symbols accordingly
+    #--------------------------------------------------------------------------------------
+    deltaMu <- M06Values [['beta']] [M06Values [['date']] == iDate] - 
+               M06Values [['beta']] [M06Values [['date']] == iDate] [1]
+    d <- 0.5
+    for (i in 2:4) {
+      d <- c (d, abs (deltaMu [i]) / 
+                (sd (rootData2017 [['deltaStarch']] [rootData2017 [['treatment']] %in% c (1, t) & 
+                                                     as_date (rootData2017 [['date']]) > as_date ('2017-07-05')], 
+                     na.rm = TRUE)))
     }
     
     # plot the cummulative cell wall area for each period
@@ -857,10 +973,10 @@ png (filename = '../fig/Exp2017RootDeltaStarch.png', width = 600, height = 450)
           las = 1, xlab = '', ylab = '', axes = FALSE,
           xlim = c (-0.8, 0.6), ylim = c (0.3, 4.6), 
           col = tColours [['colour']] [M06Values [['treatment']] [M06Values [['date']] == iDate]], 
-          bg = ifelse (abs (M06Values [['tValue']] [M06Values [['date']] == iDate]) >= 2, 
+          bg = ifelse (d >= 0.5, 
                        tColours [['colour']] [M06Values[['treatment']] [M06Values [['date']] == iDate]], 
                        'white'), lwd = 2, 
-          cex = 2, #abs (M06Values [['tValue']] [M06Values [['date']] == iDate]),
+          cex = 2 + d, 
           pch = ifelse (M06Values [['treatment']] [M06Values [['date']] == iDate] == 1, 
                         21, 24))
     
@@ -890,10 +1006,10 @@ png (filename = '../fig/Exp2017RootDeltaStarch.png', width = 600, height = 450)
     points (x = M06Values [['beta']] [M06Values [['date']] == iDate],
             y = M06Values [['treatment']] [M06Values [['date']] == iDate],
             col = tColours [['colour']] [M06Values [['treatment']] [M06Values [['date']] == iDate]], 
-            bg = ifelse (abs (M06Values [['tValue']] [M06Values [['date']] == iDate]) >= 2, 
+            bg = ifelse (d >= 0.5, 
                          tColours [['colour']] [M06Values[['treatment']] [M06Values [['date']] == iDate]], 
                          'white'), 
-            lwd = 3, cex = 4, #abs (M06Values [['tValue']] [M06Values [['date']] == iDate]),
+            lwd = 3, cex = 2 + d, 
             pch = ifelse (M06Values [['treatment']] [M06Values [['date']] == iDate] == 1, 
                           21, 24))
     
@@ -907,11 +1023,11 @@ png (filename = '../fig/Exp2017RootDeltaStarch.png', width = 600, height = 450)
       
       # add treatments
       #------------------------------------------------------------------------------------
-      mtext (side = 2, line = 2,   text = 'control',    at = 0.9, cex = 1.4)
+      mtext (side = 2, line = 2,   text = 'control',    at = 0.9,  cex = 1.4)
       mtext (side = 2, line = 2,   text = 'girdled',    at = 1.95, cex = 1.4)
-      mtext (side = 2, line = 2,   text = 'compressed', at = 3, cex = 1.4)
-      mtext (side = 2, line = 3.5, text = 'double',     at = 4.2, cex = 1.4)
-      mtext (side = 2, line = 2,   text = 'compressed', at = 4.2, cex = 1.4)
+      mtext (side = 2, line = 2,   text = 'compressed', at = 3,    cex = 1.4)
+      mtext (side = 2, line = 3.5, text = 'double',     at = 4.2,  cex = 1.4)
+      mtext (side = 2, line = 2,   text = 'compressed', at = 4.2,  cex = 1.4)
       
       # add y-axis
       #--------------------------------------------------------------------------------------
