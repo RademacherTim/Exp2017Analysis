@@ -21,10 +21,9 @@ library ('zoo')
 # Specify the user:
 options (gargle_oauth_email = "tr625@nau.edu")
 
-# set colour scheme for control, girdled, compressed, double compressed and chilled
+# source plotting functions for colour schemes and plotting functions
 #----------------------------------------------------------------------------------------
-colours <- c ('#91b9a4','#C0334D','#F18904','#5C4A72','#23345C')
-#colours <- c ('','#ea7125','#8f2bbc','#d6083b','#0072cf')
+source ('plotingFunctions.R')
 
 options (warn = -1)
 ```
@@ -515,19 +514,19 @@ dNov4B <- density (unlist (ringWidthsNov [ringWidthsNov [['treatment']] == 4, 8]
 # Plot density kernel of ring widths in 2017 and 2015 by treatment
 par (mar = c (5, 5, 3, 1))
 #layout (matrix (1:4, nrow = 2), height = c (1.5, 1, 1.5, 1))
-plot (dNov1M, col = colours [1], lwd = 2, ylim = c (0, 2), las = 1,
+plot (dNov1M, col = tColours [['colour']] [1], lwd = 2, ylim = c (0, 2), las = 1,
       xlab = 'ring width (mm)',
       ylab = 'density', main = 'Standardised Ring Widths',
       xlim = c (0, 3))
-lines (dNov2A, col = colours [2], lwd = 2)
-lines (dNov2B, col = colours [2], lwd = 2, lty = 2)
-lines (dNov3A, col = colours [3], lwd = 2)
-lines (dNov3B, col = colours [3], lwd = 2, lty = 2)
-lines (dNov4A, col = colours [4], lwd = 2)
-lines (dNov4B, col = colours [4], lwd = 2, lty = 2)
-lines (dNov4M, col = colours [4], lwd = 2, lty = 3)
+lines (dNov2A, col = tColours [['colour']] [2], lwd = 2)
+lines (dNov2B, col = tColours [['colour']] [2], lwd = 2, lty = 2)
+lines (dNov3A, col = tColours [['colour']] [3], lwd = 2)
+lines (dNov3B, col = tColours [['colour']] [3], lwd = 2, lty = 2)
+lines (dNov4A, col = tColours [['colour']] [4], lwd = 2)
+lines (dNov4B, col = tColours [['colour']] [4], lwd = 2, lty = 2)
+lines (dNov4M, col = tColours [['colour']] [4], lwd = 2, lty = 3)
 legend (x = 1.35, y = 2, legend = c ('control','gridling','compression','double compression'),
-        col = colours,
+        col = tColours [['colour']] [1:4],
         lwd = 2, box.lty = 0, bg = 'transparent')
 
 # Calculate the fractions of ring formed
@@ -593,9 +592,6 @@ On average, `r round (mean (unlist (f_Jul), na.rm = TRUE) * 100.0, 1)`%, `r roun
 Using the fractional ring widths as boundaries, each 20-micron zone was associated with one of the four periods: (i) beginning of growing season to start of experiment ($3^{rd}$ of July 2017), (ii) first month of the experiment ($4^{th}$ of July to $9^{th}$ of August 2017), (iii) second month of the experiment ($10^{th}$ of August to $8^{th}$ of October 2017), (iv) end of double compression to end of growing season ($9^{th}$ of October to $3^{rd}$ of November 2017).
 
 ``` {r cellularData, echo = FALSE}
-# define yPositions
-#--------------------------------------------------------------------------------------
-yPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
 
 # define tree labels for each group
 #----------------------------------------------------------------------------------------
@@ -695,8 +691,8 @@ plotCWA <- function (tree, date, treatment, yPos = 1, symbol = 21, alpha = 0.4,
               sum (data [['CWA']] [data [['TREE']] == tree &
                                    data [['YEAR']] == 2015], na.rm = TRUE),
           y = xPositions [yPos], pch = symbol, 
-          col = addOpacity (colours [treatment], alpha), 
-          bg  = addOpacity (colours [treatment], alpha))
+          col = addOpacity (tColours [['colour']] [treatment], alpha), 
+          bg  = addOpacity (tColours [['colour']] [treatment], alpha))
   if (VERBOSE) {
     print (paste (date, tree, treatment, sum (data [['CWA']] [data [['TREE']] == tree &
                                    data [['YEAR']] == 2017 &
@@ -705,6 +701,7 @@ plotCWA <- function (tree, date, treatment, yPos = 1, symbol = 21, alpha = 0.4,
                                    data [['YEAR']] == 2015], na.rm = TRUE)))
   }
 }
+
 # function to plot mean fraction of cummulative cell wall area for a treatment 
 #----------------------------------------------------------------------------------------
 plotCWAByTreatment <- function (date, alpha = 0.4, VERBOSE = FALSE) {
@@ -808,7 +805,7 @@ plotCWAByTreatment <- function (date, alpha = 0.4, VERBOSE = FALSE) {
             col = '#333333', angle = 90, length = 0.05, code = 3, lwd = 2)
     points (x = meanCWA,
             y = yPositions [g],
-            col = colours [t],
+            col = tColours [['colour']] [t],
             bg  = 'white',
             pch = s,
             cex = 2, lwd = 3)

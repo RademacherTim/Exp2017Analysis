@@ -9,10 +9,9 @@
 library ('lme4')
 if (!existsFunction ('add_column')) library ('tidyverse')
 
-# set colour scheme for control, girdled, compressed, double compressed and chilled
+# set colour scheme and ploting functions
 #----------------------------------------------------------------------------------------
-colours <- c ('#91b9a4','#C0334D','#F18904','#5C4A72','#23345C')
-
+source ('plotingFunctions.R')
 
 # source ring width and other anatomical data
 #----------------------------------------------------------------------------------------
@@ -113,9 +112,9 @@ png (filename = '../fig/Exp2017RingWidth.png', width = 600)
         y = M01Values [['yPos']] [M01Values [['date']] == iDate], 
         las = 1, xlab = 'ring width (mm)', ylab = '', axes = FALSE,
         xlim = c (0.3, 1.2), ylim = c (0, 6.6), 
-        col = colours [M01Values [['treatment']] [M01Values [['date']] == iDate]], 
+        col = tColours [['colour']] [M01Values [['treatment']] [M01Values [['date']] == iDate]], 
         bg = ifelse (abs (M01Values [['tValue']] [M01Values [['date']] == iDate]) >= 2, 
-                     colours [M01Values[['treatment']] [M01Values [['date']] == iDate]], 
+                     tColours [['colour']] [M01Values[['treatment']] [M01Values [['date']] == iDate]], 
                      'white'), lwd = 2, 
         cex = 2, #abs (M01Values [['tValue']] [M01Values [['date']] == iDate]),
         pch = as.numeric (M01Values [['height']] [M01Values [['date']] == iDate]))
@@ -149,9 +148,9 @@ png (filename = '../fig/Exp2017RingWidth.png', width = 600)
   #--------------------------------------------------------------------------------------
   points (x = M01Values [['beta']],
           y = M01Values [['yPos']],
-          col = colours [M01Values [['treatment']]], 
+          col = tColours [['colour']] [M01Values [['treatment']]], 
           bg = ifelse (abs (M01Values [['tValue']]) >= 2, 
-                       colours [M01Values[['treatment']]], 
+                       tColours [['colour']] [M01Values[['treatment']]], 
                        'white'), 
           lwd = 2, cex = 2, #abs (M01Values [['tValue']] [M01Values [['date']] == iDate]),
           pch = as.numeric (M01Values [['height']]))
@@ -179,6 +178,55 @@ png (filename = '../fig/Exp2017RingWidth.png', width = 600)
             col = '#777777')
 dev.off ()
 
+# create tibble with cell numbers per ring
+#----------------------------------------------------------------------------------------
+cellNumber <- tibble (tree = NA, treatment = NA, height = NA, n = NA)
+
+# determine the approximate number of cells in each ring
+#----------------------------------------------------------------------------------------
+for (iTree in 1:40) { # loop over trees
+  
+  # get treatment and determine heights
+  #----------------------------------------------------------------------------------------
+  if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T1') {
+    heights <-  c ('M')
+    treatment <- 1
+  } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T2') {
+    heights <-  c ('A', 'B')
+    treatment <- 2
+  } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T3') {
+    heights <-  c ('A', 'B')
+    treatment <- 3
+  } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T4') {
+    heights <-  c ('A', 'M', 'B')
+    treatment <- 4
+  }
+  
+  # loop over sampling heights
+  #----------------------------------------------------------------------------------------
+  for (iHeight in heights) {
+    
+    if (iTree < 10) {
+      treeID <- paste0 ('0',iTree,iHeight)
+    } else {
+      treeID <- paste0 (iTree, iHeight)
+    }
+    
+    # determine average number of cells in sector and sum them
+    #----------------------------------------------------------------------------------------
+    condition <- data [['YEAR']] == 2017 & data [['TREE']] == treeID
+    nCells <- floor (sum (20 / data [['cellRadWidth']] [condition], na.rm = TRUE))
+    iH <- iHeight
+    if (treatment == 1) iH <- 'C'
+    cellNumber <- add_row (cellNumber, tree = iTree, treatment = treatment, height = iH, n = nCells)
+    
+  } # end height loop
+} # end tree loop
+
+# delete first row, which is empty and 06.1M because data is no good
+#----------------------------------------------------------------------------------------
+cellNumber <- cellNumber [-1, ]
+
 # wrangle cell number in the ring
 #----------------------------------------------------------------------------------------
 cellNumber [['tree']]      <- factor (cellNumber [['tree']])
@@ -194,7 +242,7 @@ summary (M2)
 # plot (M2)
 # qqnorm (resid (M2))
 
-# extract the model parameters from the lumen diameter model
+# extract the model parameters from the cell number model
 #----------------------------------------------------------------------------------------
 M02Values <- tibble (beta   = getME (M2, 'beta'), 
                      se     = as.numeric (coef (summary (M2)) [, 2]), 
@@ -235,16 +283,16 @@ M02Values [['height']] [M02Values [['height']] == 'M'] <- 22
 M02Values [['height']] [M02Values [['height']] == 'B'] <- 25
 
 png (filename = '../fig/Exp2017NumberOfCells.png', width = 600) 
-  # plot the cummulative cell wall area for each period
+  # plot the number of cell in final ring
   #--------------------------------------------------------------------------------------
   par (mar = c (5, 5, 1, 0))
   plot (x = M02Values [['beta']] [M02Values [['date']] == iDate],
         y = M02Values [['yPos']] [M02Values [['date']] == iDate], 
         las = 1, xlab = 'number of cells (n)', ylab = '', axes = FALSE,
         xlim = c (10, 80), ylim = c (0, 6.6), 
-        col = colours [M02Values [['treatment']] [M02Values [['date']] == iDate]], 
+        col = tColours [['colour']] [M02Values [['treatment']] [M02Values [['date']] == iDate]], 
         bg = ifelse (abs (M02Values [['tValue']] [M02Values [['date']] == iDate]) >= 2, 
-                     colours [M02Values[['treatment']] [M02Values [['date']] == iDate]], 
+                     tColours [['colour']] [M02Values[['treatment']] [M02Values [['date']] == iDate]], 
                      'white'), lwd = 2, 
         cex = 2, #abs (M02Values [['tValue']] [M02Values [['date']] == iDate]),
         pch = as.numeric (M02Values [['height']] [M02Values [['date']] == iDate]))
@@ -278,9 +326,9 @@ png (filename = '../fig/Exp2017NumberOfCells.png', width = 600)
   #--------------------------------------------------------------------------------------
   points (x = M02Values [['beta']],
           y = M02Values [['yPos']],
-          col = colours [M02Values [['treatment']]], 
+          col = tColours [['colour']] [M02Values [['treatment']]], 
           bg = ifelse (abs (M02Values [['tValue']]) >= 2, 
-                       colours [M02Values[['treatment']]], 
+                       tColours [['colour']] [M02Values[['treatment']]], 
                        'white'), 
           lwd = 2, cex = 2, #abs (M02Values [['tValue']] [M02Values [['date']] == iDate]),
           pch = as.numeric (M02Values [['height']]))
@@ -309,6 +357,7 @@ png (filename = '../fig/Exp2017NumberOfCells.png', width = 600)
 dev.off ()
 
 # wrangle wood anatomy data
+#----------------------------------------------------------------------------------------
 woodAnatomy <- data [data [['YEAR']] == 2017, ]
 woodAnatomy [['tree']]      <- factor (substr (woodAnatomy [['TREE']], 1, 2)) 
 woodAnatomy [['treatment']] <- factor (substr (woodAnatomy [['PLOT']], 2, 2), levels = c (4:1))
@@ -317,25 +366,23 @@ woodAnatomy [['height']] <- factor (woodAnatomy [['POS']], levels = c ('A','M','
 woodAnatomy <- select (woodAnatomy, c (MRW, LA, DRAD, DTAN, CWA, CWAACC, CWTTAN, CWTALL, period, cellRadWidth, cellTanWidth, zonalCWA, tree, treatment, height))
 
 # create factor stating if it was formed before or after the experiment
+#----------------------------------------------------------------------------------------
 woodAnatomy <- add_column (woodAnatomy, 
                            afterOnset = factor (ifelse (woodAnatomy [['period']] > as_date ('2017-07-03'), 
                                                         TRUE, FALSE), levels = c (FALSE, TRUE)))
 
 # fit mixed effects model for radial cell size before the experiment
+#----------------------------------------------------------------------------------------
 M4 <- lmer (formula = cellRadWidth ~ (1 | tree) + treatment:height, 
             data = woodAnatomy [woodAnatomy [['period']] == as_date ('2017-07-03'), ], 
             REML = TRUE)
 summary (M4)
-plot (M4)
-qqnorm (resid (M4))
 
 # fit mixed effects model for radial cell size over the proportion that formed after the start of the experimental 
 M5 <- lmer (formula = cellRadWidth ~ (1 | tree) + treatment:height, 
             data = woodAnatomy [woodAnatomy [['period']] != as_date ('2017-07-03'), ], 
             REML = TRUE)
 summary (M5)
-plot (M5)
-qqnorm (resid (M5))
 
 # fit mixed effects model to radial cell size including time of formation
 # M6 <- lmer (formula = cellRadWidth ~ (1 | tree) + treatment:height:factor (afterOnset) + factor (afterOnset), 
@@ -346,10 +393,6 @@ M6.1 <- lmer (formula = cellRadWidth ~ (1 | tree) + treatment:height:factor (per
             data = woodAnatomy, 
             REML = FALSE)
 summary (M6.1)
-plot (M6.1)
-qqnorm (resid (M6.1))
-#anova (M6, M6.1)
-
 
 # fit a mixed effects model to look at cell lumen diameter
 # M7.0 <- lmer (formula = DRAD ~ (1 | tree) + treatment:height:factor (afterOnset) + factor (afterOnset), 
@@ -360,9 +403,12 @@ M7.1 <- lmer (formula = DRAD ~ (1 | tree) + treatment:height:factor (period) + f
               data = woodAnatomy, 
               REML = TRUE)
 summary (M7.1)
-plot (M7.1)
-qqnorm (resid (M7.1))
 #anova (M7.0, M7.1)
+
+# wrangle individual variable data to calculate standard deviations for effect size 
+# determination later 
+#----------------------------------------------------------------------------------------
+indVar <- woodAnatomy %>% group_by (treatment, height) %>% select (DRAD, treatment, height)
 
 # extract the model parameters from the lumen diameter model
 #----------------------------------------------------------------------------------------
@@ -420,7 +466,7 @@ M07Values [['height']] [M07Values [['height']] == 'B'] <- 25
 
 # create layout for the mixed model-based cummulative cell wall area plot 
 #----------------------------------------------------------------------------------------
-png (filename = '../fig/Exp2017LumenDiameter.png', width = 600)
+png (filename = '../fig/Exp2017LumenDiameter.png', width = 600, height = 450)
   layout (matrix (1:4, nrow = 1, byrow = TRUE), widths = c (1.4, 1, 1, 1.1))
   
   # loop over dates to create on plot of fractional cumulative cell wall area for each period
@@ -430,11 +476,44 @@ png (filename = '../fig/Exp2017LumenDiameter.png', width = 600)
     # choose appropriate plot margins 
     #--------------------------------------------------------------------------------------
     if (iDate == 'jul') {
-      par (mar = c (5, 5, 1, 0))
+      par (mar = c (7, 7, 1, 0))
     } else if (iDate == 'aug' | iDate == 'oct') {
-      par (mar = c (5, 0, 1, 0))
+      par (mar = c (7, 0, 1, 0))
     } else {
-      par (mar = c (5, 0, 1, 1))
+      par (mar = c (7, 0, 1, 1))
+    }
+    
+    # check effect size and colour symbols accordingly
+    #--------------------------------------------------------------------------------------
+    deltaMu <- M07Values [['beta']] [M07Values [['date']] == iDate] - 
+      M07Values [['beta']] [M07Values [['date']] == iDate] [1]
+    d <- 0.5
+    for (i in 2:8) {
+      # determine treatment and sampling height
+      if (i >= 3) {
+        if (i == 2) {
+          t <- 2; h <- 'B'
+        } else {
+          t <- 2; h <- 'A'
+        }
+      } else if (i <= 5) {
+        if (i == 4) {
+          t <- 3; h <- 'B'
+        } else {
+          t <- 3; h <- 'A'
+        }
+      } else {
+        if (i == 6) {
+          t <- 4; h <- 'B'
+        } else if (i == 7) {
+          t <- 4; h <- 'M'
+        } else {
+          t <- 4; h <- 'A'
+        }
+      }
+      d <- c (d, deltaMu [i] / 
+                 (sd (indVar [['DRAD']] [indVar [['treatment']] %in% c (1, t) & 
+                                         indVar [['height']] %in% c ('C',h)], na.rm = TRUE)))
     }
     
     # plot the cummulative cell wall area for each period
@@ -443,12 +522,12 @@ png (filename = '../fig/Exp2017LumenDiameter.png', width = 600)
           y = M07Values [['yPos']] [M07Values [['date']] == iDate], 
           las = 1, xlab = '', ylab = '', axes = FALSE,
           xlim = c (10, 40), ylim = c (0, 6.6), 
-          col = colours [M07Values [['treatment']] [M07Values [['date']] == iDate]], 
-          bg = ifelse (abs (M07Values [['tValue']] [M07Values [['date']] == iDate]) >= 2, 
-                       colours [M07Values[['treatment']] [M07Values [['date']] == iDate]], 
-                       'white'), lwd = 2, 
-          cex = 2, #abs (M07Values [['tValue']] [M07Values [['date']] == iDate]),
+          col = tColours [['colour']] [M07Values [['treatment']] [M07Values [['date']] == iDate]], 
+          bg = ifelse (d >= 0.5, tColours [['colour']] [M07Values [['treatment']] [M07Values [['date']] == iDate]], 
+                       'white'), 
+          lwd = 2, cex = 2+d,
           pch = as.numeric (M07Values [['height']] [M07Values [['date']] == iDate]))
+    
     
     # add rectangle for control standard error
     #--------------------------------------------------------------------------------------
@@ -471,16 +550,15 @@ png (filename = '../fig/Exp2017LumenDiameter.png', width = 600)
     #--------------------------------------------------------------------------------------
     points (x = M07Values [['beta']] [M07Values [['date']] == iDate],
             y = M07Values [['yPos']] [M07Values [['date']] == iDate],
-            col = colours [M07Values [['treatment']] [M07Values [['date']] == iDate]], 
-            bg = ifelse (abs (M07Values [['tValue']] [M07Values [['date']] == iDate]) >= 2, 
-                         colours [M07Values[['treatment']] [M07Values [['date']] == iDate]], 
+            col = tColours [['colour']] [M07Values [['treatment']] [M07Values [['date']] == iDate]], 
+            bg = ifelse (d >= 0.5, tColours [['colour']] [M07Values [['treatment']] [M07Values [['date']] == iDate]], 
                          'white'), 
-            lwd = 2, cex = 2, #abs (M07Values [['tValue']] [M07Values [['date']] == iDate]),
+            lwd = 2, cex = 2+d, 
             pch = as.numeric (M07Values [['height']] [M07Values [['date']] == iDate]))
     
     # add x-axis
     #--------------------------------------------------------------------------------------
-    axis (side = 1, at = seq (12, 40.0, by = 12))
+    axis (side = 1, at = seq (12, 40.0, by = 12), cex.axis = 2, mgp = c (3, 2, 0))
     
     # add panel labels and axis 
     #--------------------------------------------------------------------------------------
@@ -489,36 +567,36 @@ png (filename = '../fig/Exp2017LumenDiameter.png', width = 600)
       # add y-axis
       #------------------------------------------------------------------------------------
       axis (side = 2, at = yPositions, labels = c ('C','B','A','B','A','B','M','A'), 
-            las = 1)
+            las = 1, cex.axis = 2)
       
       # add treatments
       #------------------------------------------------------------------------------------
-      mtext (side = 2, line = 2, text = 'control',    at = yPositions [1])
-      mtext (side = 2, line = 2, text = 'girdled',    at = mean (yPositions [c(2,3)]))
-      mtext (side = 2, line = 2, text = 'compressed', at = mean (yPositions [c(4,5)]))
-      mtext (side = 2, line = 3, text = 'double',     at = mean (yPositions [c(6,7,8)]))
-      mtext (side = 2, line = 2, text = 'compressed', at = mean (yPositions [c(6,7,8)]))
+      mtext (side = 2, line = 3,   text = 'control',    cex = 1.4, at = yPositions [1])
+      mtext (side = 2, line = 3,   text = 'girdled',    cex = 1.4, at = mean (yPositions [c(2,3)]))
+      mtext (side = 2, line = 3,   text = 'compressed', cex = 1.4, at = mean (yPositions [c(4,5)]))
+      mtext (side = 2, line = 4.5, text = 'double',     cex = 1.4, at = mean (yPositions [c(6,7,8)]))
+      mtext (side = 2, line = 3,   text = 'compressed', cex = 1.4, at = mean (yPositions [c(6,7,8)]))
       
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = 10, y = 6.6, pos = 4, labels = 'july', cex = 1.3)
+      text (x = 10, y = 6.6, pos = 4, labels = 'july', cex = 3)
     } else if (iDate == 'aug') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = 10, y = 6.6, pos = 4, labels = 'august', cex = 1.3)
+      text (x = 10, y = 6.6, pos = 4, labels = 'august', cex = 3)
       
       # add x-axis label
       #------------------------------------------------------------------------------------
-      mtext (side = 1, line = 3, at = 40, cex = 1.0,
+      mtext (side = 1, line = 5.5, at = 40, cex =2,
              text = 'radial lumen diameter (microns)')
     } else if (iDate == 'oct') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = 10, y = 6.6, pos = 4, labels = 'ocotber', cex = 1.3)
+      text (x = 10, y = 6.6, pos = 4, labels = 'ocotber', cex = 3)
     } else if (iDate == 'nov') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = 10, y = 6.6, pos = 4, labels = 'november', cex = 1.3)
+      text (x = 10, y = 6.6, pos = 4, labels = 'november', cex = 3)
     }
     
     # make a line separating the panels
@@ -530,7 +608,7 @@ png (filename = '../fig/Exp2017LumenDiameter.png', width = 600)
   #----------------------------------------------------------------------------------------
   betweenTreeVar <- as_tibble (VarCorr (M7.1)) [1, 5] [[1]]
   text (labels = expression (paste (sigma [tree])), x = 36, y = 0.4, 
-        cex = 1.5, pos = 2, col = '#777777')
+        cex = 2.5, pos = 2, col = '#777777')
   segments (x0 = 36 - betweenTreeVar, 
             x1 = 36, 
             y0 = 0.2, lwd = 4,
@@ -559,9 +637,6 @@ M9.1 <- lmer (formula = CWA ~ (1 | tree) + treatment:height:factor (period) + fa
               data = woodAnatomy, 
               REML = TRUE)
 summary (M9.1)
-plot (M9.1)
-qqnorm (resid (M9.1))
-#anova (M9.0, M9.1)
 
 # Change date, tree, treatment, and height to factors
 treeCWA [['date']]      <- factor (treeCWA [['date']])
@@ -574,8 +649,6 @@ M10 <- lmer (formula = CCWA ~ (1 | tree) + treatment:height:date + date,
              data = treeCWA, 
              REML = TRUE)
 summary (M10)
-plot (M10)
-qqnorm (resid (M10))
 
 # extract the model parameters
 #----------------------------------------------------------------------------------------
@@ -633,7 +706,7 @@ M10Values [['height']] [M10Values [['height']] == 'B'] <- 25
 
 # create layout for the mixed model-based cummulative cell wall area plot 
 #----------------------------------------------------------------------------------------
-png (filename = '../fig/Exp2017CumulativeCellWallArea_2.png', width = 600, height = 400) 
+png (filename = '../fig/Exp2017CumulativeCellWallArea.png', width = 600, height = 450) 
   layout (matrix (1:4, nrow = 1, byrow = TRUE), widths = c (1.4, 1, 1, 1.1))
   
   # loop over dates to create on plot of fractional cumulative cell wall area for each period
@@ -643,11 +716,44 @@ png (filename = '../fig/Exp2017CumulativeCellWallArea_2.png', width = 600, heigh
     # choose appropriate plot margins 
     #--------------------------------------------------------------------------------------
     if (iDate == 'jul') {
-      par (mar = c (5, 5, 1, 0))
+      par (mar = c (7, 7, 1, 0))
     } else if (iDate == 'aug' | iDate == 'oct') {
-      par (mar = c (5, 0, 1, 0))
+      par (mar = c (7, 0, 1, 0))
     } else {
-      par (mar = c (5, 0, 1, 1))
+      par (mar = c (7, 0, 1, 1))
+    }
+    
+    # check effect size and colour symbols accordingly
+    #--------------------------------------------------------------------------------------
+    deltaMu <- M10Values [['beta']] [M10Values [['date']] == iDate] - 
+      M10Values [['beta']] [M10Values [['date']] == iDate] [1]
+    d <- 0.5
+    for (i in 2:8) {
+      # determine treatment and sampling height
+      if (i >= 3) {
+        if (i == 2) {
+          t <- 2; h <- 'B'
+        } else {
+          t <- 2; h <- 'A'
+        }
+      } else if (i <= 5) {
+        if (i == 4) {
+          t <- 3; h <- 'B'
+        } else {
+          t <- 3; h <- 'A'
+        }
+      } else {
+        if (i == 6) {
+          t <- 4; h <- 'B'
+        } else if (i == 7) {
+          t <- 4; h <- 'M'
+        } else {
+          t <- 4; h <- 'A'
+        }
+      }
+      d <- c (d, abs (deltaMu [i]) / 
+                (sd (treeCWA [['CCWA']] [treeCWA [['treatment']] %in% c (1, t) & 
+                                         treeCWA [['height']] %in% c ('C',h)], na.rm = TRUE)))
     }
     
     # plot the cummulative cell wall area for each period
@@ -656,11 +762,11 @@ png (filename = '../fig/Exp2017CumulativeCellWallArea_2.png', width = 600, heigh
           y = M10Values [['yPos']] [M10Values [['date']] == iDate], 
           las = 1, xlab = '', ylab = '', axes = FALSE,
           xlim = c (0, 1.1), ylim = c (0, 6.6), 
-          col = colours [M10Values [['treatment']] [M10Values [['date']] == iDate]], 
+          col = tColours [['colour']] [M10Values [['treatment']] [M10Values [['date']] == iDate]], 
           bg = ifelse (abs (M10Values [['tValue']] [M10Values [['date']] == iDate]) >= 2, 
-                       colours [M10Values[['treatment']] [M10Values [['date']] == iDate]], 
+                       tColours [['colour']] [M10Values[['treatment']] [M10Values [['date']] == iDate]], 
                        'white'), lwd = 2, 
-          cex = 2, #abs (M10Values [['tValue']] [M10Values [['date']] == iDate]),
+          cex = 2+d, #abs (M10Values [['tValue']] [M10Values [['date']] == iDate]),
           pch = as.numeric (M10Values [['height']] [M10Values [['date']] == iDate]))
     
     # add rectangle for control standard error
@@ -684,16 +790,16 @@ png (filename = '../fig/Exp2017CumulativeCellWallArea_2.png', width = 600, heigh
     #--------------------------------------------------------------------------------------
     points (x = M10Values [['beta']] [M10Values [['date']] == iDate],
             y = M10Values [['yPos']] [M10Values [['date']] == iDate],
-            col = colours [M10Values [['treatment']] [M10Values [['date']] == iDate]], 
-            bg = ifelse (abs (M10Values [['tValue']] [M10Values [['date']] == iDate]) >= 2, 
-                         colours [M10Values[['treatment']] [M10Values [['date']] == iDate]], 
+            col = tColours [['colour']] [M10Values [['treatment']] [M10Values [['date']] == iDate]], 
+            bg = ifelse (d >= 0.5, 
+                         tColours [['colour']] [M10Values[['treatment']] [M10Values [['date']] == iDate]], 
                          'white'), 
-            lwd = 2, cex = 2, #abs (M10Values [['tValue']] [M10Values [['date']] == iDate]),
+            lwd = 2, cex = 2+d,
             pch = as.numeric (M10Values [['height']] [M10Values [['date']] == iDate]))
     
     # add x-axis
     #--------------------------------------------------------------------------------------
-    axis (side = 1, at = seq (0, 1.0, by = 0.5))
+    axis (side = 1, at = seq (0, 0.8, by = 0.4), cex.axis = 2, mgp = c (3, 2, 0))
     
     # add panel labels and axis 
     #--------------------------------------------------------------------------------------
@@ -702,36 +808,36 @@ png (filename = '../fig/Exp2017CumulativeCellWallArea_2.png', width = 600, heigh
       # add y-axis
       #------------------------------------------------------------------------------------
       axis (side = 2, at = yPositions, labels = c ('C','B','A','B','A','B','M','A'), 
-            las = 1)
+            las = 1, cex.axis = 2)
       
       # add treatments
       #------------------------------------------------------------------------------------
-      mtext (side = 2, line = 2, text = 'control',    at = yPositions [1])
-      mtext (side = 2, line = 2, text = 'girdled',    at = mean (yPositions [c(2,3)]))
-      mtext (side = 2, line = 2, text = 'compressed', at = mean (yPositions [c(4,5)]))
-      mtext (side = 2, line = 3, text = 'double',     at = mean (yPositions [c(6,7,8)]))
-      mtext (side = 2, line = 2, text = 'compressed', at = mean (yPositions [c(6,7,8)]))
+      mtext (side = 2, line = 3,   text = 'control',    cex = 1.4, at = yPositions [1])
+      mtext (side = 2, line = 3,   text = 'girdled',    cex = 1.4, at = mean (yPositions [c(2,3)]))
+      mtext (side = 2, line = 3,   text = 'compressed', cex = 1.4, at = mean (yPositions [c(4,5)]))
+      mtext (side = 2, line = 4.5, text = 'double',     cex = 1.4, at = mean (yPositions [c(6,7,8)]))
+      mtext (side = 2, line = 3,   text = 'compressed', cex = 1.4, at = mean (yPositions [c(6,7,8)]))
 
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = 0, y = 6.6, pos = 4, labels = 'july', cex = 1.3)
+      text (x = 0, y = 6.6, pos = 4, labels = 'july', cex = 3)
     } else if (iDate == 'aug') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = 0, y = 6.6, pos = 4, labels = 'august', cex = 1.3)
+      text (x = 0, y = 6.6, pos = 4, labels = 'august', cex = 3)
       
       # add x-axis label
       #------------------------------------------------------------------------------------
-      mtext (side = 1, line = 3, at = 1.1, cex = 1.0,
+      mtext (side = 1, line = 5, at = 1.1, cex = 2.0,
              text = 'fraction of cummulative cell wall area')
     } else if (iDate == 'oct') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = 0, y = 6.6, pos = 4, labels = 'ocotber', cex = 1.3)
+      text (x = 0, y = 6.6, pos = 4, labels = 'ocotber', cex = 3)
     } else if (iDate == 'nov') {
       # add panel descriptor
       #------------------------------------------------------------------------------------
-      text (x = 0, y = 6.6, pos = 4, labels = 'november', cex = 1.3)
+      text (x = 0, y = 6.6, pos = 4, labels = 'november', cex = 3)
     }
     
     # make a line separating the panels
@@ -743,7 +849,7 @@ png (filename = '../fig/Exp2017CumulativeCellWallArea_2.png', width = 600, heigh
   #----------------------------------------------------------------------------------------
   betweenTreeVar <- as_tibble (VarCorr (M10)) [1, 5] [[1]]
   text (labels = expression (paste (sigma [tree])), x = 1.1, y = 0.4, 
-        cex = 1.5, pos = 2, col = '#777777')
+        cex = 2.5, pos = 2, col = '#777777')
   segments (x0 = 1.1 - betweenTreeVar,x1 = 1.1, y0 = 0.2, 
             lwd = 4, col = '#777777')
 dev.off ()
