@@ -42,23 +42,23 @@ for (i in 1:dim (stemData2017) [1]) {
   }
 }
 stemData2017 [['height']] <- factor (stemData2017 [['height']], levels = c ('A','M','B','C'))
-stemData2017 <- filter (stemData2017, tree != 41)
+stemData2017 <- filter (stemData2017, treeID <= 40)
 
 # Convert tree, date, treatment and sampleHeight to factors for leaf data
 #----------------------------------------------------------------------------------------
 leafData2017 [['tree']]      <- factor (leafData2017 [['treeID']])
 leafData2017 [['date']]      <- factor (leafData2017 [['date']])
 leafData2017 [['treatment']] <- factor (leafData2017 [['treatment']], levels = c (1:4))
-leafData2017 <- filter (leafData2017, tree != 41)
+leafData2017 <- filter (leafData2017, treeID <= 40)
 
 # Convert tree, date, treatment and sampleHeight to factors for root data
 #----------------------------------------------------------------------------------------
 rootData2017 [['tree']]      <- factor (rootData2017 [['treeID']]) 
 rootData2017 [['date']]      <- factor (rootData2017 [['date']]) 
 rootData2017 [['treatment']] <- factor (rootData2017 [['treatment']], levels = c (1:4)) 
-rootData2017 <- filter (rootData2017, tree != 41)
+rootData2017 <- filter (rootData2017, treeID <= 40)
 
-# Get differences from baseline for the NSC concentrations
+# get differences from baseline for the NSC concentrations
 #----------------------------------------------------------------------------------------
 leafData2017 [['deltaSugar']] <- leafData2017 [['sugar']] - 
                                  leafData2017 [['sugar']] [1:40]
@@ -117,6 +117,23 @@ M01Values [['height']] [M01Values [['height']] == 'C'] <- 21
 M01Values [['height']] [M01Values [['height']] == 'A'] <- 24
 M01Values [['height']] [M01Values [['height']] == 'M'] <- 22
 M01Values [['height']] [M01Values [['height']] == 'B'] <- 25
+
+# add the date effect
+#----------------------------------------------------------------------------------------
+M01Values [['beta']] [M01Values [['date']] == 'aug'] [2:length (M01Values [['beta']] [M01Values [['date']] == 'aug'])] <- 
+  M01Values [['beta']] [M01Values [['date']] == 'aug'] [2:length (M01Values [['beta']] [M01Values [['date']] == 'aug'])] + 
+  M01Values [['beta']] [M01Values [['date']] == 'aug'] [1]
+M01Values [['beta']] [M01Values [['date']] == 'oct'] [2:length (M01Values [['beta']] [M01Values [['date']] == 'oct'])] <- 
+  M01Values [['beta']] [M01Values [['date']] == 'oct'] [2:length (M01Values [['beta']] [M01Values [['date']] == 'oct'])] + 
+  M01Values [['beta']] [M01Values [['date']] == 'oct'] [1]
+M01Values [['beta']] [M01Values [['date']] == 'nov'] [2:length (M01Values [['beta']] [M01Values [['date']] == 'nov'])] <- 
+  M01Values [['beta']] [M01Values [['date']] == 'nov'] [2:length (M01Values [['beta']] [M01Values [['date']] == 'nov'])] + 
+  M01Values [['beta']] [M01Values [['date']] == 'nov'] [1]
+
+# add intercept
+#----------------------------------------------------------------------------------------
+M01Values [['beta']] [2:length (M01Values [['beta']])] <-
+  M01Values [['beta']] [2:length (M01Values [['beta']])] + M01Values [['beta']] [1]
 
 # create layout for the mixed model-based figure of change in sugar
 #----------------------------------------------------------------------------------------
@@ -315,6 +332,23 @@ M02Values [['height']] [M02Values [['height']] == 'C'] <- 21
 M02Values [['height']] [M02Values [['height']] == 'A'] <- 24
 M02Values [['height']] [M02Values [['height']] == 'M'] <- 22
 M02Values [['height']] [M02Values [['height']] == 'B'] <- 25
+
+# add the date effect
+#----------------------------------------------------------------------------------------
+M02Values [['beta']] [M02Values [['date']] == 'aug'] [2:length (M02Values [['beta']] [M02Values [['date']] == 'aug'])] <- 
+  M02Values [['beta']] [M02Values [['date']] == 'aug'] [2:length (M02Values [['beta']] [M02Values [['date']] == 'aug'])] + 
+  M02Values [['beta']] [M02Values [['date']] == 'aug'] [1]
+M02Values [['beta']] [M02Values [['date']] == 'oct'] [2:length (M02Values [['beta']] [M02Values [['date']] == 'oct'])] <- 
+  M02Values [['beta']] [M02Values [['date']] == 'oct'] [2:length (M02Values [['beta']] [M02Values [['date']] == 'oct'])] + 
+  M02Values [['beta']] [M02Values [['date']] == 'oct'] [1]
+M02Values [['beta']] [M02Values [['date']] == 'nov'] [2:length (M02Values [['beta']] [M02Values [['date']] == 'nov'])] <- 
+  M02Values [['beta']] [M02Values [['date']] == 'nov'] [2:length (M02Values [['beta']] [M02Values [['date']] == 'nov'])] + 
+  M02Values [['beta']] [M02Values [['date']] == 'nov'] [1]
+
+# add intercept
+#----------------------------------------------------------------------------------------
+M02Values [['beta']] [2:length (M02Values [['beta']])] <-
+  M02Values [['beta']] [2:length (M02Values [['beta']])] + M02Values [['beta']] [1]
 
 # create layout for the mixed model-based figure of change in starch
 #----------------------------------------------------------------------------------------

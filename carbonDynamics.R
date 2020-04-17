@@ -87,6 +87,264 @@ allData [['height']] [allData [['height']] == 150 & allData [['treatment']] == 4
 allData [['height']] [allData [['height']] == 150 & allData [['treatment']] == 1]   <- 'C' # control
 allData [['height']] [allData [['height']] == 200 | allData [['height']]    == 250] <- 'A' # above
 
+# make graph of respiration and growth for all periods
+#----------------------------------------------------------------------------------------
+par (mfrow = c (1, 1))
+par (mar = c (5, 5, 1, 1))
+plot (x = allData [['SC']] [allData [['treatment']] == 1],
+      y = allData [['resp']] [allData [['treatment']] == 1],
+      xlim = c (0, 60), ylim = c (0, -40), las = 1, 
+      col = tColours [['colour']] [1], pch = 21, bg = tColours [['colour']] [1],
+      xlab = 'structural growth (g C)', ylab = 'respiratory loss (g C)')
+abline (lm (allData [['resp']] [allData [['treatment']] == 1] ~ 
+              allData [['SC']] [allData [['treatment']] == 1]),
+        col = tColours [['colour']] [1])
+points (x = allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'A'],
+        y = allData [['resp']] [allData [['treatment']] == 2 & allData [['height']] == 'A'],
+        col = tColours [['colour']] [2], pch = 24, bg = tColours [['colour']] [2])
+abline (lm (allData [['resp']] [allData [['treatment']] == 2 & allData [['height']] == 'A'] ~ 
+              allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'A']),
+        col = tColours [['colour']] [2])
+points (x = allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'B'],
+        y = allData [['resp']] [allData [['treatment']] == 2 & allData [['height']] == 'B'],
+        col = tColours [['colour']] [2], pch = 25)
+abline (lm (allData [['resp']] [allData [['treatment']] == 2 & allData [['height']] == 'B'] ~ 
+              allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'B']),
+        col = tColours [['colour']] [2], lty = 2)
+points (x = allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'A'],
+        y = allData [['resp']] [allData [['treatment']] == 3 & allData [['height']] == 'A'],
+        col = tColours [['colour']] [3], pch = 24, bg = tColours [['colour']] [3])
+abline (lm (allData [['resp']] [allData [['treatment']] == 3 & allData [['height']] == 'A'] ~ 
+              allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'A']),
+        col = tColours [['colour']] [3])
+points (x = allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'B'],
+        y = allData [['resp']] [allData [['treatment']] == 3 & allData [['height']] == 'B'],
+        col = tColours [['colour']] [3], pch = 25)
+abline (lm (allData [['resp']] [allData [['treatment']] == 3 & allData [['height']] == 'B'] ~ 
+              allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'B']),
+        col = tColours [['colour']] [3], lty = 2)
+points (x = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'A'],
+        y = allData [['resp']] [allData [['treatment']] == 4 & allData [['height']] == 'A'],
+        col = tColours [['colour']] [4], pch = 24, bg = tColours [['colour']] [4])
+abline (lm (allData [['resp']] [allData [['treatment']] == 4 & allData [['height']] == 'A'] ~ 
+              allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'A']),
+        col = tColours [['colour']] [4])
+points (x = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'M'],
+        y = allData [['resp']] [allData [['treatment']] == 4 & allData [['height']] == 'M'],
+        col = tColours [['colour']] [4], pch = 22, bg = tColours [['colour']] [4])
+abline (lm (allData [['resp']] [allData [['treatment']] == 4 & allData [['height']] == 'M'] ~ 
+              allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'M']),
+        col = tColours [['colour']] [4], lty = 3)
+points (x = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'B'],
+        y = allData [['resp']] [allData [['treatment']] == 4 & allData [['height']] == 'B'],
+        col = tColours [['colour']] [4], pch = 25)
+abline (lm (allData [['resp']] [allData [['treatment']] == 4 & allData [['height']] == 'B'] ~ 
+              allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'B']),
+        col = tColours [['colour']] [4], lty = 2)
+abline (lm (allData [['resp']] ~ allData [['SC']]), lwd = 3, col = '#666666')
+legend (x = 35, y = -40, 
+        legend = c ('control','above girdle','below girdle','above compression','below compression','above double compression','middle double compression','below double compression'), 
+        pch = c (21, 24, 25, 24, 25, 24, 22, 25), col = tColours [['colour']] [c (1, 2, 2, 3, 3, 4, 4, 4)],
+        bg = 'transparent', box.lty = 0, pt.bg = c (tColours [['colour']] [1:2], 'white',tColours [['colour']] [3],'white', tColours [['colour']] [4], tColours [['colour']] [4],'white'))
+legend (x = 30, y = -40, legend = rep ('', 8), col = tColours [['colour']] [c (1, 2, 2, 3, 3, 4, 4, 4)], 
+        lty = c (1, 1, 2, 1, 2, 1, 3, 2), box.lty = 0, bg = 'transparent')
+
+# make graph of growth versus respiration by individual period
+#----------------------------------------------------------------------------------------
+layout (matrix (1:3, nrow = 1), widths = c (1, 1, 1))
+for (m in c ('august','october','november')) {
+  par (mar = c (5, 5, 1, 1))
+  plot (x = allData [['SC']] [allData [['treatment']] == 1 & allData [['month']] == m],
+        y = allData [['resp']] [allData [['treatment']] == 1 & allData [['month']] == m],
+        xlim = c (0, 25), ylim = c (0, - 25), las = 1, 
+        col = tColours [['colour']] [1], pch = 21, bg = tColours [['colour']] [1],
+        xlab = 'structural growth (g C)', ylab = 'respiratory loss (g C)')
+  abline (lm (allData [['resp']] [allData [['treatment']] == 1 & allData [['month']] == m] ~ 
+                allData [['SC']] [allData [['treatment']] == 1 & allData [['month']] == m]),
+          col = tColours [['colour']] [1])
+  points (x = allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'A' & allData [['month']] == m],
+          y = allData [['resp']] [allData [['treatment']] == 2 & allData [['height']] == 'A' & allData [['month']] == m],
+          col = tColours [['colour']] [2], pch = 24, bg = tColours [['colour']] [2])
+  abline (lm (allData [['resp']] [allData [['treatment']] == 2 & allData [['height']] == 'A' & allData [['month']] == m] ~ 
+              allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'A' & allData [['month']] == m]),
+          col = tColours [['colour']] [2])
+  points (x = allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'B' & allData [['month']] == m],
+          y = allData [['resp']] [allData [['treatment']] == 2 & allData [['height']] == 'B' & allData [['month']] == m],
+          col = tColours [['colour']] [2], pch = 25)
+  abline (lm (allData [['resp']] [allData [['treatment']] == 2 & allData [['height']] == 'B' & allData [['month']] == m] ~ 
+                allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'B' & allData [['month']] == m]),
+          col = tColours [['colour']] [2], lty = 2)
+  points (x = allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'A' & allData [['month']] == m],
+          y = allData [['resp']] [allData [['treatment']] == 3 & allData [['height']] == 'A' & allData [['month']] == m],
+          col = tColours [['colour']] [3], pch = 24, bg = tColours [['colour']] [3])
+  abline (lm (allData [['resp']] [allData [['treatment']] == 3 & allData [['height']] == 'A' & allData [['month']] == m] ~ 
+                allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'A' & allData [['month']] == m]),
+          col = tColours [['colour']] [3])
+  points (x = allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'B' & allData [['month']] == m],
+          y = allData [['resp']] [allData [['treatment']] == 3 & allData [['height']] == 'B' & allData [['month']] == m],
+          col = tColours [['colour']] [3], pch = 25)
+  abline (lm (allData [['resp']] [allData [['treatment']] == 3 & allData [['height']] == 'B' & allData [['month']] == m] ~ 
+                allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'B' & allData [['month']] == m]),
+          col = tColours [['colour']] [3], lty = 2)
+  points (x = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'A' & allData [['month']] == m],
+          y = allData [['resp']] [allData [['treatment']] == 4 & allData [['height']] == 'A' & allData [['month']] == m],
+          col = tColours [['colour']] [4], pch = 24, bg = tColours [['colour']] [4])
+  abline (lm (allData [['resp']] [allData [['treatment']] == 4 & allData [['height']] == 'A' & allData [['month']] == m] ~ 
+                allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'A' & allData [['month']] == m]),
+          col = tColours [['colour']] [4])
+  points (x = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'M' & allData [['month']] == m],
+          y = allData [['resp']] [allData [['treatment']] == 4 & allData [['height']] == 'M' & allData [['month']] == m],
+          col = tColours [['colour']] [4], pch = 22, bg = tColours [['colour']] [4])
+  abline (lm (allData [['resp']] [allData [['treatment']] == 4 & allData [['height']] == 'M' & allData [['month']] == m] ~ 
+                allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'M' & allData [['month']] == m]),
+          col = tColours [['colour']] [4], lty = 3)
+  points (x = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'B' & allData [['month']] == m],
+          y = allData [['resp']] [allData [['treatment']] == 4 & allData [['height']] == 'B' & allData [['month']] == m],
+          col = tColours [['colour']] [4], pch = 25)
+  abline (lm (allData [['resp']] [allData [['treatment']] == 4 & allData [['height']] == 'B' & allData [['month']] == m] ~ 
+                allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'B' & allData [['month']] == m]),
+          col = tColours [['colour']] [4], lty = 2)
+  abline (lm (allData [['resp']] [allData [['month']] == m] ~ allData [['SC']] [allData [['month']] == m]), lwd = 3, col = '#666666')
+
+  if (m == 'november') {
+    legend (x = 0, y = -25, 
+            legend = c ('control','above girdle','below girdle','above compression','below compression','above double compression','middle double compression','below double compression'), 
+            pch = c (21, 24, 25, 24, 25, 24, 22, 25), col = tColours [['colour']] [c (1, 2, 2, 3, 3, 4, 4, 4)],
+            bg = 'transparent', box.lty = 0, pt.bg = c (tColours [['colour']] [1:2], 'white',tColours [['colour']] [3],'white', tColours [['colour']] [4], tColours [['colour']] [4],'white'))
+  }
+  text (x = 10, y = -25, labels = m, cex = 1.5)
+}
+
+# plot period growth as a function of nonstructural carbon concentration at end of period
+#----------------------------------------------------------------------------------------
+par (mfrow = c (1, 1)) 
+par (mar = c (5, 5, 1, 1))
+plot (y = allData [['SC']] [allData [['treatment']] == 1],
+      x = select (filter (stemData2017, treatment == 1, date != as_date ('2017-07-05')), sugar) [[1]],
+      xlim = c (0.3, 1.8), ylim = c (0, 45), las = 1, 
+      col = tColours [['colour']] [1], pch = 21, bg = tColours [['colour']] [1],
+      ylab = 'structural growth (g C)', xlab = 'soluble sugar concentration (% weight DM)')
+abline (lm (allData [['SC']] [allData [['treatment']] == 1] ~ 
+              select (filter (stemData2017, treatment == 1, date != as_date ('2017-07-05')), sugar) [[1]]), 
+        col = tColours [['colour']] [1])
+points (y = allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'A'],
+        x = select (filter (stemData2017, treatment == 2 & date != as_date ('2017-07-05') & sampleHeight == 2), sugar) [[1]],
+        col = tColours [['colour']] [2], pch = 24, bg = tColours [['colour']] [2])
+abline (lm (allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'A'] ~ 
+              select (filter (stemData2017, treatment == 2, date != as_date ('2017-07-05') & sampleHeight == 2), sugar) [[1]]), 
+        col = tColours [['colour']] [2])
+points (y = allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'B'],
+        x = select (filter (stemData2017, treatment == 2 & date != as_date ('2017-07-05') & sampleHeight == 2), sugar) [[1]],
+        col = tColours [['colour']] [2], pch = 25)
+abline (lm (allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'B'] ~ 
+              select (filter (stemData2017, treatment == 2, date != as_date ('2017-07-05') & sampleHeight == 1), sugar) [[1]]), 
+        col = tColours [['colour']] [2], lty = 2)
+points (y = allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'A'],
+        x = select (filter (stemData2017, treatment == 3 & date != as_date ('2017-07-05') & sampleHeight == 1), sugar) [[1]],
+        col = tColours [['colour']] [3], pch = 24, bg = tColours [['colour']] [3])
+abline (lm (allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'A'] ~ 
+              select (filter (stemData2017, treatment == 3, date != as_date ('2017-07-05') & sampleHeight == 2), sugar) [[1]]), 
+        col = tColours [['colour']] [3])
+points (y = allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'B'],
+        x = select (filter (stemData2017, treatment == 3 & date != as_date ('2017-07-05') & sampleHeight == 1), sugar) [[1]],
+        col = tColours [['colour']] [3], pch = 25)
+abline (lm (allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'B'] ~ 
+              select (filter (stemData2017, treatment == 3, date != as_date ('2017-07-05') & sampleHeight == 1), sugar) [[1]]), 
+        col = tColours [['colour']] [3], lty = 2)
+points (y = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'A'],
+        x = select (filter (stemData2017, treatment == 4 & date != as_date ('2017-07-05') & sampleHeight == 2.5), sugar) [[1]],
+        col = tColours [['colour']] [4], pch = 24, bg = tColours [['colour']] [4])
+abline (lm (allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'A'] ~ 
+              select (filter (stemData2017, treatment == 4, date != as_date ('2017-07-05') & sampleHeight == 2.5), sugar) [[1]]), 
+        col = tColours [['colour']] [4])
+points (y = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'B'],
+        x = select (filter (stemData2017, treatment == 4 & date != as_date ('2017-07-05') & sampleHeight == 1.5), sugar) [[1]],
+        col = tColours [['colour']] [4], pch = 25)
+abline (lm (allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'M'] ~ 
+              select (filter (stemData2017, treatment == 4, date != as_date ('2017-07-05') & sampleHeight == 1.5), sugar) [[1]]), 
+        col = tColours [['colour']] [4], lty = 3)
+points (y = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'B'],
+        x = select (filter (stemData2017, treatment == 4 & date != as_date ('2017-07-05') & sampleHeight == 0.5), sugar) [[1]],
+        col = tColours [['colour']] [4], pch = 25)
+abline (lm (allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'B'] ~ 
+              select (filter (stemData2017, treatment == 4, date != as_date ('2017-07-05') & sampleHeight == 0.5), sugar) [[1]]), 
+        col = tColours [['colour']] [4], lty = 2)
+abline (lm (allData [['SC']] ~ stemData2017 [['sugar']] [81:320]), lwd = 3, col = '#666666')
+legend (x = 1.3, y = 45, 
+        legend = c ('control','above girdle','below girdle','above compression','below compression','above double compression','middle double compression','below double compression'), 
+        pch = c (21, 24, 25, 24, 25, 24, 22, 25), col = tColours [['colour']] [c (1, 2, 2, 3, 3, 4, 4, 4)],
+        bg = 'transparent', box.lty = 0, pt.bg = c (tColours [['colour']] [1:2], 'white',tColours [['colour']] [3],'white', tColours [['colour']] [4], tColours [['colour']] [4],'white'))
+legend (x = 1.2, y = 45, legend = rep ('', 8), col = tColours [['colour']] [c (1, 2, 2, 3, 3, 4, 4, 4)], 
+        lty = c (1, 1, 2, 1, 2, 1, 3, 2), box.lty = 0, bg = 'transparent')
+
+# plot period growth as a function of nonstructural carbon concentration at beginning of period
+#----------------------------------------------------------------------------------------
+par (mfrow = c (1, 1)) 
+par (mar = c (5, 5, 1, 1))
+plot (y = allData [['SC']] [allData [['treatment']] == 1],
+      x = select (filter (stemData2017, treatment == 1, date != as_date ('2017-11-03')), sugar) [[1]],
+      xlim = c (0.3, 1.8), ylim = c (0, 45), las = 1, 
+      col = tColours [['colour']] [1], pch = 21, bg = tColours [['colour']] [1],
+      ylab = 'structural growth (g C)', xlab = 'soluble sugar concentration (% weight DM)')
+abline (lm (allData [['SC']] [allData [['treatment']] == 1] ~ 
+              select (filter (stemData2017, treatment == 1, date != as_date ('2017-11-03')), sugar) [[1]]), 
+        col = tColours [['colour']] [1])
+points (y = allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'A'],
+        x = select (filter (stemData2017, treatment == 2 & date != as_date ('2017-11-03') & sampleHeight == 2), sugar) [[1]],
+        col = tColours [['colour']] [2], pch = 24, bg = tColours [['colour']] [2])
+abline (lm (allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'A'] ~ 
+              select (filter (stemData2017, treatment == 2, date != as_date ('2017-11-03') & sampleHeight == 2), sugar) [[1]]), 
+        col = tColours [['colour']] [2])
+points (y = allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'B'],
+        x = select (filter (stemData2017, treatment == 2 & date != as_date ('2017-11-03') & sampleHeight == 2), sugar) [[1]],
+        col = tColours [['colour']] [2], pch = 25)
+abline (lm (allData [['SC']] [allData [['treatment']] == 2 & allData [['height']] == 'B'] ~ 
+              select (filter (stemData2017, treatment == 2, date != as_date ('2017-11-03') & sampleHeight == 1), sugar) [[1]]), 
+        col = tColours [['colour']] [2], lty = 2)
+points (y = allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'A'],
+        x = select (filter (stemData2017, treatment == 3 & date != as_date ('2017-11-03') & sampleHeight == 1), sugar) [[1]],
+        col = tColours [['colour']] [3], pch = 24, bg = tColours [['colour']] [3])
+abline (lm (allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'A'] ~ 
+              select (filter (stemData2017, treatment == 3, date != as_date ('2017-11-03') & sampleHeight == 2), sugar) [[1]]), 
+        col = tColours [['colour']] [3])
+points (y = allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'B'],
+        x = select (filter (stemData2017, treatment == 3 & date != as_date ('2017-11-03') & sampleHeight == 1), sugar) [[1]],
+        col = tColours [['colour']] [3], pch = 25)
+abline (lm (allData [['SC']] [allData [['treatment']] == 3 & allData [['height']] == 'B'] ~ 
+              select (filter (stemData2017, treatment == 3, date != as_date ('2017-11-03') & sampleHeight == 1), sugar) [[1]]), 
+        col = tColours [['colour']] [3], lty = 2)
+points (y = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'A'],
+        x = select (filter (stemData2017, treatment == 4 & date != as_date ('2017-11-03') & sampleHeight == 2.5), sugar) [[1]],
+        col = tColours [['colour']] [4], pch = 24, bg = tColours [['colour']] [4])
+abline (lm (allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'A'] ~ 
+              select (filter (stemData2017, treatment == 4, date != as_date ('2017-11-03') & sampleHeight == 2.5), sugar) [[1]]), 
+        col = tColours [['colour']] [4])
+points (y = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'B'],
+        x = select (filter (stemData2017, treatment == 4 & date != as_date ('2017-11-03') & sampleHeight == 1.5), sugar) [[1]],
+        col = tColours [['colour']] [4], pch = 25)
+abline (lm (allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'M'] ~ 
+              select (filter (stemData2017, treatment == 4, date != as_date ('2017-11-03') & sampleHeight == 1.5), sugar) [[1]]), 
+        col = tColours [['colour']] [4], lty = 3)
+points (y = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'B'],
+        x = select (filter (stemData2017, treatment == 4 & date != as_date ('2017-11-03') & sampleHeight == 0.5), sugar) [[1]],
+        col = tColours [['colour']] [4], pch = 25)
+abline (lm (allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'B'] ~ 
+              select (filter (stemData2017, treatment == 4, date != as_date ('2017-11-03') & sampleHeight == 0.5), sugar) [[1]]), 
+        col = tColours [['colour']] [4], lty = 2)
+abline (lm (allData [['SC']] ~ stemData2017 [['sugar']] [81:320]), lwd = 3, col = '#666666')
+legend (x = 1.3, y = 45, 
+        legend = c ('control','above girdle','below girdle','above compression','below compression','above double compression','middle double compression','below double compression'), 
+        pch = c (21, 24, 25, 24, 25, 24, 22, 25), col = tColours [['colour']] [c (1, 2, 2, 3, 3, 4, 4, 4)],
+        bg = 'transparent', box.lty = 0, pt.bg = c (tColours [['colour']] [1:2], 'white',tColours [['colour']] [3],'white', tColours [['colour']] [4], tColours [['colour']] [4],'white'))
+legend (x = 1.2, y = 45, legend = rep ('', 8), col = tColours [['colour']] [c (1, 2, 2, 3, 3, 4, 4, 4)], 
+        lty = c (1, 1, 2, 1, 2, 1, 3, 2), box.lty = 0, bg = 'transparent')
+
+
+# plot residual of respiratory loss and structural carbon gain against sugar concentration
+#----------------------------------------------------------------------------------------
+plot (y = residuals (lm (allData [['resp']] ~ allData [['SC']])),
+      x = stemData2017 [['sugar']] [81:320], xlab = 'wood sugar concentration (%weight DM)', ylab = 'residuals between growth and respiration')
+
 # summarise data by group
 #----------------------------------------------------------------------------------------
 summaryData <- allData %>% group_by (treatment, height, month) %>% 
@@ -115,6 +373,18 @@ cumulativeData <- cumulativeData %>% group_by (treatment, height) %>%
                              sdNSC  = sd (NSC,  na.rm = TRUE),
                              sdResp = sd (Resp, na.rm = TRUE))
   
+# plot average wood sugar concentration versus cumulative growth
+#----------------------------------------------------------------------------------------
+datSugar <- data %>% select (c (2:3, seq (6, 14, by = 2))) %>% 
+  pivot_longer (cols =  c (3:7), names_to = 'height',
+                names_prefix = 'sugar', values_to = 'sugar')
+datSugar  <- filter (datSugar, !is.na (sugar))
+datSugar <- datSugar %>% group_by (tree, height) %>% summarise (mean = mean (sugar))
+cumGrowth <- allData %>% group_by (tree, height, treatment) %>% 
+             summarise (SC   = sum (SC, na.rm = TRUE))
+plot (cumGrowth [['SC']],
+      datSugar [['mean']], xlab = 'structural growth (g C)', ylab = 'mean sugar concentration (% weight DM)')
+
 # create panel of three barplot for period changes 
 #----------------------------------------------------------------------------------------
 png (filename = '../fig/Exp2017carbonDynamicsWithTotal.png', width = 1000, height = 400)
@@ -132,7 +402,8 @@ for (m in c ('august','october','november','total')) {
     dataPos <- cumulativeData %>% ungroup %>% 
                select (meanResp, meanSC, meanNSC, sdResp, sdSC, sdNSC)
   }
-  dataNeg <- dataPos [8:1, ]; dataPos <- dataPos [8:1, ]
+  dataPos <- dataPos [c (1,3,2,5,4,7,8,6), ]
+  dataNeg <- dataPos
   dataPos [dataPos < 0] <- 0
   dataNeg [dataNeg > 0] <- 0
   
@@ -163,21 +434,23 @@ for (m in c ('august','october','november','total')) {
           length = 0.05, code = 3, angle = 90, col = '#be4d00')
   abline (v = 0, col = '#99999999', lwd = 1, lty = 2)
   axis (side = 1, cex.axis = 1.5)
-  mtext (side = 1, line = 3, text = expression (paste (delta, ' carbon (g)')))
+  mtext (side = 1, line = 3, text = expression (paste (Delta, ' carbon (g)')))
   if (m == 'august') {
     axis (side = 2, at = c (1.5, 4.5, 6.5, 9.5, 11.5, 14.5, 16.5, 18.5), las = 1,
           labels = c ('C','B','A','B','A','B','M','A'), cex.axis = 1.5)
     mtext (side = 2, line = 2.5, at = c(1.5, 5.5, 10.5, 16.5), 
            text = c ('control','girdled','compressed','double \n compressed'))
-    descriptor <- expression (paste ('1'))
+    descriptor <- expression (paste (''))
   } else if (m == 'october') {
-    descriptor <- expression (paste ('2'))
-  } else {
-    descriptor <- expression (paste ('3'))
+    descriptor <- expression (paste (''))
+  } else if (m == 'november') {
+    descriptor <- expression (paste (''))
     # text (x = -13, y = 19, labels = 'respiratory loss', col = '#b35806', cex = 1.0)
     # text (x =  10, y = 19, labels = 'growth', col = '#1b7837', cex = 1.0)
     # text (x =  -8, y = 17.3, labels = expression (paste ('sugar')), col = '#542788', cex = 1.0)
     # text (x =  -8, y = 15.7, labels = expression (paste ('starch')), col = '#b2abd2', cex = 1.0)
+  } else {
+    descriptor <- expression (paste (''))
   }
   text (x = -17, y = 20, pos = 4, labels = descriptor, col = '#003e74', cex = 2)
   
