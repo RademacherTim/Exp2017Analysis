@@ -12,7 +12,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library ('knitr')
 library ('tidyverse')
 library ('lubridate')
-library ('readxl')
 library ('googledrive')
 library ('rjson')
 #library ('plotrix')
@@ -77,18 +76,6 @@ GDFilesAllometry <- drive_ls (path = as_id (GDallometryID))
 GDExp2017AllometryFileID <- GDFilesAllometry [['id']] [GDFilesAllometry [['name']] == 'allometricDataExp2017.xlsx']
 
 # Change working directory
-setwd ('/media/tim/dataDisk/PlantGrowth/data/microcores/woodAnatomy/Exp2017/')
-
-# Download the Exp2017 wood anatomical data file
-# fileExp2017 <- drive_download (file = as_id (GDExp2017FileID), verbose = FALSE, overwrite = TRUE)
-# rm (fileExp2017)
-
-# Read the data per 20 micron slices
-data <- read_excel (path = paste0 (getwd (),'/20muband_ALL.xlsx'), 
-                    sheet = '20muband_ALL', 
-                    na = "NA")
-
-# Change working directory
 setwd ('/media/tim/dataDisk/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ringWidthTRIAD/')
 
 # Download the files for ring width measurements of the Exp 2017 microcores
@@ -101,10 +88,6 @@ setwd ('/media/tim/dataDisk/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ring
 # Change working directory
 setwd ('/media/tim/dataDisk/PlantGrowth/data/allometry/Exp2017/')
 
-# Download the Exp2017 allometry data file
-# fileExp2017 <- drive_download (file = as_id (GDExp2017AllometryFileID), verbose = FALSE, overwrite = TRUE)
-# rm (fileExp2017)
-
 # Read the allometric data
 allometricData <- read_excel (path = paste0 (getwd (),'/allometricDataExp2017.xlsx'), 
                               sheet = 'allometricData', 
@@ -112,6 +95,9 @@ allometricData <- read_excel (path = paste0 (getwd (),'/allometricDataExp2017.xl
 
 # Reset the working directory
 setwd ('/home/tim/projects/PlantGrowth/Exp2017Analysis/')
+
+# Source anatomical data
+source ('processAnatomicalData.R')
 ```
 
 The estimation of structural carbon gain for each stem section is scaled from the cell wall area of one thinsections sampled at the end of the growing season (3$^{rd}$ of November 2017) and divided into sections grown in each period (e.g., prior, during and after treatment) by association with the fraction of the ring formed at each sampling date. For each sampling date two microcores were collected and stored. One microcore was embedded in parafin, cut using a microtome, stained with astra blue and safranin red, and scanned on a sliding scanner. Where the resulting image of the first microcore did not fully include the necessary rings or had other quality issues, we cut and processed the second microcore. Between the two microcores, we were able to obtain high-quality image data for 315<!-- TR - Image 06.1 M for 2017/08/09 only contains part of the 2017 ring. And images 06.1 M, 24.4 A and 24.4 B are missing the 2015 ring. There must be one additional ring missing because the numbferOfSamples suggests so!!!--> out of 320 samples (i.e., 4 sampling dates times 40 trees times on average two sampling heights). Only for one tree (tree id: 06; treament: control) both thinsections collected in October did not contain a full set of rings necessary for the analysis. For each image, we identified and divided the ring formed in 2017 into 20 micron-wide discrete zones and derived the average anatomical structure for cells in each zone using ROXAS [@von_arx_roxas_2014]. In particular, we measured cell wall area, cell wall thickness, as well as tangential and radial lumen diameter. The ring width of the fully formed 2017 ring ranged between `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/1000, 2)` and `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [2] / 1000, 2 )` mm with a mean of `r round (mean (unique (data [['MRW']] [data [['YEAR']] == 2017]))/1000, 2)` mm. Even the smallest ring was divided into `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/20)` discrete zones of a width of 20-microns with anatomical data.
@@ -119,335 +105,6 @@ The estimation of structural carbon gain for each stem section is scaled from th
 ### Estimating period of formation for cells 
 
 Standardised ring widths at the different sampling dates were used to associate proportions of the final ring, thus included 20-micron wide zones, to specific growth periods. For this purpose we identified and measured ring widths in thinsections taken prior (e.g., 3$^{rd}$ of July 2017) and during the treatment (e.g., 10$^{th}$ of August 2017, and 9$^{th}$ of October 2017), as well as at the end of the growing season (3$^{rd}$ of November). All ring width measurements were performed with a self-developed webservice called the Tree Ring Image Analysis and Database (TRIAD). The accuracy of TRIAD is ultimately limited by the resolution of the uploaded images; here roughly 1.5 microns. 
-
-``` {r getRingWidths, echo = FALSE}
-# build data frame with ring width measurements for each of the four thinsections
-#----------------------------------------------------------------------------------------
-ringWidths <- tibble (tree = rep (1:40, 4),
-                      treatment = rep (allometricData [['treatment']] [1:40], 4),
-                      month = c (rep (7, 40), rep (8, 40), rep (10, 40), rep (11, 40)),
-                      RW2017at250 = NA, RW2017at200 = NA, RW2017at150 = NA, 
-                      RW2017at100 = NA, RW2017at050 = NA, RW2016at250 = NA, 
-                      RW2016at200 = NA, RW2016at150 = NA, RW2016at100 = NA, 
-                      RW2016at050 = NA, RW2015at250 = NA, RW2015at200 = NA, 
-                      RW2015at150 = NA, RW2015at100 = NA, RW2015at050 = NA,
-                      RW2014at250 = NA, RW2014at200 = NA, RW2014at150 = NA, 
-                      RW2014at100 = NA, RW2014at050 = NA, RW2013at250 = NA, 
-                      RW2013at200 = NA, RW2013at150 = NA, RW2013at100 = NA, 
-                      RW2013at050 = NA, RW2012at250 = NA, RW2012at200 = NA, 
-                      RW2012at150 = NA, RW2012at100 = NA, RW2012at050 = NA,
-                      RW2011at250 = NA, RW2011at200 = NA, RW2011at150 = NA, 
-                      RW2011at100 = NA, RW2011at050 = NA, RW2010at250 = NA, 
-                      RW2010at200 = NA, RW2010at150 = NA, RW2010at100 = NA,
-                      RW2010at050 = NA, RW2009at250 = NA, RW2009at200 = NA, 
-                      RW2009at150 = NA, RW2009at100 = NA, RW2009at050 = NA,
-                      RW2008at250 = NA, RW2008at200 = NA, RW2008at150 = NA, 
-                      RW2008at100 = NA, RW2008at050 = NA)
-
-
-# set working directory to read json files
-setwd ('/media/tim/dataDisk/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ringWidthTRIAD/')
-
-# list all json output file from TRIAD
-jsonFiles <- list.files (path = './', pattern = '.json')
-
-# set loop variable to count files with 2018 year growth
-k <- 0
-
-# loop over json files and read them
-for (j in 1: length (jsonFiles)) {
-  
-  # read in TRIAD outputs
-  temp <- fromJSON (file = jsonFiles [j]) 
-  treeID <- as.numeric (substr (temp [['sampleID']], 1, 2))
-  sampleDate <- lubridate::month (temp [['sampleDate']])
-  len <- length (temp [['growth']])
-  # print (c (j, treeID, sampleDate))
-  for (i in 1:len) {
-    if (i  == 1) {
-      types  <- unlist (temp [['growth']] [i]) [6]
-      years  <- unlist (temp [['growth']] [i]) [7] 
-      growth <- unlist (temp [['growth']] [i]) [9]
-    } else {
-      types  <- c (types,  unlist (temp [['growth']] [i]) [6])
-      years  <- c (years,  unlist (temp [['growth']] [i]) [7])
-      growth <- c (growth, unlist (temp [['growth']] [i]) [9])
-    }
-  }
-  if (max (years) == 2017 & growth [years == '2017' & types == 'Normal'] == '0') {
-    print (paste0 ('Error with the year number 2017 for:', jsonFiles [j]))
-  } else if (max (years) >= 2017 & growth [years == '2018' & types == 'Normal'] != '0') {
-    k <- k + 1
-    print (paste0 (jsonFiles [j],' has a 2018, CHECK IT!!!', max (years),' file number ', k))
-  }
-  growth <- as.numeric (growth [types == 'Normal' & years <= 2017])
-  years  <- as.numeric (years  [types == 'Normal' & years <= 2017])
-  growth <- c (growth, rep (NA, 10-length (growth)))
-  years  <- c (years,  seq (years [length (years)]-1, 2008))
-      
-  t <- as.numeric (substr (temp [['sampleID']], 4, 4))
-  if (t == 1) {
-    if (!is.na (growth [years == 2017])) {
-      ringWidths [['RW2017at150']] [ringWidths [['tree']] == treeID & 
-                                    ringWidths [['month']] == sampleDate] <- growth [years == 2017]
-    }
-    if (!is.na (growth [years == 2016])) {
-      ringWidths [['RW2016at150']] [ringWidths [['tree']] == treeID & 
-                                    ringWidths [['month']] == sampleDate] <- growth [years == 2016]
-    }
-    if (!is.na (growth [years == 2015])) {
-      ringWidths [['RW2015at150']] [ringWidths [['tree']] == treeID & 
-                                    ringWidths [['month']] == sampleDate] <- growth [years == 2015]
-    }
-    if (!is.na (growth [years == 2014])) {
-      ringWidths [['RW2014at150']] [ringWidths [['tree']] == treeID & 
-                                    ringWidths [['month']] == sampleDate] <- growth [years == 2014]
-    }
-    if (!is.na (growth [years == 2013])) {
-      ringWidths [['RW2013at150']] [ringWidths [['tree']] == treeID & 
-                                    ringWidths [['month']] == sampleDate] <- growth [years == 2013]
-    }
-    if (!is.na (growth [years == 2012])) {
-      ringWidths [['RW2012at150']] [ringWidths [['tree']] == treeID & 
-                                    ringWidths [['month']] == sampleDate] <- growth [years == 2012]
-    }
-    if (!is.na (growth [years == 2011])) {
-      ringWidths [['RW2011at150']] [ringWidths [['tree']] == treeID & 
-                                    ringWidths [['month']] == sampleDate] <- growth [years == 2011]
-    }
-    if (!is.na (growth [years == 2010])) {
-      ringWidths [['RW2010at150']] [ringWidths [['tree']] == treeID & 
-                                    ringWidths [['month']] == sampleDate] <- growth [years == 2010]
-    }
-    if (!is.na (growth [years == 2009])) {
-      ringWidths [['RW2009at150']] [ringWidths [['tree']] == treeID & 
-                                    ringWidths [['month']] == sampleDate] <- growth [years == 2009]
-    }
-    if (!is.na (growth [years == 2008])) {
-      ringWidths [['RW2008at150']] [ringWidths [['tree']] == treeID & 
-                                    ringWidths [['month']] == sampleDate] <- growth [years == 2008]
-    }
-  } else if (t == 2 | t == 3) {
-    sampleHeight <- substr (temp [['sampleID']], 6, 6)
-    if (sampleHeight == 'A') {
-      if (!is.na (growth [years == 2017])) {
-        ringWidths [['RW2017at200']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2017]
-      }
-      if (!is.na (growth [years == 2016])) {
-        ringWidths [['RW2016at200']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2016]
-      }
-      if (!is.na (growth [years == 2015])) {
-        ringWidths [['RW2015at200']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2015]
-      }
-      if (!is.na (growth [years == 2014])) {
-        ringWidths [['RW2014at200']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2014]
-      }
-      if (!is.na (growth [years == 2013])) {
-        ringWidths [['RW2013at200']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2013]
-      }
-      if (!is.na (growth [years == 2012])) {
-        ringWidths [['RW2012at200']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2012]
-      }
-      if (!is.na (growth [years == 2011])) {
-        ringWidths [['RW2011at200']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2011]
-      }
-      if (!is.na (growth [years == 2010])) {
-        ringWidths [['RW2010at200']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2010]
-      }
-      if (!is.na (growth [years == 2009])) {
-        ringWidths [['RW2009at200']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2009]
-      }
-    } else if (sampleHeight == 'B') {
-      if (!is.na (growth [years == 2017])) {
-        ringWidths [['RW2017at100']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2017]
-      }
-      if (!is.na (growth [years == 2016])) {
-        ringWidths [['RW2016at100']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2016]
-      }
-      if (!is.na (growth [years == 2015])) {
-        ringWidths [['RW2015at100']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2015]
-      }
-      if (!is.na (growth [years == 2014])) {
-        ringWidths [['RW2014at100']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2014]
-      }
-      if (!is.na (growth [years == 2013])) {
-        ringWidths [['RW2013at100']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2013]
-      }
-      if (!is.na (growth [years == 2012])) {
-        ringWidths [['RW2012at100']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2012]
-      }
-      if (!is.na (growth [years == 2011])) {
-        ringWidths [['RW2011at100']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2011]
-      }
-      if (!is.na (growth [years == 2010])) {
-        ringWidths [['RW2010at100']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2010]
-      }
-      if (!is.na (growth [years == 2009])) {
-        ringWidths [['RW2009at100']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2009]
-      }
-    }
-  } else if (t == 4) {
-    sampleHeight <- substr (temp [['sampleID']], 6, 6)
-    # print (c (j, treeID, sampleDate, sampleHeight))
-    if (sampleHeight == 'A') {
-      if (!is.na (growth [years == 2017])) {
-        ringWidths [['RW2017at250']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2017]
-      }
-      if (!is.na (growth [years == 2016])) {
-        ringWidths [['RW2016at250']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2016]
-      }
-      if (!is.na (growth [years == 2015])) {
-        ringWidths [['RW2015at250']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2015]
-      }  
-      if (!is.na (growth [years == 2014])) {
-        ringWidths [['RW2014at250']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2014]
-      }
-      if (!is.na (growth [years == 2013])) {
-        ringWidths [['RW2013at250']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2013]
-      }
-      if (!is.na (growth [years == 2012])) {
-        ringWidths [['RW2012at250']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2012]
-      }
-      if (!is.na (growth [years == 2011])) {
-        ringWidths [['RW2011at250']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2011]
-      }
-      if (!is.na (growth [years == 2010])) {
-        ringWidths [['RW2010at250']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2010]
-      }
-      if (!is.na (growth [years == 2009])) {
-        ringWidths [['RW2009at250']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2009]
-      }
-    } else if (sampleHeight == 'M') {
-      if (!is.na (growth [years == 2017])) {
-        ringWidths [['RW2017at150']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2017]
-      }
-      if (!is.na (growth [years == 2016])) {
-        ringWidths [['RW2016at150']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2016]
-      }
-      if (!is.na (growth [years == 2015])) {
-        ringWidths [['RW2015at150']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2015]
-      }
-      if (!is.na (growth [years == 2014])) {
-        ringWidths [['RW2014at150']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2014]
-      }
-      if (!is.na (growth [years == 2013])) {
-        ringWidths [['RW2013at150']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2013]
-      }
-      if (!is.na (growth [years == 2012])) {
-        ringWidths [['RW2012at150']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2012]
-      }
-      if (!is.na (growth [years == 2011])) {
-        ringWidths [['RW2011at150']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2011]
-      }
-      if (!is.na (growth [years == 2010])) {
-        ringWidths [['RW2010at150']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2010]
-      }
-      if (!is.na (growth [years == 2009])) {
-        ringWidths [['RW2009at150']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2009]
-      }
-    } else if (sampleHeight == 'B') {
-      if (!is.na (growth [years == 2017])) {
-        ringWidths [['RW2017at050']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2017]
-      }
-      if (!is.na (growth [years == 2016])) {
-        ringWidths [['RW2016at050']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2016]
-      }
-      if (!is.na (growth [years == 2015])) {
-        ringWidths [['RW2015at050']] [ringWidths [['tree']] == treeID &
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2015]
-      }
-      if (!is.na (growth [years == 2014])) {
-        ringWidths [['RW2014at050']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2014]
-      }
-      if (!is.na (growth [years == 2013])) {
-        ringWidths [['RW2013at050']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2013]
-      }
-      if (!is.na (growth [years == 2012])) {
-        ringWidths [['RW2012at050']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2012]
-      }
-      if (!is.na (growth [years == 2011])) {
-        ringWidths [['RW2011at050']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2011]
-      }
-      if (!is.na (growth [years == 2010])) {
-        ringWidths [['RW2010at050']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2010]
-      }
-      if (!is.na (growth [years == 2009])) {
-        ringWidths [['RW2009at050']] [ringWidths [['tree']] == treeID & 
-                                      ringWidths [['month']] == sampleDate] <- growth [years == 2009]
-      }
-    }
-  }
-}  # end json file loop
-
-# add November ring width to the ringWidths tibble
-for (i in 1:dim (data) [1]) {
-  treeID       <- as.numeric (substr (data [['TREE']] [i], 1, 2))
-  treatment    <- as.numeric (substr (data [['PLOT']] [i], 2, 2))
-  sampleHeight <- data [['POS']] [i]
-  sampleDate <- 11
-  year <- data [['YEAR']] [i]
-  if (sampleHeight == 'A' & treatment == 4) {
-    height <- '250' 
-  } else if (sampleHeight == 'A' & (treatment == 2 | treatment == 3)) {
-    height <- '200' 
-  } else if (sampleHeight == 'M') {
-    height <- '150'
-  } else if (sampleHeight == 'B' & (treatment == 2 | treatment == 3)) {
-    height <- '100'
-  } else if (sampleHeight == 'B' & treatment == 4) {
-    height <- '050'
-  }
-  xTemp <- paste0 ('RW',year,'at',height)
-  ringWidths [[xTemp]] [ringWidths [['tree']] == treeID & 
-                        ringWidths [['month']] == sampleDate] <- as.numeric (data [['MRW']] [i]) * 1.0e-3
-}
-
-# Reset the working directory
-setwd ('/home/tim/projects/PlantGrowth/Exp2017Analysis/')
-```
 
 Microcores in August, October and November were punched in close proximity to the July sample. The samples were offset by, at least, 5cm horizontally on the same vertical axis to avoid sampling a wound reaction of the injury inflicted by previous cores. As growth varies locally around the circumference of the stem, sampling relatively close was a first step to minimised local differences in growth between sampling dates. As a second step, we used the 2015 ring width from the same thinsection to correct for local variation in growth between microcores. 
 
@@ -465,15 +122,8 @@ metData <- read_csv (url ('https://harvardforest.fas.harvard.edu/data/p30/hf300/
 The number of measurements for growth rings drops off strongly after the 2015 growth ring (table 1), because the older rings are further away from the bark, hence they are less likely within the 15mm reach of the trephor tool [@rossi_trephor:_2006] used to collect the microcores. Among the recent years with high replication, 2015 was preferred over 2016, because of an abnormally dry growing season in 2016 (total annual precipitation of `r metData [['prec']] [metData [['year']] == 2016]` $mm$, which is `r round (mean (metData [['prec']]) - metData [['prec']] [metData [['year']] == 2016])` below the long-term average of `r round (mean (metData [['prec']]))` $mm$). In fact, about three quarters of trees included in this study showed a intra-annual density fluctuation in 2016 due to the dry growing season and the remaining quarter of trees had a relatively narrower ring. Consequently, standardisation by the 2016 ring would introduce a systematic bias based on the bi-modal ring width distribution in 2016. In contrast, 2015 did not include any outstading climatological events or resulting systematic bias in growth. Indeed, the 2015 growing season climate was similar to the 2017 growing season climate with a mean annual temperature of `r metData [['airt']] [metData [['year']] == 2015]` $^{\circ}C$ and a total annual precipitation of `r metData [['prec']] [metData [['year']] == 2015]` $mm$.
 
 ``` {r plotBasicRingStats, echo = FALSE, fig.width = 11}
-# Divide into tibble for each sampling date
-#----------------------------------------------------------------------------------------
-ringWidthsJul <- ringWidths [ringWidths [['month']] == 7, ]
-ringWidthsAug <- ringWidths [ringWidths [['month']] == 8, ]
-ringWidthsOct <- ringWidths [ringWidths [['month']] == 10, ]
-ringWidthsNov <- ringWidths [ringWidths [['month']] == 11, ]
-# Samples 24.4A and 24.4B only have a partial measurement of the 2015 ring in the November
-# slide. This means that I cannot generate fraction ring width for these sections.
 
+# Convert to densities
 dJul <- density (unlist (ringWidthsJul [4:8]), na.rm = T)
 dAug <- density (unlist (ringWidthsAug [4:8]), na.rm = T)
 dOct <- density (unlist (ringWidthsOct [4:8]), na.rm = T)
@@ -528,24 +178,6 @@ lines (dNov4M, col = tColours [['colour']] [4], lwd = 2, lty = 3)
 legend (x = 1.35, y = 2, legend = c ('control','gridling','compression','double compression'),
         col = tColours [['colour']] [1:4],
         lwd = 2, box.lty = 0, bg = 'transparent')
-
-# Calculate the fractions of ring formed
-f_Jul <- (ringWidthsJul [4:8] / ringWidthsJul [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
-f_Aug <- (ringWidthsAug [4:8] / ringWidthsAug [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
-f_Oct <- (ringWidthsOct [4:8] / ringWidthsOct [14:18]) * ringWidthsNov [14:18] / ringWidthsNov [4:8] 
-
-# standardised ring width at the end of the season
-#----------------------------------------------------------------------------------------
-standardisedRW2017 <- rbind (ringWidthsNov [4:8] / ringWidthsNov [14:18],
-                             ringWidthsOct [4:8] / ringWidthsOct [14:18],
-                             ringWidthsAug [4:8] / ringWidthsAug [14:18],
-                             ringWidthsJul [4:8] / ringWidthsJul [14:18])
-standardisedRW2017 <- add_column (standardisedRW2017, 
-                                  month = c (rep (11, 40), rep (10, 40), rep (8, 40), 
-                                             rep (7, 40)))
-  
-WRITE <- FALSE
-if (WRITE) write_csv (standardisedRW2017,  path = 'standardisedRW2017.csv')
 
 # Aggregate the fractional growth by treatment
 f_Agg <- aggregate (f_Jul, mean, by = list (allometricData [['treatment']] [1:40]), na.rm = TRUE)
@@ -603,83 +235,6 @@ compresTreesBelow <- c ('10B','12B','13B','17B','20B','21B','28B','32B','33B','3
 douCompTreesAbove <- c ('02A','08A','14A','22A','24A','25A','26A','27A','34A','37A')
 douCompTreesInBet <- c ('02M','08M','14M','22M','24M','25M','26M','27M','34M','37M')
 douCompTreesBelow <- c ('02B','08B','14B','22B','24B','25B','26B','27B','34B','37B')
-
-# add new column to data
-data <- add_column (data, period = NA)
-
-# loop over for each row in the anatomical data to associate it with a growth period
-for (i in 1:dim (data) [1]) {
-  
-  # if not 2017, skip
-  if (data [['YEAR']] [i] != 2017) next
-  
-  # get tree ID, treatment and sample height of the sample
-  treeID <- as.numeric (substr (data [['TREE']] [i], 1, 2))
-  sampleHeight <- substr (data [['TREE']] [i], 3, 3)
-  treatment <- as.numeric (substr (data [['PLOT']] [i], 2, 2))
-  
-  # get fractional boundaries for the particular sample
-  if (sampleHeight == 'M') {
-    fJul <- f_Jul [treeID, 3]
-    fAug <- f_Aug [treeID, 3]
-    fOct <- f_Oct [treeID, 3]
-  } else if (treatment == 2 | treatment == 3) {
-    if (sampleHeight == 'A') {
-      fJul <- f_Jul [treeID, 2]
-      fAug <- f_Aug [treeID, 2]
-      fOct <- f_Oct [treeID, 2]
-    } else if (sampleHeight == 'B') {
-      fJul <- f_Jul [treeID, 4]
-      fAug <- f_Aug [treeID, 4]
-      fOct <- f_Oct [treeID, 4]
-    }
-  } else if (treatment == 4) {
-    if (sampleHeight == 'A') {
-      fJul <- f_Jul [treeID, 1]
-      fAug <- f_Aug [treeID, 1]
-      fOct <- f_Oct [treeID, 1]
-    } else if (sampleHeight == 'B') {
-      fJul <- f_Jul [treeID, 5]
-      fAug <- f_Aug [treeID, 5]
-      fOct <- f_Oct [treeID, 5]
-    }
-  }
-
-  # associate fractional position with a period
-  if (!is.na (data [['RRADDISTR']] [i])) {
-    if (!is.na (fJul) & !is.na (fAug) & !is.na (fOct)) {
-      if (data [['RRADDISTR']] [i] / 100 <= fJul) {
-        data [['period']] [i] <- as_date ('2017-07-03')
-      } else if (data [['RRADDISTR']] [i] / 100 <= fAug) {
-        data [['period']] [i] <- as_date ('2017-08-09')
-      } else if (data [['RRADDISTR']] [i] / 100 <= fOct) {
-        data [['period']] [i] <- as_date ('2017-10-09')
-      } else {
-        data [['period']] [i] <- as_date ('2017-11-03')
-      }
-    } else if (treeID == 16 & sampleHeight == 'B') {
-      if (data [['RRADDISTR']] [i] / 100 <= fJul) {
-        data [['period']] [i] <- as_date ('2017-07-03')
-      } else if (data [['RRADDISTR']] [i] / 100 <= fAug) {
-        data [['period']] [i] <- as_date ('2017-08-09')
-      }
-    }
-  } else {
-    fraction <- data [['RADDISTR.BAND']] [i] / data [['MRW']] [i]
-    #print (c (fraction,treeID))
-    if (!is.na (fJul) & !is.na (fAug) & !is.na (fOct)) {
-      if (fraction <= fJul) {
-        data [['period']] [i] <- as_date ('2017-07-03')
-      } else if (fraction  <= fAug) {
-        data [['period']] [i] <- as_date ('2017-08-09')
-      } else if (fraction  <= fOct) {
-        data [['period']] [i] <- as_date ('2017-10-09')
-      } else {
-        data [['period']] [i] <- as_date ('2017-11-03')
-      }
-    }
-  }
-}
 
 # function to plot fraction of cummulative cell wall area for an individual tree
 #----------------------------------------------------------------------------------------
@@ -947,9 +502,7 @@ $$
 Implicitly, this approach assumes that wood is circumferentially and longitudinally homogenous and the measured tracheids are representative of the woody tissue. thus, the approach does not account for other types of tissue than tracheids, such as rays and resin ducts. Tracheids make up 93% of the volume of wood in white pines with resin ducts and rays  accounting for 1% and 6%, respectively [@brown_textbook_1949]. However, since there was no clear treatment effect on the occurance of resin ducts or rays cells, this assumption ought not to cause a bias in carbon sequestration in strucutre between treatments. As ray cells and resin ducts have a slightly lower carbon density, this approach does over estimate carbon density marginally.
 
 ``` {r scalingToCircumference , echo = FALSE}
-# add cell width column to data
-data <- add_column (data, cellRadWidth = NA)
-data <- add_column (data, cellTanWidth = NA)
+# Find zonal Cell Wall Area and multiplier
 data <- add_column (data, zonalCWA     = NA)
 data <- add_column (data, multiplier   = NA)
 
@@ -964,10 +517,6 @@ for (i in 1:dim (data) [1]) {
   sampleHeight <- substr (data [['TREE']] [i], 3, 3)
   treatment <- as.numeric (substr (data [['PLOT']] [i], 2, 2))
 
-  # calculate zonal average tangential and radial cell width (microns)
-  data [['cellRadWidth']] [i] <- data [['DRAD']] [i] + 2 * data [['CWTTAN']] [i] 
-  data [['cellTanWidth']] [i] <- data [['DTAN']] [i] + 2 * data [['CWTRAD']] [i] 
-  
   # factor to account for bark thickness of (8mm or 8000 microns) in circumference
   fBark <- 2.0 * pi * 8000 
   

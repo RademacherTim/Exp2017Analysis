@@ -12,6 +12,11 @@ if (!existsFunction ('add_column')) library ('tidyverse')
 # set colour scheme and ploting functions
 #----------------------------------------------------------------------------------------
 source ('plotingFunctions.R')
+source ('processAnatomicalData.R')
+
+# change working directory
+#----------------------------------------------------------------------------------------
+setwd ('/media/tim/dataDisk/PlantGrowth/data/microcores/woodAnatomy/Exp2017/')
 
 # source ring width and other anatomical data
 #----------------------------------------------------------------------------------------
@@ -180,7 +185,8 @@ dev.off ()
 
 # create tibble with cell numbers per ring
 #----------------------------------------------------------------------------------------
-cellNumber <- tibble (tree = NA, treatment = NA, height = NA, n = NA)
+cellNumber <- tibble (tree = NA, treatment = NA, height = NA, nTotal = NA, nJul = NA, 
+                      nAug = NA, nOct = NA)
 
 # determine the approximate number of cells in each ring
 #----------------------------------------------------------------------------------------
