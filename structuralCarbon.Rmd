@@ -85,14 +85,6 @@ setwd ('/media/tim/dataDisk/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ring
 #   print (i)
 # }
 
-# Change working directory
-setwd ('/media/tim/dataDisk/PlantGrowth/data/allometry/Exp2017/')
-
-# Read the allometric data
-allometricData <- read_excel (path = paste0 (getwd (),'/allometricDataExp2017.xlsx'), 
-                              sheet = 'allometricData', 
-                              na = "NA")
-
 # Reset the working directory
 setwd ('/home/tim/projects/PlantGrowth/Exp2017Analysis/')
 

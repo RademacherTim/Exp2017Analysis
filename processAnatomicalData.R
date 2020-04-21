@@ -203,7 +203,6 @@ for (j in 1: length (jsonFiles)) {
     }
   } else if (t == 4) {
     sampleHeight <- substr (temp [['sampleID']], 6, 6)
-    # print (c (j, treeID, sampleDate, sampleHeight))
     if (sampleHeight == 'A') {
       if (!is.na (growth [years == 2017])) {
         ringWidths [['RW2017at250']] [con] <- growth [years == 2017]
@@ -292,13 +291,17 @@ for (j in 1: length (jsonFiles)) {
   }
 }  # end json file loop
 
+# Clean unnecessary variables from loop
+#----------------------------------------------------------------------------------------
+rm (temp, treeID, t, i, j, k, jsonFiles, sampleDate, sampleHeight, growth, types, years, 
+    con, len)
+
 # Add November ring width to the ringWidths tibble
 #----------------------------------------------------------------------------------------
 for (i in 1:dim (data) [1]) {
   treeID       <- as.numeric (substr (data [['TREE']] [i], 1, 2))
   treatment    <- as.numeric (substr (data [['PLOT']] [i], 2, 2))
   sampleHeight <- data [['POS']] [i]
-  sampleDate <- 11
   year <- data [['YEAR']] [i]
   if (sampleHeight == 'A' & treatment == 4) {
     height <- '250' 
@@ -312,9 +315,13 @@ for (i in 1:dim (data) [1]) {
     height <- '050'
   }
   xTemp <- paste0 ('RW',year,'at',height)
-  ringWidths [[xTemp]] [ringWidths [['tree']] == treeID & 
-                          ringWidths [['month']] == sampleDate] <- as.numeric (data [['MRW']] [i]) * 1.0e-3
+  con <- ringWidths [['tree']] == treeID & ringWidths [['month']] == 11
+  ringWidths [[xTemp]] [con] <- as.numeric (data [['MRW']] [i]) * 1.0e-3
 }
+
+# Clean unnecessary variables from loop
+#----------------------------------------------------------------------------------------
+rm (xTemp, height, treeID, treatment, i, sampleHeight, year,con)
 
 # Reset working directory
 #----------------------------------------------------------------------------------------
@@ -344,7 +351,7 @@ standardisedRW2017 <- add_column (standardisedRW2017,
                                   month = c (rep (11, 40), rep (10, 40), rep (8, 40), 
                                              rep (7, 40)))
 WRITE <- FALSE
-if (WRITE) write_csv (standardisedRW2017,  path = 'standardisedRW2017.csv')
+if (WRITE) write_csv (standardisedRW2017,  path = 'standardisedRW2017.csv'); rm (WRITE)
 
 # Add new column to data
 #----------------------------------------------------------------------------------------
@@ -429,15 +436,18 @@ for (i in 1:dim (data) [1]) {
   }
 }
 
+# Clean unnecessary variables from loop
+#----------------------------------------------------------------------------------------
+rm (i, fAug, fJul, fOct, fraction, sampleHeight, treatment, treeID)
+
 # Add cell width column to data
 #----------------------------------------------------------------------------------------
 data <- add_column (data, cellRadWidth = NA)
 data <- add_column (data, cellTanWidth = NA)
 
-# calculate zonal average tangential and radial cell width (microns)
+# Calculate zonal average tangential and radial cell width (microns)
 #----------------------------------------------------------------------------------------
 data [['cellRadWidth']] <- data [['DRAD']] + 2 * data [['CWTTAN']]
 data [['cellTanWidth']] <- data [['DTAN']] + 2 * data [['CWTRAD']]
   
- 
-#========================================================================================
+ #========================================================================================
