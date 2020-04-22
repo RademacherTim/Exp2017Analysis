@@ -101,10 +101,10 @@ Standardised ring widths at the different sampling dates were used to associate 
 Microcores in August, October and November were punched in close proximity to the July sample. The samples were offset by, at least, 5cm horizontally on the same vertical axis to avoid sampling a wound reaction of the injury inflicted by previous cores. As growth varies locally around the circumference of the stem, sampling relatively close was a first step to minimised local differences in growth between sampling dates. As a second step, we used the 2015 ring width from the same thinsection to correct for local variation in growth between microcores. 
 
 $$
-f_{m,17} = \frac {rw_{m,17} \times rw_{N, 15}} {rw_{m,15}} \times \frac {1} {rw_{N,15}}
+f_{m,17} = \frac {rw_{m,17} \times rw_{end, 15}} {rw_{m,15}} \times \frac {1} {rw_{end,17}}
 $$
 
-, where $f_{m,17}$ is the fraction of the ring width formed in month $m$ (e.g., July, August, or October), $rw_{m, 15}$ and $rw_{m, 17}$ are respecitvely the 2015 and 2017 ring width in the thinsection collected in month $m$, and $rw_{N, 15}$ and $rw_{N, 17}$ are respectively the 2015 and 2017 ring widths in the thinsection from the November sample. This assumes that the ring was fully formed on the 1$^{st}$ of November, which is about two weeks after the typical end of cell wall thickening for white pine at Harvard Forest. Then, $f_{m, 17}$ theoretically varies between 0 and 1 with 0 meaning none of the ring was formed at the sampling date and 1 meaning that the entire ring was already formed.
+, where $f_{m,17}$ is the fraction of the ring width formed in month $m$ (e.g., July, August, or October), $rw_{m, 15}$ and $rw_{m, 17}$ are respecitvely the 2015 and 2017 ring width in the thinsection collected in month $m$, and $rw_{end, 15}$ and $rw_{end, 17}$ are respectively the 2015 and 2017 ring widths in the thinsection from the November sample. This assumes that the ring was fully formed on the 1$^{st}$ of November, which is about two weeks after the typical end of cell wall thickening for white pine at Harvard Forest. Then, $f_{m, 17}$ theoretically varies between 0 and 1 with 0 meaning none of the ring was formed at the sampling date and 1 meaning that the entire ring was already formed.
 
 ```{r climateData, echo = FALSE}
 metData <- read_csv (url ('https://harvardforest.fas.harvard.edu/data/p30/hf300/hf300-01-annual-m.csv'), 

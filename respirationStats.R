@@ -179,7 +179,7 @@ png (filename = '../fig/Exp2017StemCO2Efflux.png', width = 600, height = 400)
   # draw vertical lines for critical dates
   #--------------------------------------------------------------------------------------
   abline (v = as_date ('2017-07-03'), col = '#99999999', lty = 2) # start date
-  abline (v = as_date ('2017-08-09'), col = '#99999999', lty = 2) # end date double compression
+  abline (v = as_date ('2017-08-09'), col = '#99999999', lty = 2) # end date compression
   
   polygon (x = c (M01Values [['date']] [M01Values [['treatment']] == 1], 
                   rev (M01Values [['date']] [M01Values [['treatment']] == 1])),
