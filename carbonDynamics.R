@@ -215,7 +215,12 @@ for (m in c ('august','october','november')) {
   text (x = 10, y = -25, labels = m, cex = 1.5)
 }
 
-# plot period growth as a function of nonstructural carbon concentration at end of period
+# Read NSC data
+#----------------------------------------------------------------------------------------
+source ('../nonstructuralCarbon/processExpNSCData.R')
+stemData2017 <- filter (stemData2017, treeID <= 40)
+
+# Plot period growth as a function of nonstructural carbon concentration at end of period
 #----------------------------------------------------------------------------------------
 par (mfrow = c (1, 1)) 
 par (mar = c (5, 5, 1, 1))
@@ -257,9 +262,9 @@ points (y = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']
 abline (lm (allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'A'] ~ 
               select (filter (stemData2017, treatment == 4, date != as_date ('2017-07-05') & sampleHeight == 2.5), sugar) [[1]]), 
         col = tColours [['colour']] [4])
-points (y = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'B'],
+points (y = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'M'],
         x = select (filter (stemData2017, treatment == 4 & date != as_date ('2017-07-05') & sampleHeight == 1.5), sugar) [[1]],
-        col = tColours [['colour']] [4], pch = 25)
+        col = tColours [['colour']] [4], pch = 22, bg = tColours [['colour']] [4])
 abline (lm (allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'M'] ~ 
               select (filter (stemData2017, treatment == 4, date != as_date ('2017-07-05') & sampleHeight == 1.5), sugar) [[1]]), 
         col = tColours [['colour']] [4], lty = 3)
@@ -319,9 +324,9 @@ points (y = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']
 abline (lm (allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'A'] ~ 
               select (filter (stemData2017, treatment == 4, date != as_date ('2017-11-03') & sampleHeight == 2.5), sugar) [[1]]), 
         col = tColours [['colour']] [4])
-points (y = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'B'],
+points (y = allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'M'],
         x = select (filter (stemData2017, treatment == 4 & date != as_date ('2017-11-03') & sampleHeight == 1.5), sugar) [[1]],
-        col = tColours [['colour']] [4], pch = 25)
+        col = tColours [['colour']] [4], pch = 22, bg = tColours [['colour']] [4])
 abline (lm (allData [['SC']] [allData [['treatment']] == 4 & allData [['height']] == 'M'] ~ 
               select (filter (stemData2017, treatment == 4, date != as_date ('2017-11-03') & sampleHeight == 1.5), sugar) [[1]]), 
         col = tColours [['colour']] [4], lty = 3)
@@ -343,7 +348,8 @@ legend (x = 1.2, y = 45, legend = rep ('', 8), col = tColours [['colour']] [c (1
 # plot residual of respiratory loss and structural carbon gain against sugar concentration
 #----------------------------------------------------------------------------------------
 plot (y = residuals (lm (allData [['resp']] ~ allData [['SC']])),
-      x = stemData2017 [['sugar']] [81:320], xlab = 'wood sugar concentration (%weight DM)', ylab = 'residuals between growth and respiration')
+      x = stemData2017 [['sugar']] [81:320], 
+      xlab = 'wood sugar concentration (%weight DM)', ylab = 'residuals between growth and respiration')
 
 # summarise data by group
 #----------------------------------------------------------------------------------------
@@ -378,12 +384,32 @@ cumulativeData <- cumulativeData %>% group_by (treatment, height) %>%
 datSugar <- data %>% select (c (2:3, seq (6, 14, by = 2))) %>% 
   pivot_longer (cols =  c (3:7), names_to = 'height',
                 names_prefix = 'sugar', values_to = 'sugar')
-datSugar  <- filter (datSugar, !is.na (sugar))
-datSugar <- datSugar %>% group_by (tree, height) %>% summarise (mean = mean (sugar))
+datSugar <- datSugar %>% filter (!is.na (sugar)) %>% group_by (tree, height) %>% 
+            summarise (mean = mean (sugar))
 cumGrowth <- allData %>% group_by (tree, height, treatment) %>% 
-             summarise (SC   = sum (SC, na.rm = TRUE))
-plot (cumGrowth [['SC']],
-      datSugar [['mean']], xlab = 'structural growth (g C)', ylab = 'mean sugar concentration (% weight DM)')
+             summarise (SC = sum (SC, na.rm = TRUE))
+png ('../fig/Exp2017SolubleSugarConcentrationVsCumulativeGrowth.png', width = 600, height = 400)
+plot (cumGrowth [['SC']] [cumGrowth [['treatment']] == 1],
+      datSugar [['mean']] [cumGrowth [['treatment']] == 1], pch = 21,
+      col = tColours [['colour']] [1], bg = tColours [['colour']] [1], 
+      xlab = 'cumulative structural growth (g C)', ylab = 'mean soluble sugar concentration (% dry weight)',
+      xlim = c (0, 80), ylim = c (0.5, 2.5), axes = FALSE)
+axis (side = 1, cex = 1.3); axis (side = 2, las = 1, cex = 1.3)
+for (i in 2:4) {
+  heights <- c ('A','B') 
+  if (i == 4) heights <- c ('A','B','C') 
+  for (h in heights) {
+    con <- cumGrowth [['treatment']] == i & cumGrowth [['height']] == h
+    points (cumGrowth [['SC']] [con],
+            datSugar [['mean']] [con], pch = ifelse (h == 'A', 24, ifelse (h == 'B', 25, 22)),
+            col = tColours [['colour']] [i], bg = ifelse (h == 'A', tColours [['colour']] [i], 'white')) 
+  }
+}
+legend (x = 50, y = 2.5, 
+        legend = c ('control','above girdle','below girdle','above compression','below compression','above double compression','middle double compression','below double compression'), 
+        pch = c (21, 24, 25, 24, 25, 24, 22, 25), col = tColours [['colour']] [c (1, 2, 2, 3, 3, 4, 4, 4)],
+        bg = 'transparent', box.lty = 0, pt.bg = c (tColours [['colour']] [1:2], 'white',tColours [['colour']] [3],'white', tColours [['colour']] [4], tColours [['colour']] [4],'white'))
+dev.off ()
 
 # create panel of three barplot for period changes 
 #----------------------------------------------------------------------------------------

@@ -3,13 +3,28 @@
 # Harvard Forest.
 #----------------------------------------------------------------------------------------
 
-source ('plotingFunctions.R')
-
-# function for calculate the standard error
+# Load colour scheme and anatomical data 
 #----------------------------------------------------------------------------------------
-se <-  function (x) {
-  sd (x, na.rm = TRUE) / sqrt (sum (!is.na (x)))
+source ('plotingFunctions.R')
+source ('processAnatomicalData.R')
+
+# Plot cell wall area against ring width for each tree and group
+#----------------------------------------------------------------------------------------
+par (mar = c (5, 5, 1, 1))
+con <- data [['tree']] == 1 & data [['YEAR']] == 2017
+plot (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
+      y = rollmean (data [['CWA']] [con], 5), axes = FALSE, typ = 'l',
+      xlab = 'radial distance (microns)', 
+      ylab = expression (paste ('cell wall area (',microns**2,')')),
+      xlim = c (0, 4000), ylim = c (0, 1200), col = tColours [['colour']] [1])
+axis (side = 1); axis (side = 2)
+for (i in c (3, 4, 6, 7, 9, 18, 30, 31, 36)){
+  con <- data [['tree']] == i & data [['YEAR']] == 2017
+  lines (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
+         y = rollmean (data [['CWA']] [con], 5), 
+         xlim = c (0, 4000), ylim = c (0, 1200), col = tColours [['colour']] [1])
 }
+
 
 # define tree labels for each group
 #----------------------------------------------------------------------------------------
@@ -77,9 +92,6 @@ cellNMeans <- aggregate (cellNumber [['n']],
 cellNSD    <- aggregate (cellNumber [['n']], 
                          by = c (list (cellNumber [['height']]), list (cellNumber [['treatment']])), 
                          FUN = function (x) sd (x, na.rm = TRUE))
-
-# plot box plot of the estimated end time of growth in each treatment
-xPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
 
 ALPHA <- 0.4
 

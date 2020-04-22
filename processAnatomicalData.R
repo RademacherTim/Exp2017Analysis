@@ -7,6 +7,11 @@
 #----------------------------------------------------------------------------------------
 library ('tidyverse')
 library ('readxl')
+library ('rjson')
+
+# Get original working directory
+#----------------------------------------------------------------------------------------
+originalDir <- getwd ()
 
 # Change working directory to read anatomical data
 #----------------------------------------------------------------------------------------
@@ -449,5 +454,23 @@ data <- add_column (data, cellTanWidth = NA)
 #----------------------------------------------------------------------------------------
 data [['cellRadWidth']] <- data [['DRAD']] + 2 * data [['CWTTAN']]
 data [['cellTanWidth']] <- data [['DTAN']] + 2 * data [['CWTRAD']]
-  
- #========================================================================================
+
+# Rename column POS to height
+#----------------------------------------------------------------------------------------
+data <- rename (data, height = POS, treatment = PLOT, year = YEAR)
+data [['tree']] <- as.numeric (substr (data [['TREE']], 1, 2))
+data [['treatment']] <- as.numeric (substr (data [['treatment']], 2, 2)) 
+data <- select (data, -TREE)
+
+# Estimate the number of cell in each sector
+#----------------------------------------------------------------------------------------
+data <- add_column (data, nCells = 20.0 / data [['cellRadWidth']])
+
+# Provide column with cumulative cell wall arrange_all
+#----------------------------------------------------------------------------------------
+data <- data %>% group_by (tree, height, year) %>% mutate (cumCWA = cumsum (CWA)) 
+
+# Switch back to original working directory
+#----------------------------------------------------------------------------------------
+setwd (originalDir); rm (originalDir)
+#========================================================================================

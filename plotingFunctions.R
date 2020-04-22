@@ -2,6 +2,13 @@
 # Script with variables and functions relevant for ploting figuresin R
 #----------------------------------------------------------------------------------------
 
+
+# function for calculate the standard error
+#----------------------------------------------------------------------------------------
+se <-  function (x) {
+  sd (x, na.rm = TRUE) / sqrt (sum (!is.na (x)))
+}
+
 # set colours for treatments: control, girdled, compressed, double compressed and chilled
 #----------------------------------------------------------------------------------------
 tColours <- tibble (colour = c ('#91b9a4','#C0334D','#F18904','#5C4A72','#23345C'),
