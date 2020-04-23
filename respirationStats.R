@@ -17,7 +17,7 @@ source ('/home/tim/projects/PlantGrowth/stemCO2Efflux/readProcessedRespData.R')
 #----------------------------------------------------------------------------------------
 source ('plotingFunctions.R')
 
-# get rid of tree 41 
+# get rid of tree 41, respiration data from other experiments, and from irrelevant dates
 #----------------------------------------------------------------------------------------
 respData <- filter (respData, tree <= 40 & study == 'Exp2017' & 
                       respData [['timestamp']] <= as_datetime ('2018-01-01') & 

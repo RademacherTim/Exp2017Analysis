@@ -51,11 +51,11 @@ for (i in c (3, 4, 6, 7, 9, 18, 30, 31, 36)){
 con <- radMeans [['treatment']] == 1 & radMeans [['nCWT']] >= 5
 polygon (x = c (radMeans [['RADDISTR.BAND']] [con], 
                 rev (radMeans [['RADDISTR.BAND']] [con])), 
-         y = c (radMeans [['radMeans']] [con] - radMeans [['seCWT']] [con], 
-                rev (radMeans [['radMeans']] [con] + radMeans [['seCWT']] [con])),
+         y = c (radMeans [['meanCWT']] [con] - radMeans [['seCWT']] [con], 
+                rev (radMeans [['meanCWT']] [con] + radMeans [['seCWT']] [con])),
          col = addOpacity (tColours [['colour']] [1], 0.3), lty = 0)
 lines (x = radMeans [['RADDISTR.BAND']] [con],
-       y = radMeans [['radMeans']] [con], 
+       y = radMeans [['meanCWT']] [con], 
        lwd = 3, col = tColours [['colour']] [1])
 
 # Add descriptor
@@ -91,11 +91,11 @@ for (h in c ('A','B')) {
   con <- radMeans [['treatment']] == 2 & radMeans [['height']] == h & radMeans [['nCWT']] >= 5
   polygon (x = c (radMeans [['RADDISTR.BAND']] [con], 
                   rev (radMeans [['RADDISTR.BAND']] [con])), 
-           y = c (radMeans [['radMeans']] [con] - radMeans [['seCWT']] [con], 
-                  rev (radMeans [['radMeans']] [con] + radMeans [['seCWT']] [con])),
+           y = c (radMeans [['meanCWT']] [con] - radMeans [['seCWT']] [con], 
+                  rev (radMeans [['meanCWT']] [con] + radMeans [['seCWT']] [con])),
            col = addOpacity (tColours [['colour']] [2], 0.4), lty = 0)
   lines (x = radMeans [['RADDISTR.BAND']] [con],
-         y = radMeans [['radMeans']] [con], 
+         y = radMeans [['meanCWT']] [con], 
          lwd = 3, col = tColours [['colour']] [2], lty = ifelse (h == 'A', 1, 2))
 }
 
@@ -132,11 +132,11 @@ for (h in c ('A','B')) {
   con <- radMeans [['treatment']] == 3 & radMeans [['height']] == h & radMeans [['nCWT']] >= 5
   polygon (x = c (radMeans [['RADDISTR.BAND']] [con], 
                   rev (radMeans [['RADDISTR.BAND']] [con])), 
-           y = c (radMeans [['radMeans']] [con] - radMeans [['seCWT']] [con], 
-                  rev (radMeans [['radMeans']] [con] + radMeans [['seCWT']] [con])),
+           y = c (radMeans [['meanCWT']] [con] - radMeans [['seCWT']] [con], 
+                  rev (radMeans [['meanCWT']] [con] + radMeans [['seCWT']] [con])),
            col = addOpacity (tColours [['colour']] [3], 0.4), lty = 0)
   lines (x = radMeans [['RADDISTR.BAND']] [con],
-         y = radMeans [['radMeans']] [con], 
+         y = radMeans [['meanCWT']] [con], 
          lwd = 3, col = tColours [['colour']] [3], lty = ifelse (h == 'A', 1, 2))
 }
 
@@ -179,11 +179,11 @@ for (h in c ('A','M','B')) {
   con <- radMeans [['treatment']] == 4 & radMeans [['height']] == h & radMeans [['nCWT']] >= 5
   polygon (x = c (radMeans [['RADDISTR.BAND']] [con], 
                   rev (radMeans [['RADDISTR.BAND']] [con])), 
-           y = c (radMeans [['radMeans']] [con] - radMeans [['seCWT']] [con], 
-                  rev (radMeans [['radMeans']] [con] + radMeans [['seCWT']] [con])),
+           y = c (radMeans [['meanCWT']] [con] - radMeans [['seCWT']] [con], 
+                  rev (radMeans [['meanCWT']] [con] + radMeans [['seCWT']] [con])),
            col = addOpacity (tColours [['colour']] [4], 0.4), lty = 0)
   lines (x = radMeans [['RADDISTR.BAND']] [con],
-         y = radMeans [['radMeans']] [con], 
+         y = radMeans [['meanCWT']] [con], 
          lwd = 3, col = tColours [['colour']] [4], lty = ifelse (h != 'A', ifelse (h == 'B', 2, 3), 1))
 }
 

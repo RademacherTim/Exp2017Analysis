@@ -2,6 +2,9 @@
 # Script with variables and functions relevant for ploting figuresin R
 #----------------------------------------------------------------------------------------
 
+# Load dependencies
+#----------------------------------------------------------------------------------------
+library ('tidyverse')
 
 # function for calculate the standard error
 #----------------------------------------------------------------------------------------
@@ -32,4 +35,25 @@ addOpacity <- function (colour, alpha = 1) {
 #----------------------------------------------------------------------------------------
 yPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
 
+# Function to plot critical dates
+#----------------------------------------------------------------------------------------
+criticalDates <- function (group) {
+  
+  # Figure out critical date and plot them (control and girdled groups have no end dates)
+  #--------------------------------------------------------------------------------------
+  if (group == 'double compressed') {
+    abline (v = as_date ('2017-07-05'), col = '#99999999', lty = 2) # start date
+    abline (v = as_date ('2017-08-13'), col = '#99999999', lty = 2) # re-tightening date
+    abline (v = as_date ('2017-10-08'), col = '#99999999', lty = 2) # end date
+  } else if (group == 'compressed') {
+    abline (v = as_date ('2017-07-04'), col = '#99999999', lty = 2) # start date
+    abline (v = as_date ('2017-08-09'), col = '#99999999', lty = 2) # end date
+  } else {
+    abline (v = as_date ('2017-07-04'), col = '#99999999', lty = 2) # start date
+  }
+  
+  # Return zero exit status
+  #----------------------------------------------------------------------------------------
+  return (0)
+}
 #========================================================================================
