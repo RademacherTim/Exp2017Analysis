@@ -21,6 +21,7 @@ setwd ('/media/tim/dataDisk/PlantGrowth/data/microcores/woodAnatomy/Exp2017/')
 # Read the data per 20 micron slices
 #----------------------------------------------------------------------------------------
 data <- read_excel (path = './20muband_ALL.xlsx', sheet = '20muband_ALL', na = "NA")
+data <- filter (data, as.numeric (substr (TREE, 1, 2)) != 41)
 
 # Change working directory
 #----------------------------------------------------------------------------------------

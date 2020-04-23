@@ -115,7 +115,7 @@ for (i in 1:4) {
   
   # Add legend 
   #--------------------------------------------------------------------------------------
-  if (i == 1) legend (x = as_date ('2017-07-20'), y = 5, box.lty = 0, lwd = 2, lty = c (1, 2), 
+  if (i == 1) legend (x = as_date ('2017-07-20'), y = 5, box.lty = 0, lwd = 3, lty = c (1, 2), 
                       legend = c ('control','above'), col = '#999999', 
                       bg = 'transparent', cex = 2)
 }
@@ -200,7 +200,7 @@ for (i in 1:4) {
   
   # Add legend 
   #--------------------------------------------------------------------------------------
-  if (i == 1) legend (x = as_date ('2017-07-20'), y = 5.3, box.lty = 0, lwd = 2, lty = c (1, 2), 
+  if (i == 1) legend (x = as_date ('2017-07-20'), y = 5.3, box.lty = 0, lwd = 3, lty = c (1, 2), 
                       legend = c ('control','above'), col = '#999999', 
                       bg = 'transparent', cex = 2)
 }
@@ -253,7 +253,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add legend 
   #----------------------------------------------------------------------------------------
-  legend (x = as_date ('2017-07-20'), y = 2.0, box.lty = 0, lwd = 2, lty = c (1, 2, 4, 3), 
+  legend (x = as_date ('2017-07-20'), y = 2.0, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
           legend = c ('control','above','middle','below'), col = '#999999', 
           bg = 'transparent', cex = 2)
   
@@ -475,7 +475,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add legend 
   #----------------------------------------------------------------------------------------
-  legend (x = as_date ('2017-07-20'), y = 1.3, box.lty = 0, lwd = 2, lty = c (1, 2, 4, 3), 
+  legend (x = as_date ('2017-07-20'), y = 1.3, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
           legend = c ('control','above','middle','below'), col = '#999999', 
           bg = 'transparent', cex = 2)
   
@@ -726,7 +726,7 @@ for (i in 1:4) {
   
   # Add legend 
   #--------------------------------------------------------------------------------------
-  if (i == 1) legend (x = as_date ('2017-07-20'), y = 0.8, box.lty = 0, lwd = 2, lty = c (1, 3), 
+  if (i == 1) legend (x = as_date ('2017-07-20'), y = 0.8, box.lty = 0, lwd = 3, lty = c (1, 3), 
                       legend = c ('control','below'), col = '#999999', 
                       bg = 'transparent', cex = 2)
 }
@@ -811,7 +811,7 @@ for (i in 1:4) {
   
   # Add legend 
   #--------------------------------------------------------------------------------------
-  if (i == 1) legend (x = as_date ('2017-07-20'), y = 1.2, box.lty = 0, lwd = 2, lty = c (1, 3), 
+  if (i == 1) legend (x = as_date ('2017-07-20'), y = 1.2, box.lty = 0, lwd = 3, lty = c (1, 3), 
                       legend = c ('control','below'), col = '#999999', 
                       bg = 'transparent', cex = 2)
 }

@@ -80,7 +80,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add legend 
   #----------------------------------------------------------------------------------------
-  legend (x = as_date ('2017-07-20'), y = 5.1, box.lty = 0, lwd = 2, lty = c (1, 2, 4, 3), 
+  legend (x = as_date ('2017-07-20'), y = 5.1, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
           legend = c ('control','above','middle','below'), col = '#999999', 
           bg = 'transparent', cex = 2)
   

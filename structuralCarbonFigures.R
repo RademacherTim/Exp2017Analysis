@@ -16,17 +16,136 @@ source ('processAnatomicalData.R')
 # the radial file and by date of formation 
 #----------------------------------------------------------------------------------------
 radMeans <- data %>% filter (year == 2017) %>% group_by (treatment, height, RADDISTR.BAND) %>% 
-            summarise (meanCWT = mean (CWTALL, na.em = TRUE), seCWT = se (CWTALL), 
-                       nCWT = sum (!is.na (CWTALL)), meanNCells = mean (nCells, na.em = TRUE), 
-                       seNCells = se (nCells), nNCells = sum (!is.na (nCells)), 
-                       meanCellSize = mean (cellRadWidth, na.em = TRUE), seCellSize = se (cellRadWidth), 
-                       nCellSize = sum (!is.na (cellRadWidth))) 
+  summarise (meanCWT = mean (CWTALL, na.rm = TRUE), seCWT = se (CWTALL), 
+             nCWT = sum (!is.na (CWTALL)), meanNCells = mean (nCells, na.rm = TRUE), 
+             seNCells = se (nCells), nNCells = sum (!is.na (nCells)), 
+             meanCellSize = mean (cellRadWidth, na.rm = TRUE), seCellSize = se (cellRadWidth), 
+             nCellSize = sum (!is.na (cellRadWidth))) 
 temMeans <- data %>% filter (year == 2017) %>% group_by (treatment, height, formationDate) %>% 
-            summarise (meanCWT = mean (CWTALL, na.em = TRUE), seCWT = se (CWTALL), 
-                       nCWT = sum (!is.na (CWTALL)), meanNCells = mean (nCells, na.em = TRUE), 
-                       seNCells = se (nCells), nNCells = sum (!is.na (nCells)), 
-                       meanCellSize = mean (cellRadWidth, na.em = TRUE), seCellSize = se (cellRadWidth), 
-                       nCellSize = sum (!is.na (cellRadWidth))) 
+  summarise (meanCWT = mean (CWTALL, na.rm = TRUE), seCWT = se (CWTALL), 
+             nCWT = sum (!is.na (CWTALL)), meanNCells = mean (nCells, na.em = TRUE), 
+             seNCells = se (nCells), nNCells = sum (!is.na (nCells)), 
+             meanCellSize = mean (cellRadWidth, na.em = TRUE), seCellSize = se (cellRadWidth), 
+             nCellSize = sum (!is.na (cellRadWidth))) 
+
+# Calculate treatment and sampling height mean and standard error by period
+#----------------------------------------------------------------------------------------
+summaryData <- data %>% filter (year == 2017) %>% group_by (treatment, height, period) %>%
+  summarise (meanCWT = mean (CWTALL, na.rm = TRUE), seCWT = se (CWTALL), 
+             nCWT = sum (!is.na (CWTALL)), meanNCells = mean (nCells, na.rm = TRUE), 
+             seNCells = se (nCells), nNCells = sum (!is.na (nCells)), 
+             meanCellSize = mean (cellRadWidth, na.rm = TRUE), seCellSize = se (cellRadWidth), 
+             nCellSize = sum (!is.na (cellRadWidth)))
+
+# Add the mean ring width at each point in time
+#-----------------------------------------------------------------------------------------
+temp1 <- data %>% filter (year == 2017) %>% group_by (treatment, height, tree, period) %>%
+  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% mutate (period = as_date (period))
+temp2 <- data %>% filter (year == 2017) %>% group_by (treatment, height, tree) %>%
+  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% add_column (period = as_date ('2017-08-09'), .before = 4)
+temp3 <- data %>% filter (year == 2017) %>% group_by (treatment, height, tree) %>%
+  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% add_column (period = as_date ('2017-10-09'), .before = 4)
+temp4 <- data %>% filter (year == 2017) %>% group_by (treatment, height, tree) %>%
+  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% add_column (period = as_date ('2017-11-03'), .before = 4)
+temp <- dplyr::union_all (temp1, temp2) %>% dplyr::union_all (temp3) %>% dplyr::union_all (temp4) %>% 
+  arrange (treatment, height, tree, period) %>% group_by (treatment, height, tree, period) %>% 
+  summarise (maxRW = min (maxRW, na.rm = TRUE)) %>% 
+  group_by (treatment, height, period) %>% summarise (meanRW = mean (maxRW, na.rm = TRUE), seRW = se (maxRW), nRW = sum (!is.na (maxRW))) 
+
+summaryData <- cbind (summaryData, meanRW = temp [['meanRW']], seRW = temp [['seRW']])
+
+# Plot estimated ring width for each group over time
+#----------------------------------------------------------------------------------------
+png ('../fig/Exp2017RingWidthOverDate.png', width = 1200, height = 380)
+layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
+for (i in 1:4) {
+  par (mgp = c (3, 1, 0))
+  
+  # Determine the panel name
+  #--------------------------------------------------------------------------------------
+  if (i == 1) {
+    descriptor <- 'control'
+    par (mar = c (5, 8, 1, 0))
+  } else if (i == 2) {
+    descriptor <- 'girdled'
+    par (mar = c (5, 0, 1, 0))
+  } else if (i == 3) {
+    descriptor <- 'compressed'
+    par (mar = c (5, 0, 1, 0))
+  } else if (i == 4) {
+    descriptor <- 'double compressed'
+    par (mar = c (5, 0, 1, 1))
+  }
+  
+  # Plot new panel
+  #--------------------------------------------------------------------------------------
+  con <- summaryData [['treatment']] == 1
+  plot (x = summaryData [['period']] [con],
+        y = summaryData [['meanRW']] [con], 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 3000), axes = FALSE, 
+        xlab = '', ylab = '', typ = 'l', lwd = ifelse (i == 1, 3, 2), 
+        col = ifelse (i == 1, tColours [['colour']] [1], '#999999'), cex.lab = 1.8)
+  polygon (x = c (summaryData [['period']] [con], 
+                  rev (summaryData [['period']] [con])),
+           y = c (summaryData [['meanRW']] [con] - summaryData [['seRW']] [con], 
+                  rev (summaryData [['meanRW']] [con] + summaryData [['seRW']] [con])),
+           col = addOpacity (ifelse (i == 1, tColours [['colour']] [1], '#999999'), ifelse (i == 1, 0.3, 0.2)), 
+                             lty = 0)
+  # Add  line to separate panels
+  #----------------------------------------------------------------------------------------
+  if (i != 4) abline (v = as_date ('2017-11-15'), col = '#999999')
+  
+  # Add critical dates
+  #--------------------------------------------------------------------------------------
+  return <- criticalDates (descriptor) 
+  
+  # Add axis and labels
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, labels = c ('jul','aug','sep','oct','nov'),
+        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
+        cex.axis = 2.2, mgp = c (3, 2, 0))
+  if (i == 1) {
+    axis (side = 2, cex.axis = 2.2, las = 1)
+    mtext (side = 2, line = 6, cex = 1.5, 'ring width (microns)')
+    
+    # Add legend 
+    #----------------------------------------------------------------------------------------
+    legend (x = as_date ('2017-07-20'), y = 2900, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
+            legend = c ('control','above','middle','below'), col = '#999999', 
+            bg = 'transparent', cex = 2)
+  }
+  
+  # Add treatment group mean and standard error
+  #--------------------------------------------------------------------------------------
+  if (i != 1) {
+    # Figure out unqieu heights
+    #------------------------------------------------------------------------------------
+    con <- summaryData [['treatment']] == i
+    heights <- unique (summaryData [['height']] [con])
+    
+    # Loop over heights
+    #------------------------------------------------------------------------------------
+    for (h in heights) {
+      con <- summaryData [['treatment']] == i & summaryData [['height']] == h
+      polygon (x = c (summaryData [['period']] [con],
+                      rev (summaryData [['period']] [con])),
+               y = c (summaryData [['meanRW']] [con] - summaryData [['seRW']] [con],
+                      rev (summaryData [['meanRW']] [con] + summaryData [['seRW']] [con])),
+               col = addOpacity (tColours [['colour']] [i], 0.3), lty = 0)
+      lines (x = summaryData [['period']] [con],
+             y = summaryData [['meanRW']] [con],
+             col = tColours [['colour']] [i], lwd = 3, 
+             lty = ifelse (h == 'A', 2, ifelse (h == 'B', 3, 4)))
+    }
+  }
+  
+  # Add panel descriptor
+  #----------------------------------------------------------------------------------------
+  text (x = as_date ('2017-06-20'), y = 3000, pos = 4, labels = descriptor, cex = 2.7, 
+        col = '#333333')
+
+}
+dev.off ()
 
 # Plot cell wall area against ring width for each tree and group
 #----------------------------------------------------------------------------------------
