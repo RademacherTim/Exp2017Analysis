@@ -5,7 +5,7 @@
 
 # set colour scheme for control, girdled, compressed, double compressed and chilled
 #----------------------------------------------------------------------------------------
-colours <- c ('#91b9a4','#C0334D','#F18904','#5C4A72')
+source ('plotingFunctions.R')
 
 # read the sugar and starch concentration (means for needles and roots and first centimeter for wood sections)
 #----------------------------------------------------------------------------------------
@@ -23,18 +23,189 @@ leafData2017 [['date']] <- as_date (leafData2017 [['date']])
 stemData2017 [['date']] <- as_date (stemData2017 [['date']])
 rootData2017 [['date']] <- as_date (rootData2017 [['date']])
 
-# function to add opacity to a colour
-#----------------------------------------------------------------------------------------
-addOpacity <- function (colour, alpha = 1) {
-  if (missing (colour)) stop ("Please provide a colour or vector of colours.")
-  apply (sapply (colour, col2rgb) / 255, 2, 
-         function (x) rgb (x [1], x [2], x [3], alpha = alpha))
-}
-
 ALPHA  <- 0.4 # add transparency to better see all symbols
 
+# Estimate treatment (and sampling height) mean and standard error of leaf, wood and root 
+# sugar and starch concentrations 
+#----------------------------------------------------------------------------------------
+summaryDataStem <- stemData2017 %>% group_by (date, treatment, sampleHeight) %>% 
+  summarise (meanSugar  = mean (sugar,  na.rm = T), seSugar  = se (sugar),  nSugar  = sum (!is.na (sugar)),
+             meanStarch = mean (starch, na.rm = T), seStarch = se (starch), nStarch = sum (!is.na (starch)))
+
+# Plot soluble sugar concentrations over time
+#----------------------------------------------------------------------------------------
+png ('../fig/Exp2017StemSugarConcentrationOverDate.png', width = 1000, height = 400)
+layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1))
+par (mar = c (5, 5, 1, 0))
+con <- summaryDataStem [['treatment']] == 1
+plot (x = summaryDataStem [['date']] [con],
+      y = summaryDataStem [['meanSugar']] [con], 
+      xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.5), axes = FALSE, 
+      xlab = '', ylab = 'sugar concentration (% dry weight)', typ = 'l', lwd = 3, col = tColours [['colour']] [1])
+polygon (x = c (summaryDataStem [['date']] [con], 
+                rev (summaryDataStem [['date']] [con])),
+         y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
+                rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+         col = addOpacity (tColours [['colour']] [1], 0.3), lty = 0)
+lines (x = summaryDataStem [['date']] [con], 
+       y = summaryDataStem [['meanSugar']] [con],
+       col = tColours [['colour']] [1], lwd = 3)
+
+# Add axis
+#----------------------------------------------------------------------------------------
+axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+      at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')))
+axis (side = 2, las = 1)
+
+# Add panel descriptor
+#----------------------------------------------------------------------------------------
+text (x = as_date ('2017-07-01'), y = 1.5, pos = 4, labels = 'control', cex = 2, 
+      col = '#333333')
+
+# Add panel of the girdled trees
+#----------------------------------------------------------------------------------------
+par (mar = c (5, 0, 1, 0))
+con <- summaryDataStem [['treatment']] == 1
+plot (x = summaryDataStem [['date']] [con],
+      y = summaryDataStem [['meanSugar']] [con], 
+      xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.5), axes = FALSE, 
+      xlab = '', ylab = '', typ = 'l', lwd = 3, col = 'white9')
+# polygon (x = c (summaryDataStem [['date']] [con], 
+#                 rev (summaryDataStem [['date']] [con])),
+#          y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
+#                 rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+#          col = addOpacity ('#999999', 0.3), lty = 0)
+con <- summaryDataStem [['treatment']] == 2 & summaryDataStem [['sampleHeight']] == 2
+polygon (x = c (summaryDataStem [['date']] [con], 
+                rev (summaryDataStem [['date']] [con])),
+         y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
+                rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+         col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
+lines (x = summaryDataStem [['date']] [con], 
+       y = summaryDataStem [['meanSugar']] [con],
+       col = tColours [['colour']] [2], lwd = 3)
+con <- summaryDataStem [['treatment']] == 2 & summaryDataStem [['sampleHeight']] == 1
+polygon (x = c (summaryDataStem [['date']] [con], 
+                rev (summaryDataStem [['date']] [con])),
+         y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
+                rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+         col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
+lines (x = summaryDataStem [['date']] [con], 
+       y = summaryDataStem [['meanSugar']] [con],
+       col = tColours [['colour']] [2], lwd = 3, lty = 2)
+
+# Add axis
+#----------------------------------------------------------------------------------------
+axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+      at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')))
+
+# Add panel descriptor
+#----------------------------------------------------------------------------------------
+text (x = as_date ('2017-07-01'), y = 1.5, pos = 4, labels = 'girdled', cex = 2, 
+      col = '#333333')
+
+# Add panel of the compressed trees
+#----------------------------------------------------------------------------------------
+par (mar = c (5, 0, 1, 0))
+con <- summaryDataStem [['treatment']] == 1
+plot (x = summaryDataStem [['date']] [con],
+      y = summaryDataStem [['meanSugar']] [con], 
+      xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.5), axes = FALSE, 
+      xlab = '', ylab = '', typ = 'l', lwd = 3, col = 'white')
+# polygon (x = c (summaryDataStem [['date']] [con], 
+#                 rev (summaryDataStem [['date']] [con])),
+#          y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
+#                 rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+#          col = addOpacity ('#999999', 0.3), lty = 0)
+con <- summaryDataStem [['treatment']] == 3 & summaryDataStem [['sampleHeight']] == 2
+polygon (x = c (summaryDataStem [['date']] [con], 
+                rev (summaryDataStem [['date']] [con])),
+         y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
+                rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+         col = addOpacity (tColours [['colour']] [3], 0.3), lty = 0)
+lines (x = summaryDataStem [['date']] [con], 
+       y = summaryDataStem [['meanSugar']] [con],
+       col = tColours [['colour']] [3], lwd = 3)
+con <- summaryDataStem [['treatment']] == 3 & summaryDataStem [['sampleHeight']] == 1
+polygon (x = c (summaryDataStem [['date']] [con], 
+                rev (summaryDataStem [['date']] [con])),
+         y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
+                rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+         col = addOpacity (tColours [['colour']] [3], 0.3), lty = 0)
+lines (x = summaryDataStem [['date']] [con], 
+       y = summaryDataStem [['meanSugar']] [con],
+       col = tColours [['colour']] [3], lwd = 3, lty = 2)
+
+# Add axis
+#----------------------------------------------------------------------------------------
+axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+      at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')))
+
+# Add panel descriptor
+#----------------------------------------------------------------------------------------
+text (x = as_date ('2017-07-01'), y = 1.5, pos = 4, labels = 'compressed', cex = 2, 
+      col = '#333333')
+
+# Add panel of the compressed trees
+#----------------------------------------------------------------------------------------
+par (mar = c (5, 0, 1, 1))
+con <- summaryDataStem [['treatment']] == 1
+plot (x = summaryDataStem [['date']] [con],
+      y = summaryDataStem [['meanSugar']] [con], 
+      xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.5), axes = FALSE, 
+      xlab = '', ylab = '', typ = 'l', lwd = 3, col = 'white')
+# polygon (x = c (summaryDataStem [['date']] [con], 
+#                 rev (summaryDataStem [['date']] [con])),
+#          y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
+#                 rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+#          col = addOpacity ('#999999', 0.3), lty = 0)
+con <- summaryDataStem [['treatment']] == 4 & summaryDataStem [['sampleHeight']] == 2.5
+polygon (x = c (summaryDataStem [['date']] [con], 
+                rev (summaryDataStem [['date']] [con])),
+         y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
+                rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+         col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
+lines (x = summaryDataStem [['date']] [con], 
+       y = summaryDataStem [['meanSugar']] [con],
+       col = tColours [['colour']] [4], lwd = 3)
+con <- summaryDataStem [['treatment']] == 4 & summaryDataStem [['sampleHeight']] == 1.5
+polygon (x = c (summaryDataStem [['date']] [con], 
+                rev (summaryDataStem [['date']] [con])),
+         y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
+                rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+         col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
+lines (x = summaryDataStem [['date']] [con], 
+       y = summaryDataStem [['meanSugar']] [con],
+       col = tColours [['colour']] [4], lwd = 3, lty = 3)
+con <- summaryDataStem [['treatment']] == 4 & summaryDataStem [['sampleHeight']] == 0.5
+polygon (x = c (summaryDataStem [['date']] [con], 
+                rev (summaryDataStem [['date']] [con])),
+         y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
+                rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+         col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
+lines (x = summaryDataStem [['date']] [con], 
+       y = summaryDataStem [['meanSugar']] [con],
+       col = tColours [['colour']] [4], lwd = 3, lty = 2)
+
+# Add axis
+#----------------------------------------------------------------------------------------
+axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+      at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')))
+
+# Add panel descriptor
+#----------------------------------------------------------------------------------------
+text (x = as_date ('2017-07-01'), y = 1.5, pos = 4, labels = 'double compressed', cex = 2, 
+      col = '#333333')
+
+# Add legend 
+#----------------------------------------------------------------------------------------
+legend (x = as_date ('2017-08-20'), y = 0.3, box.lty = 0, lwd = 2, lty = c (1, 1, 3, 2), 
+        legend = c ('control','above','middle','below'), col = '#999999', 
+        bg = 'transparent', cex = 1.3)
+
+dev.off  ()
+
 # create yPosition and plotting symbols for the stemData
-yPositions <- c (0.8, 1.8, 2.3, 3.3, 3.8, 4.8, 5.3, 5.8)
 stemData2017 [['y']] <- NA ; stemData2017 [['pch']] <- NA
 con <- which (stemData2017 [['treatment']] == 1)
 stemData2017 [['y']] [con] <- yPositions [1]

@@ -6,6 +6,7 @@
 # Load dependencies
 #----------------------------------------------------------------------------------------
 library ('tidyverse')
+library ('lubridate')
 library ('readxl')
 library ('rjson')
 
@@ -360,7 +361,7 @@ if (WRITE) write_csv (standardisedRW2017,  path = 'standardisedRW2017.csv'); rm 
 
 # Add new column to data
 #----------------------------------------------------------------------------------------
-data <- add_column (data, period = NA)
+data <- add_column (data, period = NA, formationDate = NA)
 
 # Loop over for each row in the anatomical data to associate it with a growth period
 #----------------------------------------------------------------------------------------
@@ -372,9 +373,9 @@ for (i in 1:dim (data) [1]) {
   
   # Get tree ID, treatment and sample height of the sample
   #--------------------------------------------------------------------------------------
-  treeID <- as.numeric (substr (data [['TREE']] [i], 1, 2))
+  treeID       <- as.numeric (substr (data [['TREE']] [i], 1, 2))
   sampleHeight <- substr (data [['TREE']] [i], 3, 3)
-  treatment <- as.numeric (substr (data [['PLOT']] [i], 2, 2))
+  treatment    <- as.numeric (substr (data [['PLOT']] [i], 2, 2))
   
   # Get fractional boundaries for the particular sample
   #--------------------------------------------------------------------------------------
@@ -409,36 +410,66 @@ for (i in 1:dim (data) [1]) {
   if (!is.na (data [['RRADDISTR']] [i])) {
     if (!is.na (fJul) & !is.na (fAug) & !is.na (fOct)) {
       if (data [['RRADDISTR']] [i] / 100 <= fJul) {
-        data [['period']] [i] <- as_date ('2017-07-03')
+        periodDate <- as_date ('2017-07-03')
+        lowerFraction <- 0
+        upperFraction <- fJul
       } else if (data [['RRADDISTR']] [i] / 100 <= fAug) {
-        data [['period']] [i] <- as_date ('2017-08-09')
+        periodDate <- as_date ('2017-08-09')
+        lowerFraction <- fJul
+        upperFraction <- fAug
       } else if (data [['RRADDISTR']] [i] / 100 <= fOct) {
-        data [['period']] [i] <- as_date ('2017-10-09')
+        periodDate <- as_date ('2017-10-09')
+        lowerFraction <- fAug
+        upperFraction <- fOct
       } else {
-        data [['period']] [i] <- as_date ('2017-11-03')
+        periodDate <- as_date ('2017-11-03')
+        lowerFraction <- fOct
+        upperFraction <- 1
       }
     } else if (treeID == 16 & sampleHeight == 'B') {
       if (data [['RRADDISTR']] [i] / 100 <= fJul) {
-        data [['period']] [i] <- as_date ('2017-07-03')
+        periodDate <- as_date ('2017-07-03')
       } else if (data [['RRADDISTR']] [i] / 100 <= fAug) {
-        data [['period']] [i] <- as_date ('2017-08-09')
+        periodDate <- as_date ('2017-08-09')
       }
     }
   } else {
     fraction <- data [['RADDISTR.BAND']] [i] / data [['MRW']] [i]
-    #print (c (fraction,treeID))
     if (!is.na (fJul) & !is.na (fAug) & !is.na (fOct)) {
       if (fraction <= fJul) {
-        data [['period']] [i] <- as_date ('2017-07-03')
+        periodDate <- as_date ('2017-07-03')
       } else if (fraction  <= fAug) {
-        data [['period']] [i] <- as_date ('2017-08-09')
+        periodDate <- as_date ('2017-08-09')
       } else if (fraction  <= fOct) {
-        data [['period']] [i] <- as_date ('2017-10-09')
+        periodDate <- as_date ('2017-10-09')
       } else {
-        data [['period']] [i] <- as_date ('2017-11-03')
+        periodDate <- as_date ('2017-11-03')
       }
     }
   }
+  # Fill in period date
+  #--------------------------------------------------------------------------------------
+  data [['period']] [i] <- periodDate
+  
+  # Determine start date of the period
+  #--------------------------------------------------------------------------------------
+  if (periodDate == as_date ('2017-07-03')) {
+    startDate <- as_date ('2017-03-01') 
+  } else if (periodDate == as_date ('2017-08-09')) {
+    startDate <- as_date ('2017-03-01') 
+  } else if (periodDate == as_date ('2017-10-09')) {
+    startDate <- as_date ('2017-08-09') 
+  } else if (periodDate == as_date ('2017-08-09')) {
+    startDate <- as_date ('2017-03-01') 
+  }
+  
+  # Determine the date time increment
+  #--------------------------------------------------------------------------------------
+  inc <- periodDate - startDate
+  
+  # Add a linear estimate of the date of formation
+  #--------------------------------------------------------------------------------------
+  data [['formationDate']] [i] <- startDate + (data [['RRADDISTR']] [i] / 100.0 ) / (upperFraction - lowerFraction) * inc
 }
 
 # Clean unnecessary variables from loop

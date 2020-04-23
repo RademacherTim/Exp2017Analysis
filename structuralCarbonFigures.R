@@ -3,28 +3,199 @@
 # Harvard Forest.
 #----------------------------------------------------------------------------------------
 
+# Load dependencies
+#----------------------------------------------------------------------------------------
+library ('zoo')
+
 # Load colour scheme and anatomical data 
 #----------------------------------------------------------------------------------------
 source ('plotingFunctions.R')
 source ('processAnatomicalData.R')
 
+# Get treatment and sampling height mean and standard error for cell wall thickness along
+# the radial file and by date of formation 
+#----------------------------------------------------------------------------------------
+radMeans <- data %>% filter (year == 2017) %>% group_by (treatment, height, RADDISTR.BAND) %>% 
+            summarise (meanCWT = mean (CWTALL, na.em = TRUE), seCWT = se (CWTALL), 
+                       nCWT = sum (!is.na (CWTALL)), meanNCells = mean (nCells, na.em = TRUE), 
+                       seNCells = se (nCells), nNCells = sum (!is.na (nCells)), 
+                       meanCellSize = mean (cellRadWidth, na.em = TRUE), seCellSize = se (cellRadWidth), 
+                       nCellSize = sum (!is.na (cellRadWidth))) 
+temMeans <- data %>% filter (year == 2017) %>% group_by (treatment, height, formationDate) %>% 
+            summarise (meanCWT = mean (CWTALL, na.em = TRUE), seCWT = se (CWTALL), 
+                       nCWT = sum (!is.na (CWTALL)), meanNCells = mean (nCells, na.em = TRUE), 
+                       seNCells = se (nCells), nNCells = sum (!is.na (nCells)), 
+                       meanCellSize = mean (cellRadWidth, na.em = TRUE), seCellSize = se (cellRadWidth), 
+                       nCellSize = sum (!is.na (cellRadWidth))) 
+
 # Plot cell wall area against ring width for each tree and group
 #----------------------------------------------------------------------------------------
-par (mar = c (5, 5, 1, 1))
-con <- data [['tree']] == 1 & data [['YEAR']] == 2017
+png ('../fig/Exp2017radialPositionVsCWT.png', width = 1000, height = 400)
+layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1))
+par (mar = c (5, 5, 1, 0))
+con <- data [['tree']] == 1 & data [['year']] == 2017
 plot (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
-      y = rollmean (data [['CWA']] [con], 5), axes = FALSE, typ = 'l',
-      xlab = 'radial distance (microns)', 
-      ylab = expression (paste ('cell wall area (',microns**2,')')),
-      xlim = c (0, 4000), ylim = c (0, 1200), col = tColours [['colour']] [1])
-axis (side = 1); axis (side = 2)
+      y = rollmean (data [['CWTALL']] [con], 5), axes = FALSE, typ = 'l', lwd = 0.5,
+      xlab = 'radial distance (microns)', ylab = expression (paste ('cell wall thickness (',microns**2,')')),
+      xlim = c (0, 3300), ylim = c (0, 8), col = tColours [['colour']] [1])
+axis (side = 1, at = seq (0, 3200, by = 800), cex.lab = 1.5); axis (side = 2, las = 1, cex = 1.5)
 for (i in c (3, 4, 6, 7, 9, 18, 30, 31, 36)){
-  con <- data [['tree']] == i & data [['YEAR']] == 2017
+  con <- data [['tree']] == i & data [['year']] == 2017
   lines (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
-         y = rollmean (data [['CWA']] [con], 5), 
-         xlim = c (0, 4000), ylim = c (0, 1200), col = tColours [['colour']] [1])
+         y = rollmean (data [['CWTALL']] [con], 5), 
+         lwd = 0.5, col = tColours [['colour']] [1])
 }
 
+# Add treatment mean and standard error
+#----------------------------------------------------------------------------------------
+con <- radMeans [['treatment']] == 1 & radMeans [['nCWT']] >= 5
+polygon (x = c (radMeans [['RADDISTR.BAND']] [con], 
+                rev (radMeans [['RADDISTR.BAND']] [con])), 
+         y = c (radMeans [['radMeans']] [con] - radMeans [['seCWT']] [con], 
+                rev (radMeans [['radMeans']] [con] + radMeans [['seCWT']] [con])),
+         col = addOpacity (tColours [['colour']] [1], 0.3), lty = 0)
+lines (x = radMeans [['RADDISTR.BAND']] [con],
+       y = radMeans [['radMeans']] [con], 
+       lwd = 3, col = tColours [['colour']] [1])
+
+# Add descriptor
+#----------------------------------------------------------------------------------------
+text (x = 0, y = 8, labels = 'control', cex = 2, pos = 4, col = '#333333')
+
+# Plot cell wall thickness for girdled trees
+#----------------------------------------------------------------------------------------
+par (mar = c (5, 0, 1, 0))
+con <- data [['tree']] == 5 & data [['year']] == 2017 & data [['height']] == 'A'
+plot (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
+      y = rollmean (data [['CWTALL']] [con], 5), axes = FALSE, typ = 'l', lwd = 0.5,
+      xlab = 'radial distance (microns)', 
+      ylab = expression (paste ('cell wall thickness (',microns**2,')')),
+      xlim = c (0, 3300), ylim = c (0, 8), col = tColours [['colour']] [2])
+axis (side = 1, at = seq (0, 3200, by = 800), cex.lab = 1.5)
+for (i in c (11, 15, 16, 19, 23, 29, 35, 39, 40)){
+  con <- data [['tree']] == i & data [['year']] == 2017 & data [['height']] == 'A'
+  lines (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
+         y = rollmean (data [['CWTALL']] [con], 5), 
+         col = tColours [['colour']] [2], lwd = 0.5)
+}
+for (i in c (5, 11, 15, 16, 19, 23, 29, 35, 39, 40)){
+  con <- data [['tree']] == i & data [['year']] == 2017 & data [['height']] == 'B'
+  lines (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
+         y = rollmean (data [['CWTALL']] [con], 5), lty = 2,
+         col = tColours [['colour']] [2], lwd = 0.5)
+}
+
+# Add treatment mean and standard error for girdled trees
+#----------------------------------------------------------------------------------------
+for (h in c ('A','B')) {
+  con <- radMeans [['treatment']] == 2 & radMeans [['height']] == h & radMeans [['nCWT']] >= 5
+  polygon (x = c (radMeans [['RADDISTR.BAND']] [con], 
+                  rev (radMeans [['RADDISTR.BAND']] [con])), 
+           y = c (radMeans [['radMeans']] [con] - radMeans [['seCWT']] [con], 
+                  rev (radMeans [['radMeans']] [con] + radMeans [['seCWT']] [con])),
+           col = addOpacity (tColours [['colour']] [2], 0.4), lty = 0)
+  lines (x = radMeans [['RADDISTR.BAND']] [con],
+         y = radMeans [['radMeans']] [con], 
+         lwd = 3, col = tColours [['colour']] [2], lty = ifelse (h == 'A', 1, 2))
+}
+
+# Add descriptor
+#----------------------------------------------------------------------------------------
+text (x = 0, y = 8, labels = 'girdled', cex = 2, pos = 4, col = '#333333')
+
+# Add compressed trees panel
+#----------------------------------------------------------------------------------------
+par (mar = c (5, 0, 1, 0))
+con <- data [['tree']] == 10 & data [['year']] == 2017 & data [['height']] == 'A'
+plot (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
+      y = rollmean (data [['CWTALL']] [con], 5), axes = FALSE, typ = 'l', lwd = 0.5,
+      xlab = 'radial distance (microns)', 
+      ylab = expression (paste ('cell wall thickness (',microns**2,')')),
+      xlim = c (0, 3300), ylim = c (0, 8), col = tColours [['colour']] [3])
+axis (side = 1, at = seq (0, 3200, by = 800), cex.lab = 1.5)
+for (i in c (10,12,13,17,20,21,28,32,33,38)){
+  con <- data [['tree']] == i & data [['year']] == 2017 & data [['height']] == 'A'
+  lines (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
+         y = rollmean (data [['CWTALL']] [con], 5), 
+         col = tColours [['colour']] [3], lwd = 0.5)
+}
+for (i in c (10,12,13,17,20,21,28,32,33,38)){
+  con <- data [['tree']] == i & data [['year']] == 2017 & data [['height']] == 'B'
+  lines (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
+         y = rollmean (data [['CWTALL']] [con], 5), lty = 2,
+         col = tColours [['colour']] [3], lwd = 0.5)
+}
+
+# Add treatment mean and standard error for compresseed trees
+#----------------------------------------------------------------------------------------
+for (h in c ('A','B')) {
+  con <- radMeans [['treatment']] == 3 & radMeans [['height']] == h & radMeans [['nCWT']] >= 5
+  polygon (x = c (radMeans [['RADDISTR.BAND']] [con], 
+                  rev (radMeans [['RADDISTR.BAND']] [con])), 
+           y = c (radMeans [['radMeans']] [con] - radMeans [['seCWT']] [con], 
+                  rev (radMeans [['radMeans']] [con] + radMeans [['seCWT']] [con])),
+           col = addOpacity (tColours [['colour']] [3], 0.4), lty = 0)
+  lines (x = radMeans [['RADDISTR.BAND']] [con],
+         y = radMeans [['radMeans']] [con], 
+         lwd = 3, col = tColours [['colour']] [3], lty = ifelse (h == 'A', 1, 2))
+}
+
+# Add descriptor
+#----------------------------------------------------------------------------------------
+text (x = 0, y = 8, labels = 'compressed', cex = 2, pos = 4, col = '#333333')
+
+# Add double compressed trees panel
+#----------------------------------------------------------------------------------------
+par (mar = c (5, 0, 1, 0))
+con <- data [['tree']] == 2 & data [['year']] == 2017 & data [['height']] == 'A'
+plot (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
+      y = rollmean (data [['CWTALL']] [con], 5), axes = FALSE, typ = 'l', lwd = 0.5,
+      xlab = 'radial distance (microns)', 
+      ylab = expression (paste ('cell wall thickness (',microns**2,')')),
+      xlim = c (0, 3300), ylim = c (0, 8), col = tColours [['colour']] [4])
+axis (side = 1, at = seq (0, 3200, by = 800), cex.lab = 1.5)
+for (i in c (8,14,22,24,25,26,27,34,37)){
+  con <- data [['tree']] == i & data [['year']] == 2017 & data [['height']] == 'A'
+  lines (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
+         y = rollmean (data [['CWTALL']] [con], 5), 
+         col = tColours [['colour']] [4], lwd = 0.5)
+}
+for (i in c (2,8,14,22,24,25,26,27,34,37)){
+  con <- data [['tree']] == i & data [['year']] == 2017 & data [['height']] == 'M'
+  lines (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
+         y = rollmean (data [['CWTALL']] [con], 5), lty = 3,
+         col = tColours [['colour']] [4], lwd = 0.5)
+}
+for (i in c (2,8,14,22,24,25,26,27,34,37)){
+  con <- data [['tree']] == i & data [['year']] == 2017 & data [['height']] == 'B'
+  lines (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
+         y = rollmean (data [['CWTALL']] [con], 5), lty = 2,
+         col = tColours [['colour']] [4], lwd = 0.5)
+}
+
+# Add treatment mean and standard error for compresseed trees
+#----------------------------------------------------------------------------------------
+for (h in c ('A','M','B')) {
+  con <- radMeans [['treatment']] == 4 & radMeans [['height']] == h & radMeans [['nCWT']] >= 5
+  polygon (x = c (radMeans [['RADDISTR.BAND']] [con], 
+                  rev (radMeans [['RADDISTR.BAND']] [con])), 
+           y = c (radMeans [['radMeans']] [con] - radMeans [['seCWT']] [con], 
+                  rev (radMeans [['radMeans']] [con] + radMeans [['seCWT']] [con])),
+           col = addOpacity (tColours [['colour']] [4], 0.4), lty = 0)
+  lines (x = radMeans [['RADDISTR.BAND']] [con],
+         y = radMeans [['radMeans']] [con], 
+         lwd = 3, col = tColours [['colour']] [4], lty = ifelse (h != 'A', ifelse (h == 'B', 2, 3), 1))
+}
+
+# Add descriptor
+#----------------------------------------------------------------------------------------
+text (x = 0, y = 8, labels = 'double compressed', cex = 2, pos = 4, col = '#333333')
+
+# add legend 
+legend (x = 1900, y = 1.2, box.lty = 0, lwd = 2, lty = c (1, 1, 3, 2), 
+        legend = c ('control','above','middle','below'), col = '#999999', 
+        bg = 'transparent')
+dev.off ()
 
 # define tree labels for each group
 #----------------------------------------------------------------------------------------
