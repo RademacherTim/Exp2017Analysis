@@ -63,7 +63,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add axis and labels
   #----------------------------------------------------------------------------------------
-  axis (side = 1, labels = c ('jul','aug','sep','oct','nov'),
+  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   axis (side = 2, cex.axis = 2.2, las = 1)
@@ -128,7 +128,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add axis
   #----------------------------------------------------------------------------------------
-  axis (side = 1, labels = c ('jul','aug','sep','oct','nov'),
+  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   
@@ -182,7 +182,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add axis
   #----------------------------------------------------------------------------------------
-  axis (side = 1, labels = c ('jul','aug','sep','oct','nov'),
+  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   
@@ -241,7 +241,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add axis
   #----------------------------------------------------------------------------------------
-  axis (side = 1, labels = c ('jul','aug','sep','oct','nov'),
+  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   
