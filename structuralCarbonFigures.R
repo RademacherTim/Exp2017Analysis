@@ -31,11 +31,12 @@ temMeans <- data %>% filter (year == 2017) %>% group_by (treatment, height, form
 # Calculate treatment and sampling height mean and standard error by period
 #----------------------------------------------------------------------------------------
 summaryData <- data %>% filter (year == 2017) %>% group_by (treatment, height, period) %>%
-  summarise (meanCWT = mean (CWTALL, na.rm = TRUE), seCWT = se (CWTALL), 
-             nCWT = sum (!is.na (CWTALL)), meanNCells = mean (nCells, na.rm = TRUE), 
-             seNCells = se (nCells), nNCells = sum (!is.na (nCells)), 
-             meanCellSize = mean (cellRadWidth, na.rm = TRUE), seCellSize = se (cellRadWidth), 
-             nCellSize = sum (!is.na (cellRadWidth)))
+  summarise (meanCWA = mean (CWA, na.rm = TRUE), seCWA = se (CWA), 
+             nCWA = sum (!is.na (CWA)), meanCWT = mean (CWTALL, na.rm = TRUE), 
+             seCWT = se (CWTALL), nCWT = sum (!is.na (CWTALL)), 
+             meanNCells = mean (nCells, na.rm = TRUE), seNCells = se (nCells), 
+             nNCells = sum (!is.na (nCells)), meanCellSize = mean (cellRadWidth, na.rm = TRUE), 
+             seCellSize = se (cellRadWidth), nCellSize = sum (!is.na (cellRadWidth)))
 
 # Add the mean ring width at each point in time
 #-----------------------------------------------------------------------------------------
@@ -66,18 +67,20 @@ for (r in 1:32) {
   }
 }
 
-# Calculate the mean number of cells formed per period and its standard error
+# Calculate the cell number statistics (mean, standard error, and cumulative sum)
 #----------------------------------------------------------------------------------------
-summaryData <- mutate (summaryData, nCells = meanNCells * incRW / 20, 
-                       nCells2 = incRW / meanCellSize, seNCells = se (meanNCells * incRW / 20)) 
+summaryData <- mutate (summaryData, 
+                       nCells    = meanNCells * incRW / 20, 
+                       nCells2   = incRW / meanCellSize, 
+                       seNCells  = se (meanNCells * incRW / 20),
+                       cumNCells = cumsum (nCells)) 
 
-# Add mean cumulative number of cells per treatment and sampling height to summaryData
+# Calculate cell wall area statistics (mean, standard error, and cumulative sum)
 #----------------------------------------------------------------------------------------
-summaryData <- summaryData %>% group_by (treatment, height) %>%  mutate (cumNCells = cumsum (nCells))
-
-# Convert microns to mm for ring width
-#----------------------------------------------------------------------------------------
-
+summaryData <- mutate (summaryData, 
+                       incCWA = nCells * meanCWA, 
+                       seCWA  = se (nCells * meanCWA),
+                       cumCWA = cumsum (incCWA))
 
 # Plot estimated ring width for each group over time
 #----------------------------------------------------------------------------------------
@@ -224,7 +227,7 @@ for (i in 1:4) {
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 6, cex = 1.5, 'number of cells (n)')
+    mtext (side = 2, line = 6, cex = 1.5, 'cumulative number of cells (n)')
     
     # Add legend 
     #----------------------------------------------------------------------------------------
@@ -292,7 +295,7 @@ for (i in 1:4) {
   con <- summaryData [['treatment']] == 1
   plot (x = summaryData [['period']] [con],
         y = summaryData [['meanCellSize']] [con], 
-        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 45), axes = FALSE, 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (20, 50), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = ifelse (i == 1, 3, 2), 
         col = ifelse (i == 1, tColours [['colour']] [1], '#999999'), cex.lab = 1.8)
   polygon (x = c (summaryData [['period']] [con], 
@@ -316,7 +319,7 @@ for (i in 1:4) {
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 6, cex = 1.5, 'mean radial cell size (microns)')
+    mtext (side = 2, line = 6, cex = 1.5, 'mean radial cell diameter (microns)')
     
     # Add legend 
     #----------------------------------------------------------------------------------------
@@ -351,16 +354,16 @@ for (i in 1:4) {
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 45, pos = 4, labels = descriptor, cex = 2.7, 
+  text (x = as_date ('2017-06-20'), y = 50, pos = 4, labels = descriptor, cex = 2.7, 
         col = '#333333')
   
 }
 dev.off ()
 
 
-# Plot estimated cell size for each group over time
+# Plot estimated cell wall thickness for each group over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017CellWallthicknessOverDate.png', width = 1200, height = 380)
+png ('../fig/Exp2017CellWallThicknessOverDate.png', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 for (i in 1:4) {
   
@@ -445,6 +448,190 @@ for (i in 1:4) {
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
   text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = descriptor, cex = 2.7, 
+        col = '#333333')
+  
+}
+dev.off ()
+
+# Plot estimated cell wall area for each group over time
+#----------------------------------------------------------------------------------------
+png ('../fig/Exp2017CellWallAreaOverDate.png', width = 1200, height = 380)
+layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
+for (i in 1:4) {
+  
+  # Determine the panel name
+  #--------------------------------------------------------------------------------------
+  if (i == 1) {
+    descriptor <- 'control'
+    par (mar = c (5, 8, 1, 0))
+  } else if (i == 2) {
+    descriptor <- 'girdled'
+    par (mar = c (5, 0, 1, 0))
+  } else if (i == 3) {
+    descriptor <- 'compressed'
+    par (mar = c (5, 0, 1, 0))
+  } else if (i == 4) {
+    descriptor <- 'double compressed'
+    par (mar = c (5, 0, 1, 1))
+  }
+  
+  # Plot new panel
+  #--------------------------------------------------------------------------------------
+  con <- summaryData [['treatment']] == 1
+  plot (x = summaryData [['period']] [con],
+        y = summaryData [['meanCWA']] [con], 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (200, 550), axes = FALSE, 
+        xlab = '', ylab = '', typ = 'l', lwd = ifelse (i == 1, 3, 2), 
+        col = ifelse (i == 1, tColours [['colour']] [1], '#999999'), cex.lab = 1.8)
+  polygon (x = c (summaryData [['period']] [con], 
+                  rev (summaryData [['period']] [con])),
+           y = c (summaryData [['meanCWA']] [con] - summaryData [['seCWA']] [con], 
+                  rev (summaryData [['meanCWA']] [con] + summaryData [['seCWA']] [con])),
+           col = addOpacity (ifelse (i == 1, tColours [['colour']] [1], '#999999'), ifelse (i == 1, 0.3, 0.2)), 
+           lty = 0)
+  # Add  line to separate panels
+  #----------------------------------------------------------------------------------------
+  if (i != 4) abline (v = as_date ('2017-11-15'), col = '#999999')
+  
+  # Add critical dates
+  #--------------------------------------------------------------------------------------
+  return <- criticalDates (descriptor) 
+  
+  # Add axis and labels
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, labels = c ('jul','aug','sep','oct','nov'),
+        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
+        cex.axis = 2.2, mgp = c (3, 2, 0))
+  if (i == 1) {
+    axis (side = 2, cex.axis = 2.2, las = 1)
+    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('mean cell wall area (',microns^2,')')))
+    
+    # Add legend 
+    #----------------------------------------------------------------------------------------
+    legend (x = as_date ('2017-07-20'), y = 3, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
+            legend = c ('control','above','middle','below'), col = '#999999', 
+            bg = 'transparent', cex = 2)
+  }
+  
+  # Add treatment group mean and standard error
+  #--------------------------------------------------------------------------------------
+  if (i != 1) {
+    # Figure out unqieu heights
+    #------------------------------------------------------------------------------------
+    con <- summaryData [['treatment']] == i
+    heights <- unique (summaryData [['height']] [con])
+    
+    # Loop over heights
+    #------------------------------------------------------------------------------------
+    for (h in heights) {
+      con <- summaryData [['treatment']] == i & summaryData [['height']] == h
+      polygon (x = c (summaryData [['period']] [con],
+                      rev (summaryData [['period']] [con])),
+               y = c (summaryData [['meanCWA']] [con] - summaryData [['seCWA']] [con],
+                      rev (summaryData [['meanCWA']] [con] + summaryData [['seCWA']] [con])),
+               col = addOpacity (tColours [['colour']] [i], 0.3), lty = 0)
+      lines (x = summaryData [['period']] [con],
+             y = summaryData [['meanCWA']] [con],
+             col = tColours [['colour']] [i], lwd = 3, 
+             lty = ifelse (h == 'A', 2, ifelse (h == 'B', 3, 4)))
+    }
+  }
+  
+  # Add panel descriptor
+  #----------------------------------------------------------------------------------------
+  text (x = as_date ('2017-06-20'), y = 550, pos = 4, labels = descriptor, cex = 2.7, 
+        col = '#333333')
+  
+}
+dev.off ()
+
+# Plot estimated cell wall area for each group over time
+#----------------------------------------------------------------------------------------
+png ('../fig/Exp2017CumulativeCellWallAreaOverDate.png', width = 1200, height = 380)
+layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
+for (i in 1:4) {
+  
+  # Determine the panel name
+  #--------------------------------------------------------------------------------------
+  if (i == 1) {
+    descriptor <- 'control'
+    par (mar = c (5, 8, 1, 0))
+  } else if (i == 2) {
+    descriptor <- 'girdled'
+    par (mar = c (5, 0, 1, 0))
+  } else if (i == 3) {
+    descriptor <- 'compressed'
+    par (mar = c (5, 0, 1, 0))
+  } else if (i == 4) {
+    descriptor <- 'double compressed'
+    par (mar = c (5, 0, 1, 1))
+  }
+  
+  # Plot new panel
+  #--------------------------------------------------------------------------------------
+  con <- summaryData [['treatment']] == 1
+  plot (x = summaryData [['period']] [con],
+        y = summaryData [['cumCWA']] [con], 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 35000), axes = FALSE, 
+        xlab = '', ylab = '', typ = 'l', lwd = ifelse (i == 1, 3, 2), 
+        col = ifelse (i == 1, tColours [['colour']] [1], '#999999'), cex.lab = 1.8)
+  polygon (x = c (summaryData [['period']] [con], 
+                  rev (summaryData [['period']] [con])),
+           y = c (summaryData [['cumCWA']] [con] - summaryData [['seCWA']] [con], 
+                  rev (summaryData [['cumCWA']] [con] + summaryData [['seCWA']] [con])),
+           col = addOpacity (ifelse (i == 1, tColours [['colour']] [1], '#999999'), ifelse (i == 1, 0.3, 0.2)), 
+           lty = 0)
+  # Add  line to separate panels
+  #----------------------------------------------------------------------------------------
+  if (i != 4) abline (v = as_date ('2017-11-15'), col = '#999999')
+  
+  # Add critical dates
+  #--------------------------------------------------------------------------------------
+  return <- criticalDates (descriptor) 
+  
+  # Add axis and labels
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, labels = c ('jul','aug','sep','oct','nov'),
+        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
+        cex.axis = 2.2, mgp = c (3, 2, 0))
+  if (i == 1) {
+    axis (side = 2, cex.axis = 2.2, las = 1)
+    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('cumulative cell wall area (',microns^2,')')))
+    
+    # Add legend 
+    #----------------------------------------------------------------------------------------
+    legend (x = as_date ('2017-07-20'), y = 12500, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
+            legend = c ('control','above','middle','below'), col = '#999999', 
+            bg = 'transparent', cex = 2)
+  }
+  
+  # Add treatment group mean and standard error
+  #--------------------------------------------------------------------------------------
+  if (i != 1) {
+    # Figure out unqieu heights
+    #------------------------------------------------------------------------------------
+    con <- summaryData [['treatment']] == i
+    heights <- unique (summaryData [['height']] [con])
+    
+    # Loop over heights
+    #------------------------------------------------------------------------------------
+    for (h in heights) {
+      con <- summaryData [['treatment']] == i & summaryData [['height']] == h
+      polygon (x = c (summaryData [['period']] [con],
+                      rev (summaryData [['period']] [con])),
+               y = c (summaryData [['cumCWA']] [con] - summaryData [['seCWA']] [con],
+                      rev (summaryData [['cumCWA']] [con] + summaryData [['seCWA']] [con])),
+               col = addOpacity (tColours [['colour']] [i], 0.3), lty = 0)
+      lines (x = summaryData [['period']] [con],
+             y = summaryData [['cumCWA']] [con],
+             col = tColours [['colour']] [i], lwd = 3, 
+             lty = ifelse (h == 'A', 2, ifelse (h == 'B', 3, 4)))
+    }
+  }
+  
+  # Add panel descriptor
+  #----------------------------------------------------------------------------------------
+  text (x = as_date ('2017-06-20'), y = 35000, pos = 4, labels = descriptor, cex = 2.7, 
         col = '#333333')
   
 }

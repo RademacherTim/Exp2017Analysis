@@ -64,22 +64,28 @@ summary (M2)
 
 # make Supplmentary figure 1 of leaf water potential
 #----------------------------------------------------------------------------------------
-png (filename = '../fig/Exp2017NeedleWaterPotential.png', width = 600, height = 400)
-layout (matrix (1:4, nrow = 2, byrow = TRUE), widths  = c (1.2, 1, 1.2, 1), 
-        heights = c (1, 1.3))
+png (filename = '../fig/Exp2017NeedleWaterPotential.png', width = 1200, height = 380)
+layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 summaryPhi <- phi %>% group_by (treatment, date) %>% 
               summarise (weeklyMeans = mean (needles / -10.0, na.rm = TRUE), 
                          weeklySE = sd (needles / -10.0, na.rm = TRUE) / sqrt (10)) %>% 
               arrange (date)
 for (i in 1:4) {
+
+  # Determine the panel name
+  #--------------------------------------------------------------------------------------
   if (i == 1) {
-    par (mar = c (0, 5, 1, 0))
+    descriptor <- 'control'
+    par (mar = c (5, 8, 1, 0))
   } else if (i == 2) {
-    par (mar = c (0, 0, 1, 0))
+    descriptor <- 'girdled'
+    par (mar = c (5, 0, 1, 0))
   } else if (i == 3) {
-    par (mar = c (5, 5, 0, 0))
+    descriptor <- 'compressed'
+    par (mar = c (5, 0, 1, 0))
   } else if (i == 4) {
-    par (mar = c (5, 0, 0, 0))
+    descriptor <- 'double compressed'
+    par (mar = c (5, 0, 1, 1))
   }
   
   # plot control
@@ -133,38 +139,25 @@ for (i in 1:4) {
   
   # add y-axis
   #--------------------------------------------------------------------------------------
-  if (i %in% c (1, 3)) {
-    axis (side = 2, at = seq (0, -1, by = -0.2), las = 1, cex.axis = 1.2)
-    mtext (expression (paste (Phi[needles],' (MPa)')), side = 2, line = 3, cex = 1.2)
+  if (i == 1) {
+    axis (side = 2, at = seq (0, -1, by = -0.2), las = 1, cex.axis = 2.2)
+    mtext (expression (paste (Phi[needles],' (MPa)')), side = 2, line = 6, cex = 1.5)
   }
   
   # add x-axis
   #--------------------------------------------------------------------------------------
-  if (i %in% 3:4) {
-    axis (side = 1, at = as_date (c ('2017-07-01', '2017-08-01','2017-09-01','2017-10-01',
-                                     '2017-11-01')),
-          labels = c ('jul','aug','sep','oct','nov'), cex.axis = 1.3)
-    mtext ('date', side = 1, line = 3, cex = 1.2)
-  }
+  axis (side = 1, at = as_date (c ('2017-07-01', '2017-08-01','2017-09-01','2017-10-01',
+                                   '2017-11-01')),
+        labels = c ('jul','aug','sep','oct','nov'), cex.axis = 2.2)
   
   # add panel descriptor
   #--------------------------------------------------------------------------------------
-  if (i == 1) {
-    descriptor <- 'control'
-  } else if (i == 2) {
-    descriptor <- 'girdled'
-  } else if (i == 3) {
-    descriptor <- 'compressed'
-  } else if (i == 4) {
-    descriptor <- 'double compressed'
-  }
   text (x = as_date ('2017-06-25'), y = -1.1, labels = descriptor, pos = 4, col = '#333333', 
-        cex = 1.4)
+        cex = 2.7)
   
   # draw separating line
   #--------------------------------------------------------------------------------------
   if (i %in% c(1,3)) abline (v = as_date ('2017-11-15'), col = '#999999')
-  if (i %in% 1:2) abline (h = 0.04, col = '#999999')
 }
 dev.off ()
 #========================================================================================
