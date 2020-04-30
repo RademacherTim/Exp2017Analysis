@@ -82,9 +82,39 @@ summaryData <- mutate (summaryData,
                        seCumCWA = se (nCells * meanCWA),
                        cumCWA   = cumsum (incCWA))
 
+# Add adjustment ratio to scale control to treatment baseline
+#----------------------------------------------------------------------------------------
+ratios <- summaryData %>% 
+  filter (period == as_date ('2017-07-03')) %>% 
+  group_by (treatment) %>% 
+  mutate (treatmentMeanRW       = mean (meanRW),
+          treatmentCumNCells    = mean (cumNCells),
+          treatmentCumCWA       = mean (cumCWA),
+          treatmentMeanCWA      = mean (meanCWA),
+          treatmentMeanCellSize = mean (meanCellSize)) %>% 
+  add_column (controlMeanRW       = summaryData [['meanRW']] [1],
+              controlCumNCells    = summaryData [['cumNCells']] [1],
+              controlCumCWA       = summaryData [['cumCWA']] [1],
+              controlMeanCWA      = summaryData [['meanCWA']] [1],
+              controlMeanCellSize = summaryData [['meanCellSize']] [1]) %>% 
+  mutate (adjRatioRW        = treatmentMeanRW       / controlMeanRW,
+          adjRatioCumNCells = treatmentCumNCells    / controlCumNCells,
+          adjRatioCumCWA    = treatmentCumCWA       / controlCumCWA,
+          adjRatioCWA       = treatmentMeanCWA      / controlMeanCWA,
+          adjRatioCellSize  = treatmentMeanCellSize / controlMeanCellSize) 
+summaryData <- summaryData %>% mutate (adjRatioRW = unique (ratios [['adjRatioRW']]) [treatment],
+                                       adjRatioCumNCells = unique (ratios [['adjRatioCumNCells']]) [treatment],
+                                       adjRatioCumCWA = unique (ratios [['adjRatioCumCWA']]) [treatment],
+                                       adjRatioCWA = unique (ratios [['adjRatioCWA']]) [treatment],
+                                       adjRatioCellSize = unique (ratios [['adjRatioCellSize']]) [treatment])
+  
+# Set growth threshold under which mean values are not displayed anymore
+#----------------------------------------------------------------------------------------
+thres <- 25 # Equates at least 25 20-micron wide sectors or an average growth of 0.05 mm
+
 # Plot estimated ring width for each group over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017RingWidthOverDate.png', width = 1200, height = 380)
+png ('../fig/Exp2017RingWidthOverDateAdjusted.png', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 for (i in 1:4) {
   par (mgp = c (3, 1, 0))
@@ -107,16 +137,21 @@ for (i in 1:4) {
   
   # Plot new panel
   #--------------------------------------------------------------------------------------
-  con <- summaryData [['treatment']] == 1
-  plot (x = summaryData [['period']] [con],
-        y = summaryData [['meanRW']] [con], 
+  if (i == 1) {
+    con <- summaryData [['treatment']] == i
+  } else {
+    con <- summaryData [['treatment']] == i & summaryData [['height']] == 'A'
+  }
+  con1 <- summaryData [['treatment']] == 1
+  plot (x = summaryData [['period']] [con1],
+        y = summaryData [['meanRW']] [con1] * summaryData [['adjRatioRW']] [con], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 3000), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = ifelse (i == 1, 3, 2), 
         col = ifelse (i == 1, tColours [['colour']] [1], '#999999'), cex.lab = 1.8)
-  polygon (x = c (summaryData [['period']] [con], 
-                  rev (summaryData [['period']] [con])),
-           y = c (summaryData [['meanRW']] [con] - summaryData [['seRW']] [con], 
-                  rev (summaryData [['meanRW']] [con] + summaryData [['seRW']] [con])),
+  polygon (x = c (summaryData [['period']] [con1], 
+                  rev (summaryData [['period']] [con1])),
+           y = c (summaryData [['meanRW']] [con1] * summaryData [['adjRatioRW']] [con] - summaryData [['seRW']] [con1], 
+                  rev (summaryData [['meanRW']] [con1] * summaryData [['adjRatioRW']] [con] + summaryData [['seRW']] [con1])),
            col = addOpacity (ifelse (i == 1, tColours [['colour']] [1], '#999999'), ifelse (i == 1, 0.3, 0.2)), 
                              lty = 0)
   # Add  line to separate panels
@@ -148,13 +183,13 @@ for (i in 1:4) {
   if (i != 1) {
     # Figure out unqieu heights
     #------------------------------------------------------------------------------------
-    con <- summaryData [['treatment']] == i
-    heights <- unique (summaryData [['height']] [con])
+    heights <- unique (summaryData [['height']] [summaryData [['treatment']] == i])
     
     # Loop over heights
     #------------------------------------------------------------------------------------
     for (h in heights) {
-      con <- summaryData [['treatment']] == i & summaryData [['height']] == h
+      con <- summaryData [['treatment']] == i & 
+             summaryData [['height']] == h
       polygon (x = c (summaryData [['period']] [con],
                       rev (summaryData [['period']] [con])),
                y = c (summaryData [['meanRW']] [con] - summaryData [['seRW']] [con],
@@ -177,7 +212,7 @@ dev.off ()
 
 # Plot estimated number of cells over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017CellNumberOverDate.png', width = 1200, height = 380)
+png ('../fig/Exp2017CellNumberOverDateAdjusted.png', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 for (i in 1:4) {
   par (mgp = c (3, 1, 0))
@@ -200,18 +235,24 @@ for (i in 1:4) {
   
   # Plot new panel
   #--------------------------------------------------------------------------------------
-  con <- summaryData [['treatment']] == 1
-  plot (x = summaryData [['period']] [con],
-        y = summaryData [['cumNCells']] [con], 
+  if (i == 1) {
+    con <- summaryData [['treatment']] == i
+  } else {
+    con <- summaryData [['treatment']] == i & summaryData [['height']] == 'A'
+  }
+  con1 <- summaryData [['treatment']] == 1
+  plot (x = summaryData [['period']] [con1],
+        y = summaryData [['cumNCells']] [con1] * summaryData [['adjRatioCumNCells']] [con], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 70), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = ifelse (i == 1, 3, 2), 
         col = ifelse (i == 1, tColours [['colour']] [1], '#999999'), cex.lab = 1.8)
-  polygon (x = c (summaryData [['period']] [con], 
-                  rev (summaryData [['period']] [con])),
-           y = c (summaryData [['cumNCells']] [con] - summaryData [['seNCells']] [con], 
-                  rev (summaryData [['cumNCells']] [con] + summaryData [['seNCells']] [con])),
+  polygon (x = c (summaryData [['period']] [con1], 
+                  rev (summaryData [['period']] [con1])),
+           y = c (summaryData [['cumNCells']] [con1] * summaryData [['adjRatioCumNCells']] [con] - summaryData [['seNCells']] [con1], 
+                  rev (summaryData [['cumNCells']] [con1] * summaryData [['adjRatioCumNCells']] [con] + summaryData [['seNCells']] [con1])),
            col = addOpacity (ifelse (i == 1, tColours [['colour']] [1], '#999999'), ifelse (i == 1, 0.3, 0.2)), 
            lty = 0)
+
   # Add  line to separate panels
   #----------------------------------------------------------------------------------------
   if (i != 4) abline (v = as_date ('2017-11-15'), col = '#999999')
@@ -270,7 +311,7 @@ dev.off ()
 
 # Plot estimated cell size for each group over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017CellSizeOverDate.png', width = 1200, height = 380)
+png ('../fig/Exp2017CellSizeOverDateAdjusted.png', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 for (i in 1:4) {
   
@@ -292,16 +333,21 @@ for (i in 1:4) {
   
   # Plot new panel
   #--------------------------------------------------------------------------------------
-  con <- summaryData [['treatment']] == 1
-  plot (x = summaryData [['period']] [con],
-        y = summaryData [['meanCellSize']] [con], 
+  if (i == 1) {
+    con <- summaryData [['treatment']] == 1
+  } else {
+    con <- summaryData [['treatment']] == i & summaryData [['height']] == 'A'
+  }
+  con1 <- summaryData [['treatment']] == 1
+  plot (x = summaryData [['period']] [con1],
+        y = summaryData [['meanCellSize']] [con1] * summaryData [['adjRatioCellSize']] [con], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (20, 50), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = ifelse (i == 1, 3, 2), 
         col = ifelse (i == 1, tColours [['colour']] [1], '#999999'), cex.lab = 1.8)
-  polygon (x = c (summaryData [['period']] [con], 
-                  rev (summaryData [['period']] [con])),
-           y = c (summaryData [['meanCellSize']] [con] - summaryData [['seCellSize']] [con], 
-                  rev (summaryData [['meanCellSize']] [con] + summaryData [['seCellSize']] [con])),
+  polygon (x = c (summaryData [['period']] [con1], 
+                  rev (summaryData [['period']] [con1])),
+           y = c (summaryData [['meanCellSize']] [con1] * summaryData [['adjRatioCellSize']] [con] - summaryData [['seCellSize']] [con1], 
+                  rev (summaryData [['meanCellSize']] [con1] * summaryData [['adjRatioCellSize']] [con] + summaryData [['seCellSize']] [con1])),
            col = addOpacity (ifelse (i == 1, tColours [['colour']] [1], '#999999'), ifelse (i == 1, 0.3, 0.2)), 
            lty = 0)
   # Add  line to separate panels
@@ -323,7 +369,7 @@ for (i in 1:4) {
     
     # Add legend 
     #----------------------------------------------------------------------------------------
-    legend (x = as_date ('2017-07-20'), y = 20, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
+    legend (x = as_date ('2017-07-20'), y = 48, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
             legend = c ('control','above','middle','below'), col = '#999999', 
             bg = 'transparent', cex = 2)
   }
@@ -339,7 +385,9 @@ for (i in 1:4) {
     # Loop over heights
     #------------------------------------------------------------------------------------
     for (h in heights) {
-      con <- summaryData [['treatment']] == i & summaryData [['height']] == h
+      con <- summaryData [['treatment']] == i & 
+             summaryData [['height']] == h &
+             summaryData [['nNCells']] > thres
       polygon (x = c (summaryData [['period']] [con],
                       rev (summaryData [['period']] [con])),
                y = c (summaryData [['meanCellSize']] [con] - summaryData [['seCellSize']] [con],
@@ -455,7 +503,7 @@ dev.off ()
 
 # Plot estimated cell wall area for each group over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017CellWallAreaOverDate.png', width = 1200, height = 380)
+png ('../fig/Exp2017CellWallAreaOverDateAdjusted.png', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 for (i in 1:4) {
   
@@ -477,16 +525,21 @@ for (i in 1:4) {
   
   # Plot new panel
   #--------------------------------------------------------------------------------------
-  con <- summaryData [['treatment']] == 1
-  plot (x = summaryData [['period']] [con],
-        y = summaryData [['meanCWA']] [con], 
-        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (200, 550), axes = FALSE, 
+  if (i == 1) {
+    con <- summaryData [['treatment']] == i
+  } else {
+    con <- summaryData [['treatment']] == i & summaryData [['height']] == 'A'
+  }
+  con1 <- summaryData [['treatment']] == 1
+  plot (x = summaryData [['period']] [con1],
+        y = summaryData [['meanCWA']] [con1] * summaryData [['adjRatioCWA']] [con], 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (250, 650), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = ifelse (i == 1, 3, 2), 
         col = ifelse (i == 1, tColours [['colour']] [1], '#999999'), cex.lab = 1.8)
-  polygon (x = c (summaryData [['period']] [con], 
-                  rev (summaryData [['period']] [con])),
-           y = c (summaryData [['meanCWA']] [con] - summaryData [['seCWA']] [con], 
-                  rev (summaryData [['meanCWA']] [con] + summaryData [['seCWA']] [con])),
+  polygon (x = c (summaryData [['period']] [con1], 
+                  rev (summaryData [['period']] [con1])),
+           y = c (summaryData [['meanCWA']] [con1] * summaryData [['adjRatioCWA']] [con] - summaryData [['seCWA']] [con1], 
+                  rev (summaryData [['meanCWA']] [con1] * summaryData [['adjRatioCWA']] [con] + summaryData [['seCWA']] [con1])),
            col = addOpacity (ifelse (i == 1, tColours [['colour']] [1], '#999999'), ifelse (i == 1, 0.3, 0.2)), 
            lty = 0)
   # Add  line to separate panels
@@ -508,7 +561,7 @@ for (i in 1:4) {
     
     # Add legend 
     #----------------------------------------------------------------------------------------
-    legend (x = as_date ('2017-07-20'), y = 3, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
+    legend (x = as_date ('2017-07-20'), y = 375, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
             legend = c ('control','above','middle','below'), col = '#999999', 
             bg = 'transparent', cex = 2)
   }
@@ -524,7 +577,9 @@ for (i in 1:4) {
     # Loop over heights
     #------------------------------------------------------------------------------------
     for (h in heights) {
-      con <- summaryData [['treatment']] == i & summaryData [['height']] == h
+      con <- summaryData [['treatment']] == i & 
+        summaryData [['height']] == h &
+        summaryData [['nNCells']] > thres
       polygon (x = c (summaryData [['period']] [con],
                       rev (summaryData [['period']] [con])),
                y = c (summaryData [['meanCWA']] [con] - summaryData [['seCWA']] [con],
@@ -539,7 +594,7 @@ for (i in 1:4) {
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 550, pos = 4, labels = descriptor, cex = 2.7, 
+  text (x = as_date ('2017-06-20'), y = 650, pos = 4, labels = descriptor, cex = 2.7, 
         col = '#333333')
   
 }
@@ -547,7 +602,7 @@ dev.off ()
 
 # Plot estimated cell wall area for each group over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017CumulativeCellWallAreaOverDate.png', width = 1200, height = 380)
+png ('../fig/Exp2017CumulativeCellWallAreaOverDateAdjusted.png', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 for (i in 1:4) {
   
@@ -569,18 +624,24 @@ for (i in 1:4) {
   
   # Plot new panel
   #--------------------------------------------------------------------------------------
-  con <- summaryData [['treatment']] == 1
-  plot (x = summaryData [['period']] [con],
-        y = summaryData [['cumCWA']] [con], 
+  if (i == 1) {
+    con <- summaryData [['treatment']] == i
+  } else {
+    con <- summaryData [['treatment']] == i & summaryData [['height']] == 'A'
+  }
+  con1 <- summaryData [['treatment']] == 1
+  plot (x = summaryData [['period']] [con1],
+        y = summaryData [['cumCWA']] [con1] * summaryData [['adjRatioCumCWA']] [con], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 35000), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = ifelse (i == 1, 3, 2), 
         col = ifelse (i == 1, tColours [['colour']] [1], '#999999'), cex.lab = 1.8)
-  polygon (x = c (summaryData [['period']] [con], 
-                  rev (summaryData [['period']] [con])),
-           y = c (summaryData [['cumCWA']] [con] - summaryData [['seCWA']] [con], 
-                  rev (summaryData [['cumCWA']] [con] + summaryData [['seCWA']] [con])),
+  polygon (x = c (summaryData [['period']] [con1], 
+                  rev (summaryData [['period']] [con1])),
+           y = c (summaryData [['cumCWA']] [con1] * summaryData [['adjRatioCumCWA']] [con] - summaryData [['seCumCWA']] [con1], 
+                  rev (summaryData [['cumCWA']] [con1] * summaryData [['adjRatioCumCWA']] [con] + summaryData [['seCumCWA']] [con1])),
            col = addOpacity (ifelse (i == 1, tColours [['colour']] [1], '#999999'), ifelse (i == 1, 0.3, 0.2)), 
            lty = 0)
+  
   # Add  line to separate panels
   #----------------------------------------------------------------------------------------
   if (i != 4) abline (v = as_date ('2017-11-15'), col = '#999999')
@@ -619,8 +680,8 @@ for (i in 1:4) {
       con <- summaryData [['treatment']] == i & summaryData [['height']] == h
       polygon (x = c (summaryData [['period']] [con],
                       rev (summaryData [['period']] [con])),
-               y = c (summaryData [['cumCWA']] [con] - summaryData [['seCWA']] [con],
-                      rev (summaryData [['cumCWA']] [con] + summaryData [['seCWA']] [con])),
+               y = c (summaryData [['cumCWA']] [con] - summaryData [['seCumCWA']] [con],
+                      rev (summaryData [['cumCWA']] [con] + summaryData [['seCumCWA']] [con])),
                col = addOpacity (tColours [['colour']] [i], 0.3), lty = 0)
       lines (x = summaryData [['period']] [con],
              y = summaryData [['cumCWA']] [con],
