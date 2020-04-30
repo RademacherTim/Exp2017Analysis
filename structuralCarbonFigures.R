@@ -78,9 +78,9 @@ summaryData <- mutate (summaryData,
 # Calculate cell wall area statistics (mean, standard error, and cumulative sum)
 #----------------------------------------------------------------------------------------
 summaryData <- mutate (summaryData, 
-                       incCWA = nCells * meanCWA, 
-                       seCWA  = se (nCells * meanCWA),
-                       cumCWA = cumsum (incCWA))
+                       incCWA   = nCells * meanCWA, 
+                       seCumCWA = se (nCells * meanCWA),
+                       cumCWA   = cumsum (incCWA))
 
 # Plot estimated ring width for each group over time
 #----------------------------------------------------------------------------------------
