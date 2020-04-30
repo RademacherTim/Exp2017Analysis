@@ -14,10 +14,6 @@ if (!existsFunction ('add_column')) library ('tidyverse')
 source ('plotingFunctions.R')
 source ('processAnatomicalData.R')
 
-# change working directory
-#----------------------------------------------------------------------------------------
-setwd ('/media/tim/dataDisk/PlantGrowth/data/microcores/woodAnatomy/Exp2017/')
-
 # source ring width and other anatomical data
 #----------------------------------------------------------------------------------------
 standardisedRW2017 <- read_csv (file = 'standardisedRW2017.csv',
@@ -194,37 +190,21 @@ for (iTree in 1:40) { # loop over trees
   
   # get treatment and determine heights
   #----------------------------------------------------------------------------------------
-  if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T1') {
-    heights <-  c ('M')
-    treatment <- 1
-  } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T2') {
-    heights <-  c ('A', 'B')
-    treatment <- 2
-  } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T3') {
-    heights <-  c ('A', 'B')
-    treatment <- 3
-  } else if (unique (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree]) == 'T4') {
-    heights <-  c ('A', 'M', 'B')
-    treatment <- 4
-  }
+  treatment <- unique (data [['treatment']] [data [['tree']] == iTree])
+  heights   <- unique (data [['height']] [data [['tree']] == iTree])
   
   # loop over sampling heights
   #----------------------------------------------------------------------------------------
   for (iHeight in heights) {
-    
-    if (iTree < 10) {
-      treeID <- paste0 ('0',iTree,iHeight)
-    } else {
-      treeID <- paste0 (iTree, iHeight)
-    }
-    
+
     # determine average number of cells in sector and sum them
     #----------------------------------------------------------------------------------------
-    condition <- data [['YEAR']] == 2017 & data [['TREE']] == treeID
+    condition <- data [['year']] == 2017 & data [['tree']] == iTree
     nCells <- floor (sum (20 / data [['cellRadWidth']] [condition], na.rm = TRUE))
     iH <- iHeight
     if (treatment == 1) iH <- 'C'
-    cellNumber <- add_row (cellNumber, tree = iTree, treatment = treatment, height = iH, n = nCells)
+    cellNumber <- add_row (cellNumber, tree = iTree, treatment = treatment, height = iH, 
+                           nTotal = nCells)
     
   } # end height loop
 } # end tree loop
@@ -364,12 +344,12 @@ dev.off ()
 
 # wrangle wood anatomy data
 #----------------------------------------------------------------------------------------
-woodAnatomy <- data [data [['YEAR']] == 2017, ]
-woodAnatomy [['tree']]      <- factor (substr (woodAnatomy [['TREE']], 1, 2)) 
-woodAnatomy [['treatment']] <- factor (substr (woodAnatomy [['PLOT']], 2, 2), levels = c (4:1))
-woodAnatomy [['POS']] [woodAnatomy [['treatment']] == 1] <- 'C'
-woodAnatomy [['height']] <- factor (woodAnatomy [['POS']], levels = c ('A','M','B','C'))
-woodAnatomy <- select (woodAnatomy, c (MRW, LA, DRAD, DTAN, CWA, CWAACC, CWTTAN, CWTALL, period, cellRadWidth, cellTanWidth, zonalCWA, tree, treatment, height))
+woodAnatomy <- data [data [['year']] == 2017, ]
+woodAnatomy [['tree']]      <- factor (woodAnatomy [['tree']]) 
+woodAnatomy [['treatment']] <- factor (woodAnatomy [['treatment']], levels = c (4:1))
+woodAnatomy [['height']] [woodAnatomy [['treatment']] == 1] <- 'C'
+woodAnatomy [['height']] <- factor (woodAnatomy [['height']], levels = c ('A','M','B','C'))
+woodAnatomy <- select (woodAnatomy, MRW, LA, DRAD, DTAN, CWA, CWAACC, CWTTAN, CWTALL, period, cellRadWidth, cellTanWidth, tree, treatment, height)
 
 # create factor stating if it was formed before or after the experiment
 #----------------------------------------------------------------------------------------
