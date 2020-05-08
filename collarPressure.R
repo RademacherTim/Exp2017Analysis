@@ -62,14 +62,14 @@ con <-  summaryData [['treatment']] == 3        &
         !is.na (summaryData [['meanTreatmentPhi']])
 plot (x = summaryData [['date']] [con],
       y = summaryData [['meanTreatmentPhi']] [con], typ = 'l', axes = FALSE, 
-      col = tColours [['colour']] [3], , lwd = 3,
+      col = tColours [['colour']] [3], lwd = 3,
       xlim = as_date (c('2017-06-30','2017-11-10')), ylim = c (0, 6), 
-      xlab = '', ylab = '', cex.lab = 2.2) 
-mtext ('date', side = 1, line = 4, cex = 2)
-mtext ('normal pressure (MPa)', side = 2, line = 4, cex = 2)
+      xlab = '', ylab = '', cex.lab = 1.5) 
+mtext ('date', side = 1, line = 4, cex = 1.5)
+mtext ('normal pressure (MPa)', side = 2, line = 4, cex = 1.5)
 axis (side = 1, at = as_date (c ('2017-07-01', '2017-08-01','2017-09-01','2017-10-01',
                                  '2017-11-01')),
-      labels = c ('Jul','Aug','Sep','Oct','Nov'), cex.axis = 2.2)
+      labels = c ('Jul','Aug','Sep','Oct','Nov'), cex.axis = 1.5)
 polygon (x = c (summaryData [['date']] [con], rev (summaryData [['date']] [con])),
          y = c (summaryData [['meanTreatmentPhi']] [con] - 
                   summaryData [['seTreatmentPhi']] [con], 
@@ -109,17 +109,22 @@ lines (x = as_date (summaryData [['date']] [con]),
 
 # Add y-axis
 #--------------------------------------------------------------------------------------
-axis (side = 2, las = 1, cex.axis = 2.2)
+axis (side = 2, las = 1, cex.axis = 1.5)
 
 # Add legend 
 #----------------------------------------------------------------------------------------
 legend (x = as_date ('2017-07-20'), y = 6.2, box.lty = 0, bg = 'transparent', lty = c (1, 2, 1),
         legend = c ('single compression', 'double compression lower', 'double compression upper'),
-col = tColours [['colour']] [c (3,4,4)], lwd = 3, cex = 1.4)
+col = tColours [['colour']] [c (3,4,4)], lwd = 3, cex = 1.3)
 
 # Plot separating line
 #--------------------------------------------------------------------------------------
 abline (v = as_date ('2017-11-10'), col = '#999999')
+
+
+# Add panel descriptor
+#----------------------------------------------------------------------------------------
+text (x = as_date ('2017-06-30'), y = 6.0, labels = 'a', cex = 2.0)
 
 # Add critical dates
 #--------------------------------------------------------------------------------------
@@ -133,7 +138,7 @@ plot (x = phiCir [['angle']],
       y = phiCir [['pressure']], axes = FALSE, typ = 'l', lwd = 2, lty = 2,
       col = '#99999999', xlab = '', ylim = c (0, 6.0),
       ylab = '', cex.lab = 2.2)
-mtext (expression (paste ('angle (',degree,')')), side = 1, line = 4, cex = 2)
+mtext (expression (paste ('angle (',degree,')')), side = 1, line = 4, cex = 1.5)
 #mtext ('normal pressure (MPa)', side = 2, line = 6, cex = 1.5)
 lines (x = phiCir [['angle']],
        y = phiCir [['pressure offset by 180']], lwd = 2, lty = 3,
@@ -141,12 +146,16 @@ lines (x = phiCir [['angle']],
 lines (x = phiCir [['angle']],
        y = phiCir [['max pressure combined']], lwd = 3, lty = 1,
        col = tColours [['colour']] [2])
-axis (side = 1, at = seq (0, 300, by = 60), cex.axis = 2.2)
+axis (side = 1, at = seq (0, 300, by = 60), cex.axis = 1.5)
 
 # Add a legend 
 #----------------------------------------------------------------------------------------
-legend (x = 20, y = 6.2, box.lty = 0, bg = 'transparent', lty = 1:3, lwd = c (3,2,2),
+legend (x = 0, y = 6.2, box.lty = 0, bg = 'transparent', lty = 1:3, lwd = c (3,2,2),
         col = c (tColours [['colour']] [2], rep ('#99999999', 2)),
-        legend = c ('combined pressure','belt', 'opposing belt'), cex = 1.4)
+        legend = c ('combined pressure','belt', 'opposing belt'), cex = 1.3)
+
+# Add panel descriptor
+#----------------------------------------------------------------------------------------
+text (x = -10, y = 6.0, labels = 'b', cex = 2.0) 
 dev.off ()
 #========================================================================================
