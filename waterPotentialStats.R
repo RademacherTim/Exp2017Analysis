@@ -70,8 +70,9 @@ summaryPhi <- phi %>% group_by (treatment, date) %>%
               summarise (weeklyMeans = mean (needles / -10.0, na.rm = TRUE), 
                          weeklySE = sd (needles / -10.0, na.rm = TRUE) / sqrt (10)) %>% 
               arrange (date)
-for (i in 1:4) {
-
+for (i in c (1, 3, 4, 2)) {
+  par (mgp = c (3, 2, 0))
+  
   # Determine the panel name
   #--------------------------------------------------------------------------------------
   if (i == 1) {
@@ -79,13 +80,13 @@ for (i in 1:4) {
     par (mar = c (5, 8, 1, 0))
   } else if (i == 2) {
     descriptor <- 'girdled'
-    par (mar = c (5, 0, 1, 0))
+    par (mar = c (5, 0, 1, 1))
   } else if (i == 3) {
     descriptor <- 'compressed'
     par (mar = c (5, 0, 1, 0))
   } else if (i == 4) {
     descriptor <- 'double compressed'
-    par (mar = c (5, 0, 1, 1))
+    par (mar = c (5, 0, 1, 0))
   }
   
   # plot control

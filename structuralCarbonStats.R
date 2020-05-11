@@ -14,6 +14,43 @@ if (!existsFunction ('add_column')) library ('tidyverse')
 source ('plotingFunctions.R')
 source ('processAnatomicalData.R')
 
+# Determine the mean ring width at each point in time
+#-----------------------------------------------------------------------------------------
+temp1 <- data %>% filter (year == 2017) %>% 
+  group_by (treatment, height, tree, period) %>%
+  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% 
+  mutate (period = as_date (period))
+temp2 <- data %>% filter (year == 2017) %>% 
+  group_by (treatment, height, tree) %>%
+  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% 
+  add_column (period = as_date ('2017-08-09'), .before = 4)
+temp3 <- data %>% filter (year == 2017) %>% 
+  group_by (treatment, height, tree) %>%
+  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% 
+  add_column (period = as_date ('2017-10-09'), .before = 4)
+temp4 <- data %>% filter (year == 2017) %>% 
+  group_by (treatment, height, tree) %>%
+  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% 
+  add_column (period = as_date ('2017-11-03'), .before = 4)
+temp <- dplyr::union_all (temp1, temp2) %>% 
+  dplyr::union_all (temp3) %>% dplyr::union_all (temp4) %>% 
+  arrange (treatment, height, tree, period) %>% 
+  group_by (treatment, height, tree, period) %>% 
+  summarise (maxRW = min (maxRW, na.rm = TRUE)) %>% 
+  rename (ringWidth = maxRW) %>% ungroup
+temp [['height']] [temp [['treatment']] == 1] <- 'C'
+temp <- temp %>%  mutate (treatment = factor (treatment, levels = c (4:1)),
+          tree = factor (tree, levels = c (1:40)),
+          height = factor (height, levels = c ('A', 'M', 'B', 'C')),
+          period = factor (period))
+# Add a RW increment
+temp <- temp %>% group_by (tree) %>% mutate (incRW = ringWidth - min (ringWidth))
+
+M0 <- lmer (formula = incRW ~ (1 | tree) + period + treatment:height:period, 
+            data = filter (temp, period != '2017-07-03'),
+            REML = TRUE)
+summary (M0)
+
 # source ring width and other anatomical data
 #----------------------------------------------------------------------------------------
 standardisedRW2017 <- read_csv (file = 'standardisedRW2017.csv',
@@ -182,7 +219,7 @@ dev.off ()
 # create tibble with cell numbers per ring
 #----------------------------------------------------------------------------------------
 cellNumber <- tibble (tree = NA, treatment = NA, height = NA, nTotal = NA, nJul = NA, 
-                      nAug = NA, nOct = NA)
+                      nAug = NA, nOct = NA, nNov = NA)
 
 # determine the approximate number of cells in each ring
 #----------------------------------------------------------------------------------------
@@ -199,12 +236,23 @@ for (iTree in 1:40) { # loop over trees
 
     # determine average number of cells in sector and sum them
     #----------------------------------------------------------------------------------------
-    condition <- data [['year']] == 2017 & data [['tree']] == iTree
-    nCells <- floor (sum (20 / data [['cellRadWidth']] [condition], na.rm = TRUE))
+    con <- data [['year']] == 2017 & 
+           data [['tree']] == iTree & 
+           data [['height']] == iHeight
+    conJul <- con & data [['period']] == as_date ('2017-07-03')
+    conAug <- con & data [['period']] == as_date ('2017-08-09') 
+    conOct <- con & data [['period']] == as_date ('2017-10-09')
+    conNov <- con & data [['period']] == as_date ('2017-11-03')
+    nJul <- floor (sum (20 / data [['cellRadWidth']] [conJul], na.rm = TRUE))
+    nAug <- floor (sum (20 / data [['cellRadWidth']] [conAug], na.rm = TRUE))
+    nOct <- floor (sum (20 / data [['cellRadWidth']] [conOct], na.rm = TRUE))
+    nNov <- floor (sum (20 / data [['cellRadWidth']] [conNov], na.rm = TRUE))
+    nCells <- floor (sum (20 / data [['cellRadWidth']] [con], na.rm = TRUE))
     iH <- iHeight
     if (treatment == 1) iH <- 'C'
     cellNumber <- add_row (cellNumber, tree = iTree, treatment = treatment, height = iH, 
-                           nTotal = nCells)
+                           nTotal = nCells, nJul = nJul, nAug = nAug, nOct = nOct, 
+                           nNov = nNov)
     
   } # end height loop
 } # end tree loop
@@ -213,16 +261,28 @@ for (iTree in 1:40) { # loop over trees
 #----------------------------------------------------------------------------------------
 cellNumber <- cellNumber [-1, ]
 
+# Convert data to long format and add date column
+#----------------------------------------------------------------------------------------
+cellNumber <- pivot_longer (cellNumber, cols = c (nTotal, nJul, nAug, nOct, nNov), 
+                            values_to = 'n')
+cellNumber <- add_row (cellNumber, period = NA)
+cellNumber [['period']] [cellNumber [['name']] == 'nJul'] <- as_date ('2017-07-03')
+cellNumber [['period']] [cellNumber [['name']] == 'nAug'] <- as_date ('2017-08-09')
+cellNumber [['period']] [cellNumber [['name']] == 'nOct'] <- as_date ('2017-10-09')
+cellNumber [['period']] [cellNumber [['name']] == 'nNov'] <- as_date ('2017-11-03')
+cellNumber [['period']] [cellNumber [['name']] == 'nTotal'] <- as_date ('2017-11-03') 
+
 # wrangle cell number in the ring
 #----------------------------------------------------------------------------------------
 cellNumber [['tree']]      <- factor (cellNumber [['tree']])
 cellNumber [['treatment']] <- factor (cellNumber [['treatment']], levels = c (4:1))
 cellNumber [['height']]    <- factor (cellNumber [['height']], levels = c ('A','M','B','C'))
+cellNumber [['period']]    <- factor (cellNumber [['period']])
 
 # fit mixed effect model with tree as random effect
 #----------------------------------------------------------------------------------------
-M2 <- lmer (formula = n ~ (1 | tree) + treatment:height,
-            data = cellNumber,
+M2 <- lmer (formula = n ~ (1 | tree) + period + period:treatment:height,
+            data = filter (cellNumber, name != 'nTotal'),
             REML = TRUE)
 summary (M2)
 # plot (M2)
@@ -619,7 +679,7 @@ qqnorm (resid (M8.1))
 #               data = woodAnatomy, 
 #               REML = FALSE)
 # summary (M9.0)
-M9.1 <- lmer (formula = CWA ~ (1 | tree) + treatment:height:factor (period) + factor (period), 
+M9.1 <- lmer (formula = CWA ~ (1 | tree) + factor (period) + factor (period):treatment:height, 
               data = woodAnatomy, 
               REML = TRUE)
 summary (M9.1)

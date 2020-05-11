@@ -91,7 +91,7 @@ setwd ('/home/tim/projects/PlantGrowth/Exp2017Analysis/')
 source ('processAnatomicalData.R')
 ```
 
-The estimation of structural carbon gain for each stem section is scaled from the cell wall area of one thinsections sampled at the end of the growing season (3$^{rd}$ of November 2017) and divided into sections grown in each period (e.g., prior, during and after treatment) by association with the fraction of the ring formed at each sampling date. For each sampling date two microcores were collected and stored. One microcore was embedded in parafin, cut using a microtome, stained with astra blue and safranin red, and scanned on a sliding scanner. Where the resulting image of the first microcore did not fully include the necessary rings or had other quality issues, we cut and processed the second microcore. Between the two microcores, we were able to obtain high-quality image data for 315<!-- TR - Image 06.1 M for 2017/08/09 only contains part of the 2017 ring. And images 06.1 M, 24.4 A and 24.4 B are missing the 2015 ring. There must be one additional ring missing because the numbferOfSamples suggests so!!!--> out of 320 samples (i.e., 4 sampling dates times 40 trees times on average two sampling heights). Only for one tree (tree id: 06; treament: control) both thinsections collected in October did not contain a full set of rings necessary for the analysis. For each image, we identified and divided the ring formed in 2017 into 20 micron-wide discrete zones and derived the average anatomical structure for cells in each zone using ROXAS [@von_arx_roxas_2014]. In particular, we measured cell wall area, cell wall thickness, as well as tangential and radial lumen diameter. The ring width of the fully formed 2017 ring ranged between `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/1000, 2)` and `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [2] / 1000, 2 )` mm with a mean of `r round (mean (unique (data [['MRW']] [data [['YEAR']] == 2017]))/1000, 2)` mm. Even the smallest ring was divided into `r round (range (unique (data [['MRW']] [data [['YEAR']] == 2017])) [1]/20)` discrete zones of a width of 20-microns with anatomical data.
+The estimation of structural carbon gain for each stem section is scaled from the cell wall area of one thinsections sampled at the end of the growing season (3$^{rd}$ of November 2017) and divided into sections grown in each period (e.g., prior, during and after treatment) by association with the fraction of the ring formed at each sampling date. For each sampling date two microcores were collected and stored. One microcore was embedded in parafin, cut using a microtome, stained with astra blue and safranin red, and scanned on a sliding scanner. Where the resulting image of the first microcore did not fully include the necessary rings or had other quality issues, we cut and processed the second microcore. Between the two microcores, we were able to obtain high-quality image data for 315<!-- TR - Image 06.1 M for 2017/08/09 only contains part of the 2017 ring. And images 06.1 M, 24.4 A and 24.4 B are missing the 2015 ring. There must be one additional ring missing because the numbferOfSamples suggests so!!!--> out of 320 samples (i.e., 4 sampling dates times 40 trees times on average two sampling heights). Only for one tree (tree id: 06; treament: control) both thinsections collected in October did not contain a full set of rings necessary for the analysis. For each image, we identified and divided the ring formed in 2017 into 20 micron-wide discrete zones and derived the average anatomical structure for cells in each zone using ROXAS [@von_arx_roxas_2014]. In particular, we measured cell wall area, cell wall thickness, as well as tangential and radial lumen diameter. The ring width of the fully formed 2017 ring ranged between `r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [1]/1000, 2)` and `r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [2] / 1000, 2 )` mm with a mean of `r round (mean (unique (data [['MRW']] [data [['year']] == 2017]))/1000, 2)` mm. Even the smallest ring was divided into `r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [1]/20)` discrete zones of a width of 20-microns with anatomical data.
 
 ### Estimating period of formation for cells 
 
@@ -170,8 +170,10 @@ legend (x = 1.35, y = 2, legend = c ('control','gridling','compression','double 
         col = tColours [['colour']] [1:4],
         lwd = 2, box.lty = 0, bg = 'transparent')
 
-# Aggregate the fractional growth by treatment
+# Aggregate the mean and standard error of fractional growth by treatment
+#----------------------------------------------------------------------------------------
 f_Agg <- aggregate (f_Jul, mean, by = list (allometricData [['treatment']] [1:40]), na.rm = TRUE)
+#sef_Agg <- aggregate (f_Jul, se, by = list (allometricData [['treatment']] [1:40]))
 f_Agg <- rbind (f_Agg, aggregate (f_Aug, mean, by = list (allometricData [['treatment']] [1:40]), na.rm = TRUE))
 f_Agg <- rbind (f_Agg, aggregate (f_Oct, mean, by = list (allometricData [['treatment']] [1:40]), na.rm = TRUE))
 f_Agg <- cbind (f_Agg, c (rep (7, 4), rep (8, 4), rep (10,4)))
@@ -231,20 +233,20 @@ douCompTreesBelow <- c ('02B','08B','14B','22B','24B','25B','26B','27B','34B','3
 #----------------------------------------------------------------------------------------
 plotCWA <- function (tree, date, treatment, yPos = 1, symbol = 21, alpha = 0.4, 
                      VERBOSE = FALSE) {
-  points (x = sum (data [['CWA']] [data [['TREE']] == tree &
-                                   data [['YEAR']] == 2017 &
+  points (x = sum (data [['CWA']] [data [['tree']] == tree &
+                                   data [['year']] == 2017 &
                                    data [['period']] <= as_date (date)], na.rm = TRUE) / 
-              sum (data [['CWA']] [data [['TREE']] == tree &
-                                   data [['YEAR']] == 2015], na.rm = TRUE),
+              sum (data [['CWA']] [data [['tree']] == tree &
+                                   data [['year']] == 2015], na.rm = TRUE),
           y = xPositions [yPos], pch = symbol, 
           col = addOpacity (tColours [['colour']] [treatment], alpha), 
           bg  = addOpacity (tColours [['colour']] [treatment], alpha))
   if (VERBOSE) {
-    print (paste (date, tree, treatment, sum (data [['CWA']] [data [['TREE']] == tree &
-                                   data [['YEAR']] == 2017 &
+    print (paste (date, tree, treatment, sum (data [['CWA']] [data [['tree']] == tree &
+                                   data [['year']] == 2017 &
                                    data [['period']] <= as_date (date)], na.rm = TRUE) / 
-              sum (data [['CWA']] [data [['TREE']] == tree &
-                                   data [['YEAR']] == 2015], na.rm = TRUE)))
+              sum (data [['CWA']] [data [['tree']] == tree &
+                                   data [['year']] == 2015], na.rm = TRUE)))
   }
 }
 
@@ -314,11 +316,11 @@ plotCWAByTreatment <- function (date, alpha = 0.4, VERBOSE = FALSE) {
       
       # calculate fraction of cumulative cell wall area
       #----------------------------------------------------------------------------------
-      f_CCWA <- sum (data [['CWA']] [data [['TREE']] == treeID & 
-                                     data [['YEAR']] == 2017 &
+      f_CCWA <- sum (data [['CWA']] [data [['tree']] == treeID & 
+                                     data [['year']] == 2017 &
                                      data [['period']] <= as_date (date)], na.rm = TRUE) /
-                sum (data [['CWA']] [data [['TREE']] == treeID &
-                                     data [['YEAR']] == 2015], na.rm = TRUE)
+                sum (data [['CWA']] [data [['tree']] == treeID &
+                                     data [['year']] == 2015], na.rm = TRUE)
 
       # fill all known fields in tibble
       #----------------------------------------------------------------------------------
@@ -501,7 +503,7 @@ data <- add_column (data, multiplier   = NA)
 for (i in 1:dim (data) [1]) {
     
   # if not 2017, skip
-  if (data [['YEAR']] [i] != 2017) next
+  if (data [['year']] [i] != 2017) next
   
   # get treeID, treatment and sample height
   treeID <- as.numeric (substr (data [['TREE']] [i], 1, 2))
@@ -562,7 +564,7 @@ for (iTree in 1:40) {
       # condition for only height being "M"
       con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
              data [['period']]                           == iDate & 
-             data [['YEAR']]                             == 2017
+             data [['year']]                             == 2017
       
       # sum zonal cell wall area (mm2) for each period
       circumferentialData [['CWAat150']] [circumferentialData [['tree']]   == iTree &
@@ -573,7 +575,7 @@ for (iTree in 1:40) {
       con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
              data [['period']]                           == iDate &
              data [['POS']]                              == 'A'   & 
-             data [['YEAR']]                             == 2017
+             data [['year']]                             == 2017
      
       # sum zonal cell wall area (mm2) for each period
       circumferentialData [['CWAat200']] [circumferentialData [['tree']]   == iTree &
@@ -583,7 +585,7 @@ for (iTree in 1:40) {
       con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
              data [['period']]                           == iDate &
              data [['POS']]                              == 'B'   & 
-             data [['YEAR']]                             == 2017
+             data [['year']]                             == 2017
       
       # sum zonal cell wall area (mm2) for each period
       circumferentialData [['CWAat100']] [circumferentialData [['tree']]   == iTree &
@@ -593,7 +595,7 @@ for (iTree in 1:40) {
       con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
              data [['period']]                           == iDate &
              data [['POS']]                              == 'A'   & 
-             data [['YEAR']]                             == 2017
+             data [['year']]                             == 2017
      
       # sum zonal cell wall area (mm2) for each period
       circumferentialData [['CWAat250']] [circumferentialData [['tree']]   == iTree &
@@ -603,7 +605,7 @@ for (iTree in 1:40) {
       con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
              data [['period']]                           == iDate &
              data [['POS']]                              == 'M'   & 
-             data [['YEAR']]                             == 2017
+             data [['year']]                             == 2017
       
       # sum zonal cell wall area (mm2) for each period
       circumferentialData [['CWAat150']] [circumferentialData [['tree']]   == iTree &
@@ -613,7 +615,7 @@ for (iTree in 1:40) {
       con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
              data [['period']]                           == iDate &
              data [['POS']]                              == 'B'   & 
-             data [['YEAR']]                             == 2017
+             data [['year']]                             == 2017
       
       # sum zonal cell wall area (mm2) for each period
       circumferentialData [['CWAat050']] [circumferentialData [['tree']]   == iTree &

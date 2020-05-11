@@ -72,11 +72,11 @@ allData <- right_join (respData, struData, by = c ('month', 'tree', 'height')) %
            right_join (nonsData, by = c ('month', 'tree', 'height')) %>%
            filter (month != 'july')
 
-# add treatment to the data
+# Add treatment to the data
 #----------------------------------------------------------------------------------------
 allData [['treatment']] <- allometricData [['treatment']] [allData [['tree']]]
 
-# change height for plotting symbol 
+# Change height for plotting symbol 
 #----------------------------------------------------------------------------------------
 allData <- filter (allData, !(height != 150 & treatment == 1))
 allData <- filter (allData, !(height %in% c (50, 150, 250) & treatment %in% 2:3))
@@ -411,7 +411,7 @@ legend (x = 50, y = 2.5,
         bg = 'transparent', box.lty = 0, pt.bg = c (tColours [['colour']] [1:2], 'white',tColours [['colour']] [3],'white', tColours [['colour']] [4], tColours [['colour']] [4],'white'))
 dev.off ()
 
-# create panel of three barplot for period changes 
+# Create panel of three barplot for period changes 
 #----------------------------------------------------------------------------------------
 png (filename = '../fig/Exp2017carbonDynamicsWithTotal.png', width = 1000, height = 400)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), width = c (1.3,1,1,1.3))
@@ -428,7 +428,7 @@ for (m in c ('august','october','november','total')) {
     dataPos <- cumulativeData %>% ungroup %>% 
                select (meanResp, meanSC, meanNSC, sdResp, sdSC, sdNSC)
   }
-  dataPos <- dataPos [c (1,3,2,5,4,7,8,6), ]
+  dataPos <- dataPos [c (1,5,4,7,8,6,3,2), ]
   dataNeg <- dataPos
   dataPos [dataPos < 0] <- 0
   dataNeg [dataNeg > 0] <- 0
@@ -446,26 +446,111 @@ for (m in c ('august','october','november','total')) {
            xlab ='', xlim = c (ifelse (m != 'total', -20, -34), ifelse (m!= 'total', 25, 37)), 
            ylim = c (0, 20.5), axes = F,
            border = 0, col = sColours [['colour']] [c (1, 3, 2)],
-           space = c (1,2,1,2,1,2,1,1), cex.axis = 1.5, cex = 1.5)
+           space = c (1,2,1,2,1,1,2,1), cex.axis = 1.5, cex = 1.5)
   arrows (x0 = dataPos [2, ] - error [['sdSC']], 
-          y0 = c (1.5, 4.5, 6.5, 9.5, 11.5, 14.5, 16.5, 18.5), 
+          y0 = c (1.5, 4.5, 6.5, 9.5, 11.5, 13.5, 16.5, 18.5), 
           x1 = dataPos [2, ] + error [['sdSC']],
           length = 0.05, code = 3, angle = 90, col = '#4e5b31')
   barplot (height = dataNeg, horiz = TRUE, add = TRUE,
            border = 0, col = sColours [['colour']] [c (1, 3, 2)],
-           space = c (1,2,1,2,1,2,1,1), axes = FALSE)
+           space = c (1,2,1,2,1,1,2,1), axes = FALSE)
   arrows (x0 = dataNeg [3, ] + dataNeg [1, ] - error [['sdResp']], 
-          y0 = c (1.5, 4.5, 6.5, 9.5, 11.5, 14.5, 16.5, 18.5), 
+          y0 = c (1.5, 4.5, 6.5, 9.5, 11.5, 13.5, 16.5, 18.5), 
           x1 = dataNeg [3, ] + dataNeg [1, ] + error [['sdResp']],
           length = 0.05, code = 3, angle = 90, col = '#be4d00')
   abline (v = 0, col = '#99999999', lwd = 1, lty = 2)
   axis (side = 1, cex.axis = 1.5)
   mtext (side = 1, line = 3, text = expression (paste (Delta, ' carbon (g)')))
   if (m == 'august') {
-    axis (side = 2, at = c (1.5, 4.5, 6.5, 9.5, 11.5, 14.5, 16.5, 18.5), las = 1,
-          labels = c ('C','B','A','B','A','B','M','A'), cex.axis = 1.5)
-    mtext (side = 2, line = 2.5, at = c(1.5, 5.5, 10.5, 16.5), 
-           text = c ('control','girdled','compressed','double \n compressed'))
+    axis (side = 2, at = c (1.5, 4.5, 6.5, 9.5, 11.5, 13.5, 16.5, 18.5), las = 1,
+          labels = c ('C','B','A','B','M','A','B','A'), cex.axis = 1.5)
+    mtext (side = 2, line = 2.5, at = c(1.5, 5.5, 11.5, 17.5), 
+           text = c ('control','compressed','double \n compressed','girdled'))
+    descriptor <- expression (paste (''))
+  } else if (m == 'october') {
+    descriptor <- expression (paste (''))
+  } else if (m == 'november') {
+    descriptor <- expression (paste (''))
+    # text (x = -13, y = 19, labels = 'respiratory loss', col = '#b35806', cex = 1.0)
+    # text (x =  10, y = 19, labels = 'growth', col = '#1b7837', cex = 1.0)
+    # text (x =  -8, y = 17.3, labels = expression (paste ('sugar')), col = '#542788', cex = 1.0)
+    # text (x =  -8, y = 15.7, labels = expression (paste ('starch')), col = '#b2abd2', cex = 1.0)
+  } else {
+    descriptor <- expression (paste (''))
+  }
+  text (x = -17, y = 20, pos = 4, labels = descriptor, col = '#003e74', cex = 2)
+  
+  # add line to separate the panels/plots
+  if (m != 'total') abline (v = 25, col = '#333333', lwd = 2)
+}
+# legend ('right', legend = c ('respiratory loss', expression (paste (delta, ' starch')), 
+#                              expression (paste (delta, ' sugar')),'growth'),
+#         fill = c ('#b35806','#542788','#b2abd2','#1b7837'), box.lty = 0, border = 0, 
+#         bg = 'transparent', cex = 0.8)
+dev.off ()
+
+# Create panel of three barplot for period changes 
+#----------------------------------------------------------------------------------------
+png (filename = '../fig/Exp2017carbonDynamicsAlongGradient.png', width = 1000, height = 400)
+layout (matrix (1:4, nrow = 1, byrow = TRUE), width = c (1.74,1,1,2.48))
+for (m in c ('august','october','november','total')) {
+  
+  # Check whether it is a single period or the cumulative total 
+  #----------------------------------------------------------------------------------------
+  if (m != 'total') {
+    # get two matrices, one for structural carbon gain
+    #----------------------------------------------------------------------------------------
+    dataPos <- summaryData %>% ungroup %>% filter (month == m) %>% 
+      select (meanResp, meanSC, meanNSC, sdResp, sdSC, sdNSC)  
+  } else {
+    dataPos <- cumulativeData %>% ungroup %>% 
+      select (meanResp, meanSC, meanNSC, sdResp, sdSC, sdNSC)
+  }
+  dataPos <- dataPos [c (3, 7, 5, 1, 8, 4, 6, 2), ]
+  dataNeg <- dataPos
+  dataPos [dataPos < 0] <- 0
+  dataNeg [dataNeg > 0] <- 0
+  
+  # switch order of rows and wrangle for barplot format
+  #----------------------------------------------------------------------------------------
+  error <- dataPos [, 6:4] / sqrt (10)
+  dataPos <- t (as.matrix (dataPos [, 3:1]))
+  dataNeg <- t (as.matrix (dataNeg [, 3:1]))
+  
+  # draw stacked barplot
+  #----------------------------------------------------------------------------------------
+  if (m == 'august') {
+    par (mar = c (5, 10, 2, 1))
+  } else if (m != 'total') {
+      par (mar = c (5, 1, 2, 1))
+  } else {
+    par (mar = c (5, 1, 2, 13))
+    }
+  barplot (height = dataPos, horiz = TRUE, 
+           xlab ='', xlim = c (ifelse (m != 'total', -20, -34), ifelse (m!= 'total', 25, 37)), 
+           ylim = c (0, 20), axes = F,
+           space = c (1, 1, 1, 2, 1, 2, 1, 1),
+           border = 0, col = sColours [['colour']] [c (1, 3, 2)],
+           cex.axis = 1.5, cex = 1.5)
+  arrows (x0 = dataPos [2, ] - error [['sdSC']], 
+          y0 = c (1.5, 3.5, 5.5, 8.5, 10.5, 13.5, 15.5, 17.5), 
+          x1 = dataPos [2, ] + error [['sdSC']],
+          length = 0.05, code = 3, angle = 90, col = '#4e5b31')
+  barplot (height = dataNeg, horiz = TRUE, add = TRUE,
+           border = 0, col = sColours [['colour']] [c (1, 3, 2)],
+           axes = FALSE, space = c (1, 1, 1, 2, 1, 2, 1, 1))
+  arrows (x0 = dataNeg [3, ] + dataNeg [1, ] - error [['sdResp']], 
+          y0 = c (1.5, 3.5, 5.5, 8.5, 10.5, 13.5, 15.5, 17.5), 
+          x1 = dataNeg [3, ] + dataNeg [1, ] + error [['sdResp']],
+          length = 0.05, code = 3, angle = 90, col = '#be4d00')
+  abline (v = 0, col = '#99999999', lwd = 1, lty = 2)
+  axis (side = 1, cex.axis = 1.5)
+  mtext (side = 1, line = 3, text = expression (paste (Delta, ' carbon (g)')))
+  if (m == 'august') {
+    axis (side = 2, at = c (1.5, 3.5, 5.5, 8.5, 10.5, 13.5, 15.5, 17.5), las = 1,
+          labels = c ('girdled','double \n compressed','compressed','control','double \n compressed','compressed','double \n compressed','girdled'), cex.axis = 1.5)
+    #mtext (side = 2, line = 2.5, at = c(1.5, 5.5, 10.5, 16.5), 
+    #       text = c ('control','girdled','compressed','double \n compressed'))
     descriptor <- expression (paste (''))
   } else if (m == 'october') {
     descriptor <- expression (paste (''))

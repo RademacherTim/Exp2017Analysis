@@ -40,18 +40,31 @@ summaryData <- data %>% filter (year == 2017) %>% group_by (treatment, height, p
 
 # Add the mean ring width at each point in time
 #-----------------------------------------------------------------------------------------
-temp1 <- data %>% filter (year == 2017) %>% group_by (treatment, height, tree, period) %>%
-  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% mutate (period = as_date (period))
-temp2 <- data %>% filter (year == 2017) %>% group_by (treatment, height, tree) %>%
-  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% add_column (period = as_date ('2017-08-09'), .before = 4)
-temp3 <- data %>% filter (year == 2017) %>% group_by (treatment, height, tree) %>%
-  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% add_column (period = as_date ('2017-10-09'), .before = 4)
-temp4 <- data %>% filter (year == 2017) %>% group_by (treatment, height, tree) %>%
-  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% add_column (period = as_date ('2017-11-03'), .before = 4)
-temp <- dplyr::union_all (temp1, temp2) %>% dplyr::union_all (temp3) %>% dplyr::union_all (temp4) %>% 
-  arrange (treatment, height, tree, period) %>% group_by (treatment, height, tree, period) %>% 
+temp1 <- data %>% filter (year == 2017) %>% 
+  group_by (treatment, height, tree, period) %>%
+  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% 
+  mutate (period = as_date (period))
+temp2 <- data %>% filter (year == 2017) %>% 
+  group_by (treatment, height, tree) %>%
+  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% 
+  add_column (period = as_date ('2017-08-09'), .before = 4)
+temp3 <- data %>% filter (year == 2017) %>% 
+  group_by (treatment, height, tree) %>%
+  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% 
+  add_column (period = as_date ('2017-10-09'), .before = 4)
+temp4 <- data %>% filter (year == 2017) %>% 
+  group_by (treatment, height, tree) %>%
+  summarise (maxRW = max (RADDISTR.BAND, na.rm = T)) %>% 
+  add_column (period = as_date ('2017-11-03'), .before = 4)
+temp <- dplyr::union_all (temp1, temp2) %>% 
+  dplyr::union_all (temp3) %>% dplyr::union_all (temp4) %>% 
+  arrange (treatment, height, tree, period) %>% 
+  group_by (treatment, height, tree, period) %>% 
   summarise (maxRW = min (maxRW, na.rm = TRUE)) %>% 
-  group_by (treatment, height, period) %>% summarise (meanRW = mean (maxRW, na.rm = TRUE), seRW = se (maxRW), nRW = sum (!is.na (maxRW))) 
+  group_by (treatment, height, period) %>% 
+  summarise (meanRW = mean (maxRW, na.rm = TRUE), 
+             seRW   = se (maxRW), 
+             nRW    = sum (!is.na (maxRW))) 
 
 summaryData <- cbind (summaryData, meanRW = temp [['meanRW']], seRW = temp [['seRW']])
 
@@ -75,7 +88,8 @@ summaryData <- mutate (summaryData,
                        seNCells  = se (meanNCells * incRW / 20),
                        cumNCells = cumsum (nCells)) 
 
-# Calculate cell wall area statistics (mean, standard error, and cumulative sum)
+# Calculate cell wall area statistics (mean increment for a radial file, its standard 
+# error, and cumulative sum)
 #----------------------------------------------------------------------------------------
 summaryData <- mutate (summaryData, 
                        incCWA   = nCells * meanCWA, 
@@ -116,7 +130,7 @@ thres <- 25 # Equates at least 25 20-micron wide sectors or an average growth of
 #----------------------------------------------------------------------------------------
 png ('../fig/Exp2017RingWidthOverDateAdjusted.png', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
-for (i in 1:4) {
+for (i in c (1,3,4,2)) {
   par (mgp = c (3, 1, 0))
   
   # Determine the panel name
@@ -144,14 +158,14 @@ for (i in 1:4) {
   }
   con1 <- summaryData [['treatment']] == 1
   plot (x = summaryData [['period']] [con1],
-        y = summaryData [['meanRW']] [con1] * summaryData [['adjRatioRW']] [con], 
-        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 3000), axes = FALSE, 
+        y = summaryData [['meanRW']] [con1] * summaryData [['adjRatioRW']] [con] / 1000.0, 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 3), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = ifelse (i == 1, 3, 2), 
         col = ifelse (i == 1, tColours [['colour']] [1], '#999999'), cex.lab = 1.8)
   polygon (x = c (summaryData [['period']] [con1], 
                   rev (summaryData [['period']] [con1])),
-           y = c (summaryData [['meanRW']] [con1] * summaryData [['adjRatioRW']] [con] - summaryData [['seRW']] [con1], 
-                  rev (summaryData [['meanRW']] [con1] * summaryData [['adjRatioRW']] [con] + summaryData [['seRW']] [con1])),
+           y = c ((summaryData [['meanRW']] [con1] * summaryData [['adjRatioRW']] [con] - summaryData [['seRW']] [con1]) / 1000.0, 
+                  rev ((summaryData [['meanRW']] [con1] * summaryData [['adjRatioRW']] [con] + summaryData [['seRW']] [con1]) / 1000.0)),
            col = addOpacity (ifelse (i == 1, tColours [['colour']] [1], '#999999'), ifelse (i == 1, 0.3, 0.2)), 
                              lty = 0)
   # Add  line to separate panels
@@ -173,8 +187,8 @@ for (i in 1:4) {
     
     # Add legend 
     #----------------------------------------------------------------------------------------
-    legend (x = as_date ('2017-07-20'), y = 2900, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
-            legend = c ('control','above','middle','below'), col = '#999999', 
+    legend (x = as_date ('2017-07-20'), y = 2900, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
+            legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)),  
             bg = 'transparent', cex = 2)
   }
   
@@ -192,11 +206,11 @@ for (i in 1:4) {
              summaryData [['height']] == h
       polygon (x = c (summaryData [['period']] [con],
                       rev (summaryData [['period']] [con])),
-               y = c (summaryData [['meanRW']] [con] - summaryData [['seRW']] [con],
-                      rev (summaryData [['meanRW']] [con] + summaryData [['seRW']] [con])),
+               y = c ((summaryData [['meanRW']] [con] - summaryData [['seRW']] [con]) / 1000.0,
+                      rev ((summaryData [['meanRW']] [con] + summaryData [['seRW']] [con]) / 1000.0)),
                col = addOpacity (tColours [['colour']] [i], 0.3), lty = 0)
       lines (x = summaryData [['period']] [con],
-             y = summaryData [['meanRW']] [con],
+             y = summaryData [['meanRW']] [con] / 1000.0,
              col = tColours [['colour']] [i], lwd = 3, 
              lty = ifelse (h == 'A', 2, ifelse (h == 'B', 3, 4)))
     }
@@ -204,7 +218,7 @@ for (i in 1:4) {
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 3000, pos = 4, labels = descriptor, cex = 2.7, 
+  text (x = as_date ('2017-06-20'), y = 3, pos = 4, labels = descriptor, cex = 2.7, 
         col = '#333333')
 
 }
@@ -214,7 +228,7 @@ dev.off ()
 #----------------------------------------------------------------------------------------
 png ('../fig/Exp2017CellNumberOverDateAdjusted.png', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
-for (i in 1:4) {
+for (i in c (1,3,4,2)) {
   par (mgp = c (3, 1, 0))
   
   # Determine the panel name
@@ -272,8 +286,8 @@ for (i in 1:4) {
     
     # Add legend 
     #----------------------------------------------------------------------------------------
-    legend (x = as_date ('2017-07-20'), y = 25, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
-            legend = c ('control','above','middle','below'), col = '#999999', 
+    legend (x = as_date ('2017-07-20'), y = 30, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
+            legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
             bg = 'transparent', cex = 2)
   }
   
@@ -313,7 +327,7 @@ dev.off ()
 #----------------------------------------------------------------------------------------
 png ('../fig/Exp2017CellSizeOverDateAdjusted.png', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
-for (i in 1:4) {
+for (i in c (1,3,4,2)) {
   
   # Determine the panel name
   #--------------------------------------------------------------------------------------
@@ -365,12 +379,12 @@ for (i in 1:4) {
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 6, cex = 1.5, 'mean radial cell diameter (microns)')
+    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('mean radial cell diameter (',mu,m,')')))
     
     # Add legend 
     #----------------------------------------------------------------------------------------
-    legend (x = as_date ('2017-07-20'), y = 48, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
-            legend = c ('control','above','middle','below'), col = '#999999', 
+    legend (x = as_date ('2017-07-20'), y = 48, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
+            legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
             bg = 'transparent', cex = 2)
   }
   
@@ -413,7 +427,7 @@ dev.off ()
 #----------------------------------------------------------------------------------------
 png ('../fig/Exp2017CellWallThicknessOverDate.png', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
-for (i in 1:4) {
+for (i in c (1,3,4,2)) {
   
   # Determine the panel name
   #--------------------------------------------------------------------------------------
@@ -460,12 +474,12 @@ for (i in 1:4) {
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 6, cex = 1.5, 'mean cell wall thickness (microns)')
+    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('mean cell wall thickness (',mu,m,')')))
     
     # Add legend 
     #----------------------------------------------------------------------------------------
-    legend (x = as_date ('2017-07-20'), y = 3, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
-            legend = c ('control','above','middle','below'), col = '#999999', 
+    legend (x = as_date ('2017-07-20'), y = 3, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
+            legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
             bg = 'transparent', cex = 2)
   }
   
@@ -505,7 +519,7 @@ dev.off ()
 #----------------------------------------------------------------------------------------
 png ('../fig/Exp2017CellWallAreaOverDateAdjusted.png', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
-for (i in 1:4) {
+for (i in c (1,3,4,2)) {
   
   # Determine the panel name
   #--------------------------------------------------------------------------------------
@@ -557,12 +571,12 @@ for (i in 1:4) {
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('mean cell wall area (',microns^2,')')))
+    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('mean cell wall area (',mu,m^2,')')))
     
     # Add legend 
     #----------------------------------------------------------------------------------------
-    legend (x = as_date ('2017-07-20'), y = 375, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
-            legend = c ('control','above','middle','below'), col = '#999999', 
+    legend (x = as_date ('2017-07-20'), y = 375, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
+            legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
             bg = 'transparent', cex = 2)
   }
   
@@ -604,7 +618,7 @@ dev.off ()
 #----------------------------------------------------------------------------------------
 png ('../fig/Exp2017CumulativeCellWallAreaOverDateAdjusted.png', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
-for (i in 1:4) {
+for (i in c (1,3,4,2)) {
   
   # Determine the panel name
   #--------------------------------------------------------------------------------------
@@ -657,12 +671,12 @@ for (i in 1:4) {
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('cumulative cell wall area (',microns^2,')')))
+    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('cumulative cell wall area (',mu,m^2,')')))
     
     # Add legend 
     #----------------------------------------------------------------------------------------
-    legend (x = as_date ('2017-07-20'), y = 12500, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
-            legend = c ('control','above','middle','below'), col = '#999999', 
+    legend (x = as_date ('2017-07-20'), y = 12500, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
+            legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
             bg = 'transparent', cex = 2)
   }
   
@@ -706,7 +720,7 @@ par (mar = c (5, 5, 1, 0))
 con <- data [['tree']] == 1 & data [['year']] == 2017
 plot (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
       y = rollmean (data [['CWTALL']] [con], 5), axes = FALSE, typ = 'l', lwd = 0.5,
-      xlab = 'radial distance (microns)', ylab = expression (paste ('cell wall thickness (',microns**2,')')),
+      xlab = expression (paste ('radial distance (',mu,m,')')), ylab = expression (paste ('cell wall thickness (',mu, m**2,')')),
       xlim = c (0, 3300), ylim = c (0, 8), col = tColours [['colour']] [1])
 axis (side = 1, at = seq (0, 3200, by = 800), cex.lab = 1.5); axis (side = 2, las = 1, cex = 1.5)
 for (i in c (3, 4, 6, 7, 9, 18, 30, 31, 36)){
@@ -738,8 +752,8 @@ par (mar = c (5, 0, 1, 0))
 con <- data [['tree']] == 5 & data [['year']] == 2017 & data [['height']] == 'A'
 plot (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
       y = rollmean (data [['CWTALL']] [con], 5), axes = FALSE, typ = 'l', lwd = 0.5,
-      xlab = 'radial distance (microns)', 
-      ylab = expression (paste ('cell wall thickness (',microns**2,')')),
+      xlab = expression (paste ('radial distance (',mu, m,')')), 
+      ylab = expression (paste ('cell wall thickness (',mu, m**2,')')),
       xlim = c (0, 3300), ylim = c (0, 8), col = tColours [['colour']] [2])
 axis (side = 1, at = seq (0, 3200, by = 800), cex.lab = 1.5)
 for (i in c (11, 15, 16, 19, 23, 29, 35, 39, 40)){
@@ -779,8 +793,8 @@ par (mar = c (5, 0, 1, 0))
 con <- data [['tree']] == 10 & data [['year']] == 2017 & data [['height']] == 'A'
 plot (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
       y = rollmean (data [['CWTALL']] [con], 5), axes = FALSE, typ = 'l', lwd = 0.5,
-      xlab = 'radial distance (microns)', 
-      ylab = expression (paste ('cell wall thickness (',microns**2,')')),
+      xlab = expression (paste ('radial distance (',mu,')')), 
+      ylab = expression (paste ('cell wall thickness (',mu, m**2,')')),
       xlim = c (0, 3300), ylim = c (0, 8), col = tColours [['colour']] [3])
 axis (side = 1, at = seq (0, 3200, by = 800), cex.lab = 1.5)
 for (i in c (10,12,13,17,20,21,28,32,33,38)){
@@ -820,8 +834,8 @@ par (mar = c (5, 0, 1, 0))
 con <- data [['tree']] == 2 & data [['year']] == 2017 & data [['height']] == 'A'
 plot (x = rollmean (data [['RADDISTR.BAND']] [con], 5),
       y = rollmean (data [['CWTALL']] [con], 5), axes = FALSE, typ = 'l', lwd = 0.5,
-      xlab = 'radial distance (microns)', 
-      ylab = expression (paste ('cell wall thickness (',microns**2,')')),
+      xlab = expression (paste ('radial distance (',mu, m,')')), 
+      ylab = expression (paste ('cell wall thickness (',mu, m**2,')')),
       xlim = c (0, 3300), ylim = c (0, 8), col = tColours [['colour']] [4])
 axis (side = 1, at = seq (0, 3200, by = 800), cex.lab = 1.5)
 for (i in c (8,14,22,24,25,26,27,34,37)){
@@ -862,8 +876,8 @@ for (h in c ('A','M','B')) {
 text (x = 0, y = 8, labels = 'double compressed', cex = 2, pos = 4, col = '#333333')
 
 # add legend 
-legend (x = 1900, y = 1.2, box.lty = 0, lwd = 2, lty = c (1, 1, 3, 2), 
-        legend = c ('control','above','middle','below'), col = '#999999', 
+legend (x = 1900, y = 1.2, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
+        legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
         bg = 'transparent')
 dev.off ()
 

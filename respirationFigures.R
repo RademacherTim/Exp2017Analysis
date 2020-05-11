@@ -78,7 +78,7 @@ PLOT <- TRUE; if (PLOT) {
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   axis (side = 2, cex.axis = 2.2, las = 1)
-  mtext (side = 2, line = 4, cex = 1.5, expression (paste (CO[2],' efflux (',mu,' mol ',s^-1, m^-2,')')))
+  mtext (side = 2, line = 4, cex = 1.5, expression (paste (CO[2],' efflux (',mu,'mol ',s^-1, m^-2,')')))
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
@@ -91,62 +91,9 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add legend 
   #----------------------------------------------------------------------------------------
-  legend (x = as_date ('2017-07-20'), y = 5.1, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
-          legend = c ('control','above','middle','below'), col = '#999999', 
+  legend (x = as_date ('2017-07-20'), y = 5.1, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
+          legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
           bg = 'transparent', cex = 2)
-  
-  # Add panel of the girdled trees
-  #----------------------------------------------------------------------------------------
-  par (mar = c (5, 0, 1, 0))
-  con <- summaryData [['treatment']] == 1
-  plot (x = summaryData [['date']] [con],
-        y = summaryData [['meanResp']] [con], 
-        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 5.5), axes = FALSE, 
-        xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
-  polygon (x = c (summaryData [['date']] [con], 
-                  rev (summaryData [['date']] [con])),
-           y = c (summaryData [['meanResp']] [con] - summaryData [['seResp']] [con], 
-                  rev (summaryData [['meanResp']] [con] + summaryData [['seResp']] [con])),
-           col = addOpacity ('#999999', 0.2), lty = 0)
-  # Add critical dates
-  #--------------------------------------------------------------------------------------
-  return <- criticalDates ('girdled') 
-  
-  # Add  line to separate panels
-  #----------------------------------------------------------------------------------------
-  abline (v = as_date ('2017-11-15'), col = '#999999')
-  
-  # Add girdled trees
-  #----------------------------------------------------------------------------------------
-  con <- summaryData [['treatment']] == 2 & summaryData [['chamber']] == 2
-  polygon (x = c (summaryData [['date']] [con], 
-                  rev (summaryData [['date']] [con])),
-           y = c (summaryData [['meanResp']] [con] - summaryData [['seResp']] [con], 
-                  rev (summaryData [['meanResp']] [con] + summaryData [['seResp']] [con])),
-           col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
-  lines (x = summaryData [['date']] [con], 
-         y = summaryData [['meanResp']] [con],
-         col = tColours [['colour']] [2], lwd = 3, lty = 2)
-  con <- summaryData [['treatment']] == 2 & summaryData [['chamber']] == 1
-  polygon (x = c (summaryData [['date']] [con], 
-                  rev (summaryData [['date']] [con])),
-           y = c (summaryData [['meanResp']] [con] - summaryData [['seResp']] [con], 
-                  rev (summaryData [['meanResp']] [con] + summaryData [['seResp']] [con])),
-           col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
-  lines (x = summaryData [['date']] [con], 
-         y = summaryData [['meanResp']] [con],
-         col = tColours [['colour']] [2], lwd = 3, lty = 3)
-  
-  # Add axis
-  #----------------------------------------------------------------------------------------
-  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
-        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
-        cex.axis = 2.2, mgp = c (3, 2, 0))
-  
-  # Add panel descriptor
-  #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = 'girdled', cex = 2.8, 
-        col = '#333333')
   
   # Add panel of the compressed trees
   #----------------------------------------------------------------------------------------
@@ -216,6 +163,10 @@ PLOT <- TRUE; if (PLOT) {
                   rev (summaryData [['meanResp']] [con] + summaryData [['seResp']] [con])),
            col = addOpacity ('#999999', 0.2), lty = 0)
   
+  # Add  line to separate panels
+  #----------------------------------------------------------------------------------------
+  abline (v = as_date ('2017-11-15'), col = '#999999')
+  
   # Add critical dates
   #--------------------------------------------------------------------------------------
   return <- criticalDates ('double compressed') 
@@ -260,6 +211,56 @@ PLOT <- TRUE; if (PLOT) {
   #----------------------------------------------------------------------------------------
   text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = 'double compressed', cex = 2.8, 
         col = '#333333')
+  
+  # Add panel of the girdled trees
+  #----------------------------------------------------------------------------------------
+  par (mar = c (5, 0, 1, 1))
+  con <- summaryData [['treatment']] == 1
+  plot (x = summaryData [['date']] [con],
+        y = summaryData [['meanResp']] [con], 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 5.5), axes = FALSE, 
+        xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
+  polygon (x = c (summaryData [['date']] [con], 
+                  rev (summaryData [['date']] [con])),
+           y = c (summaryData [['meanResp']] [con] - summaryData [['seResp']] [con], 
+                  rev (summaryData [['meanResp']] [con] + summaryData [['seResp']] [con])),
+           col = addOpacity ('#999999', 0.2), lty = 0)
+  # Add critical dates
+  #--------------------------------------------------------------------------------------
+  return <- criticalDates ('girdled') 
+  
+  # Add girdled trees
+  #----------------------------------------------------------------------------------------
+  con <- summaryData [['treatment']] == 2 & summaryData [['chamber']] == 2
+  polygon (x = c (summaryData [['date']] [con], 
+                  rev (summaryData [['date']] [con])),
+           y = c (summaryData [['meanResp']] [con] - summaryData [['seResp']] [con], 
+                  rev (summaryData [['meanResp']] [con] + summaryData [['seResp']] [con])),
+           col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
+  lines (x = summaryData [['date']] [con], 
+         y = summaryData [['meanResp']] [con],
+         col = tColours [['colour']] [2], lwd = 3, lty = 2)
+  con <- summaryData [['treatment']] == 2 & summaryData [['chamber']] == 1
+  polygon (x = c (summaryData [['date']] [con], 
+                  rev (summaryData [['date']] [con])),
+           y = c (summaryData [['meanResp']] [con] - summaryData [['seResp']] [con], 
+                  rev (summaryData [['meanResp']] [con] + summaryData [['seResp']] [con])),
+           col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
+  lines (x = summaryData [['date']] [con], 
+         y = summaryData [['meanResp']] [con],
+         col = tColours [['colour']] [2], lwd = 3, lty = 3)
+  
+  # Add axis
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
+        cex.axis = 2.2, mgp = c (3, 2, 0))
+  
+  # Add panel descriptor
+  #----------------------------------------------------------------------------------------
+  text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = 'girdled', cex = 2.8, 
+        col = '#333333')
+  
   dev.off  ()
 }
 
@@ -293,7 +294,7 @@ PLOT <- TRUE; if (PLOT) {
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   axis (side = 2, cex.axis = 2.2, las = 1)
-  mtext (side = 2, line = 4, cex = 1.5, expression (paste (CO[2],' efflux (',mu,' mol ',s^-1, m^-2,')')))
+  mtext (side = 2, line = 4, cex = 1.5, expression (paste (CO[2],' efflux (',mu,'mol ',s^-1, m^-2,')')))
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
@@ -306,14 +307,14 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add legend 
   #----------------------------------------------------------------------------------------
-  legend (x = as_date ('2017-07-20'), y = 5.1, box.lty = 0, lwd = 3, lty = c (1, 2, 4, 3), 
-          legend = c ('control','above','middle','below'), col = '#999999', 
+  legend (x = as_date ('2017-07-20'), y = 5.1, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
+          legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)),  
           bg = 'transparent', cex = 2)
   
-  # Add panel of the girdled trees
+  # Add panel of the compressed trees
   #----------------------------------------------------------------------------------------
   par (mar = c (5, 0, 1, 0))
-  con <- summaryData [['treatment']] == 2 & summaryData [['chamber']] == 2
+  con <- summaryData [['treatment']] == 3 & summaryData [['chamber']] == 2
   plot (x = summaryData [['date']] [con1],
         y = summaryData [['meanResp']] [con1] * rep (unique (summaryData [['adjRatio']] [con]), 20), 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 5.5), axes = FALSE, 
@@ -323,59 +324,7 @@ PLOT <- TRUE; if (PLOT) {
            y = c (summaryData [['meanResp']] [con1] * rep (unique (summaryData [['adjRatio']] [con]), 20) - summaryData [['seResp']] [con1], 
                   rev (summaryData [['meanResp']] [con1] * rep (unique (summaryData [['adjRatio']] [con]), 20) + summaryData [['seResp']] [con1])),
            col = addOpacity ('#999999', 0.2), lty = 0)
-  # Add critical dates
-  #--------------------------------------------------------------------------------------
-  return <- criticalDates ('girdled') 
-  
-  # Add  line to separate panels
-  #----------------------------------------------------------------------------------------
-  abline (v = as_date ('2017-11-15'), col = '#999999')
-  
-  # Add girdled trees
-  #----------------------------------------------------------------------------------------
-  polygon (x = c (summaryData [['date']] [con], 
-                  rev (summaryData [['date']] [con])),
-           y = c (summaryData [['meanResp']] [con] - summaryData [['seResp']] [con], 
-                  rev (summaryData [['meanResp']] [con] + summaryData [['seResp']] [con])),
-           col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
-  lines (x = summaryData [['date']] [con], 
-         y = summaryData [['meanResp']] [con],
-         col = tColours [['colour']] [2], lwd = 3, lty = 2)
-  con <- summaryData [['treatment']] == 2 & summaryData [['chamber']] == 1
-  polygon (x = c (summaryData [['date']] [con], 
-                  rev (summaryData [['date']] [con])),
-           y = c (summaryData [['meanResp']] [con] - summaryData [['seResp']] [con], 
-                  rev (summaryData [['meanResp']] [con] + summaryData [['seResp']] [con])),
-           col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
-  lines (x = summaryData [['date']] [con], 
-         y = summaryData [['meanResp']] [con],
-         col = tColours [['colour']] [2], lwd = 3, lty = 3)
-  
-  # Add axis
-  #----------------------------------------------------------------------------------------
-  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
-        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
-        cex.axis = 2.2, mgp = c (3, 2, 0))
-  
-  # Add panel descriptor
-  #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = 'girdled', cex = 2.8, 
-        col = '#333333')
-  
-  # Add panel of the compressed trees
-  #----------------------------------------------------------------------------------------
-  par (mar = c (5, 0, 1, 0))
-  con <- summaryData [['treatment']] == 3 & summaryData [['chamber']] == 2
-  plot (x = summaryData [['date']] [con1],
-        y = summaryData [['meanResp']] [con1] * summaryData [['adjRatio']] [con], 
-        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 5.5), axes = FALSE, 
-        xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
-  polygon (x = c (summaryData [['date']] [con1], 
-                  rev (summaryData [['date']] [con1])),
-           y = c (summaryData [['meanResp']] [con1] * summaryData [['adjRatio']] [con] - summaryData [['seResp']] [con1], 
-                  rev (summaryData [['meanResp']] [con1] * summaryData [['adjRatio']] [con] + summaryData [['seResp']] [con1])),
-           col = addOpacity ('#999999', 0.2), lty = 0)
-  
+
   # Add critical dates
   #--------------------------------------------------------------------------------------
   return <- criticalDates ('compressed') 
@@ -472,6 +421,61 @@ PLOT <- TRUE; if (PLOT) {
   #----------------------------------------------------------------------------------------
   text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = 'double compressed', cex = 2.8, 
         col = '#333333')
+
+  
+  # Add  line to separate panels
+  #----------------------------------------------------------------------------------------
+  abline (v = as_date ('2017-11-15'), col = '#999999')
+  
+  # Add panel of the girdled trees
+  #----------------------------------------------------------------------------------------
+  par (mar = c (5, 0, 1, 0))
+  con <- summaryData [['treatment']] == 2 & summaryData [['chamber']] == 2
+  plot (x = summaryData [['date']] [con1],
+        y = summaryData [['meanResp']] [con1] * summaryData [['adjRatio']] [con], 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 5.5), axes = FALSE, 
+        xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
+  polygon (x = c (summaryData [['date']] [con1], 
+                  rev (summaryData [['date']] [con1])),
+           y = c (summaryData [['meanResp']] [con1] * summaryData [['adjRatio']] [con] - summaryData [['seResp']] [con1], 
+                  rev (summaryData [['meanResp']] [con1] * summaryData [['adjRatio']] [con] + summaryData [['seResp']] [con1])),
+           col = addOpacity ('#999999', 0.2), lty = 0)
+  
+  # Add girdled trees
+  #----------------------------------------------------------------------------------------
+  polygon (x = c (summaryData [['date']] [con], 
+                  rev (summaryData [['date']] [con])),
+           y = c (summaryData [['meanResp']] [con] - summaryData [['seResp']] [con], 
+                  rev (summaryData [['meanResp']] [con] + summaryData [['seResp']] [con])),
+           col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
+  lines (x = summaryData [['date']] [con], 
+         y = summaryData [['meanResp']] [con],
+         col = tColours [['colour']] [2], lwd = 3, lty = 2)
+  con <- summaryData [['treatment']] == 2 & summaryData [['chamber']] == 1
+  polygon (x = c (summaryData [['date']] [con], 
+                  rev (summaryData [['date']] [con])),
+           y = c (summaryData [['meanResp']] [con] - summaryData [['seResp']] [con], 
+                  rev (summaryData [['meanResp']] [con] + summaryData [['seResp']] [con])),
+           col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
+  lines (x = summaryData [['date']] [con], 
+         y = summaryData [['meanResp']] [con],
+         col = tColours [['colour']] [2], lwd = 3, lty = 3)
+  
+  # Add axis
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
+        cex.axis = 2.2, mgp = c (3, 2, 0))
+  
+  # Add panel descriptor
+  #----------------------------------------------------------------------------------------
+  text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = 'girdled', cex = 2.8, 
+        col = '#333333')
+  
+  # Add critical dates
+  #--------------------------------------------------------------------------------------
+  return <- criticalDates ('compressed') 
+  
   dev.off  ()
 }
 #========================================================================================
