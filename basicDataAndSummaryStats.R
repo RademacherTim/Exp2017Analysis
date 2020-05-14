@@ -5,10 +5,12 @@
 # Load dependencies
 #----------------------------------------------------------------------------------------
 library ('ggpubr')
+library ('tidyverse')
+library ('readxl')
 
 # Get the tree measurements of circumference from spreadsheet
 #----------------------------------------------------------------------------------------
-allometricData <- read_excel (path = '/media/TREE/PlantGrowth/data/allometry/allometricDataExp2017.xlsx', 
+allometricData <- read_excel (path = '/media/tim/dataDisk/PlantGrowth/data/allometry/Exp2017/allometricDataExp2017.xlsx', 
                               sheet = 'allometricData', 
                               na = "NA")
 
@@ -30,22 +32,23 @@ group_by (allometricData [allometricData [['tree']] != 41, ], group) %>% summari
 
 # Plot diameter by group
 #----------------------------------------------------------------------------------------
-ggboxplot (allometricData [allometricData [['tree']] != 41, ], 
-           x = 'group', y = 'dbh150', color = 'group',
-           palette = colours, ylab  = 'diameter at breast height (cm)', xlab ='treatment')
-ggline (allometricData [allometricData [['tree']] != 41, ], 
-        x = 'group', y = 'dbh150', color = 'group',
-        add = c ('mean_se', 'jitter'), palette = colours,
-        ylab  = 'diameter at breast height (cm)', xlab ='treatment')
+# ggboxplot (data = filter (allometricData, tree != 41), 
+#            x = 'group', y = 'dbh150', color = 'group',
+#            palette = colours, ylab  = 'diameter at breast height (cm)', xlab ='treatment')
+# ggline (data = filter (allometricData, tree != 41), 
+#         x = 'group', y = 'dbh150', color = 'group',
+#         add = c ('mean_se', 'jitter'), palette = colours,
+#         ylab  = 'diameter at breast height (cm)', xlab ='treatment')
+
 # Plot height by group
 #----------------------------------------------------------------------------------------
-ggboxplot (allometricData [allometricData [['tree']] != 41, ], 
-           x = 'group', y = 'treeHeight2017', color = 'group',
-           palette = colours, ylab  = 'tree height (m)', xlab ='treatment')
-ggline (allometricData [allometricData [['tree']] != 41, ], 
-        x = 'group', y = 'treeHeight2017', color = 'group',
-        add = c ('mean_se', 'jitter'), palette = colours,
-        ylab  = 'tree height (m)', xlab ='treatment')
+# ggboxplot (filter (allometricData, tree != 41), 
+#            x = 'group', y = 'treeHeight2017', color = 'group',
+#            palette = colours, ylab  = 'tree height (m)', xlab ='treatment')
+# ggline (filter (allometricData, tree != 41), 
+#         x = 'group', y = 'treeHeight2017', color = 'group',
+#         add = c ('mean_se', 'jitter'), palette = colours,
+#         ylab  = 'tree height (m)', xlab ='treatment')
 
 # Check for difference in dbh between treatment groups
 #----------------------------------------------------------------------------------------
@@ -69,7 +72,7 @@ sd (allometricData [['treeHeight2017']] [allometricData [['tree']] != 41])
 
 # switch to directory with increment core measuremnts
 #----------------------------------------------------------------------------------------
-setwd ('/home/trademacehr/projects/PlantGrowth/data/incrementCores/ringWidths/Exp2017/')
+setwd ('/media/tim/dataDisk/PlantGrowth/data/incrementCores/ringWidths/Exp2017/')
 
 # make list of files in directory
 #----------------------------------------------------------------------------------------
@@ -118,20 +121,28 @@ for (i in 1:40) {
                              growth = temp [['growth']] [r])
   }
 }
-# delete first row, which was just a dummy
+# Delete first row, which was just a dummy
+#----------------------------------------------------------------------------------------
 annRadGroInc <- annRadGroInc [-1, ]
 
-# delete rows where growth equals 0
+# Delete rows where growth equals 0
+#----------------------------------------------------------------------------------------
 annRadGroInc <- filter (annRadGroInc, growth != 0)
 
-# calculate mean five-year growth
-mean (annRadGroInc [['growth']] [annRadGroInc [['year']] > 2012 & 
+# Calculate mean five-year growth
+#----------------------------------------------------------------------------------------
+# mean (annRadGroInc [['growth']] [annRadGroInc [['year']] > 2008 & 
+#                                    annRadGroInc [['year']] <= 2012], na.rm = TRUE)
+# sd (annRadGroInc [['growth']] [annRadGroInc [['year']] > 2008 & 
+#                                  annRadGroInc [['year']] <= 2012], na.rm = TRUE)
+mean (annRadGroInc [['growth']] [annRadGroInc [['year']] > 2013 & 
                                  annRadGroInc [['year']] <= 2017], na.rm = TRUE)
-sd (annRadGroInc [['growth']] [annRadGroInc [['year']] > 2012 & 
+sd (annRadGroInc [['growth']] [annRadGroInc [['year']] > 2013 & 
                                annRadGroInc [['year']] <= 2017], na.rm = TRUE)
 
 
-# spaghetti plot with all trees
+# Spaghetti plot with all trees
+#----------------------------------------------------------------------------------------
 par (mar = c (5, 5, 1, 1), mfrow = c (1, 1))
 plot (x = annRadGroInc [['year']] [annRadGroInc [['profile']] == 1 & 
                                      annRadGroInc [['tree']] == 1],
@@ -148,4 +159,9 @@ lines (x = annRadGroInc [['year']] [annRadGroInc [['profile']] == 2 &
                                     annRadGroInc [['tree']]    == i],
        y = annRadGroInc [['growth']] [annRadGroInc [['profile']] == 2 & 
                                       annRadGroInc [['tree']]    == i], lty = 2)
+
+# Check whether radial growth was different between groups asigned to treatements
+#----------------------------------------------------------------------------------------
+res.aov <- aov (growth ~ treatment, data = filter (annRadGroInc, year >= 2013))
+summary (res.aov)
 #========================================================================================
