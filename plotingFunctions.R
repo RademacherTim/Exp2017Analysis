@@ -12,6 +12,10 @@ se <-  function (x) {
   sd (x, na.rm = TRUE) / sqrt (sum (!is.na (x)))
 }
 
+# Create %notin% operator
+#----------------------------------------------------------------------------------------
+`%notin%` <- Negate (`%in%`)
+
 # set colours for treatments: control, girdled, compressed, double compressed and chilled
 #----------------------------------------------------------------------------------------
 tColours <- tibble (colour = c ('#91b9a4','#C0334D','#F18904','#5C4A72','#23345C'),
