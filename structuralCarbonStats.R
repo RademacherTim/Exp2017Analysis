@@ -265,7 +265,7 @@ cellNumber <- cellNumber [-1, ]
 #----------------------------------------------------------------------------------------
 cellNumber <- pivot_longer (cellNumber, cols = c (nTotal, nJul, nAug, nOct, nNov), 
                             values_to = 'n')
-cellNumber <- add_row (cellNumber, period = NA)
+cellNumber <- add_column (cellNumber, period = NA)
 cellNumber [['period']] [cellNumber [['name']] == 'nJul'] <- as_date ('2017-07-03')
 cellNumber [['period']] [cellNumber [['name']] == 'nAug'] <- as_date ('2017-08-09')
 cellNumber [['period']] [cellNumber [['name']] == 'nOct'] <- as_date ('2017-10-09')
@@ -684,7 +684,7 @@ M9.1 <- lmer (formula = CWA ~ (1 | tree) + factor (period) + factor (period):tre
               REML = TRUE)
 summary (M9.1)
 
-# Change date, tree, treatment, and height to factors
+  # Change date, tree, treatment, and height to factors
 treeCWA [['date']]      <- factor (treeCWA [['date']])
 treeCWA [['tree']]      <- factor (treeCWA [['tree']])
 treeCWA [['treatment']] <- factor (treeCWA [['treatment']])
