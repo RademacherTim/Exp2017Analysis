@@ -189,7 +189,7 @@ for (i in c (1,3,4,2)) {
     #----------------------------------------------------------------------------------------
     legend (x = as_date ('2017-07-20'), y = 2900, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
             legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)),  
-            bg = 'transparent', cex = 2)
+            bg = 'transparent', cex = 2.5)
   }
   
   # Add treatment group mean and standard error
@@ -288,7 +288,7 @@ for (i in c (1,3,4,2)) {
     #----------------------------------------------------------------------------------------
     legend (x = as_date ('2017-07-20'), y = 30, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
             legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
-            bg = 'transparent', cex = 2)
+            bg = 'transparent', cex = 2.3)
   }
   
   # Add treatment group mean and standard error
@@ -385,7 +385,7 @@ for (i in c (1,3,4,2)) {
     #----------------------------------------------------------------------------------------
     legend (x = as_date ('2017-07-20'), y = 48, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
             legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
-            bg = 'transparent', cex = 2)
+            bg = 'transparent', cex = 2.3)
   }
   
   # Add treatment group mean and standard error
@@ -480,7 +480,7 @@ for (i in c (1,3,4,2)) {
     #----------------------------------------------------------------------------------------
     legend (x = as_date ('2017-07-20'), y = 3, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
             legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
-            bg = 'transparent', cex = 2)
+            bg = 'transparent', cex = 2.3)
   }
   
   # Add treatment group mean and standard error
@@ -575,9 +575,9 @@ for (i in c (1,3,4,2)) {
     
     # Add legend 
     #----------------------------------------------------------------------------------------
-    legend (x = as_date ('2017-07-20'), y = 375, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
+    legend (x = as_date ('2017-07-20'), y = 410, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
             legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
-            bg = 'transparent', cex = 2)
+            bg = 'transparent', cex = 2.3)
   }
   
   # Add treatment group mean and standard error
@@ -675,9 +675,9 @@ for (i in c (1,3,4,2)) {
     
     # Add legend 
     #----------------------------------------------------------------------------------------
-    legend (x = as_date ('2017-07-20'), y = 12500, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
+    legend (x = as_date ('2017-07-20'), y = 14000, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
             legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
-            bg = 'transparent', cex = 2)
+            bg = 'transparent', cex = 2.3)
   }
   
   # Add treatment group mean and standard error
