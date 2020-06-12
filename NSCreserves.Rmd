@@ -11,6 +11,7 @@ csl: "/home/tim/projects/PlantGrowth/bib/harvard.csl"
 knitr::opts_chunk$set(echo = TRUE)
 library ('tidyverse')
 library ('readxl')
+options (warn = -1)
 ```
 
 ## Calculating nonstructural carbon reserves for the 2017 experiment at Harvard Forest
@@ -31,7 +32,7 @@ The mass of a hollow cylinder representing the outter most centimeter of materia
 $$
 M_{i} = V_{i} \times \rho_{w} =  \pi \times h \times \rho_{w} \Big (\Big (\frac {cbh_{i}}{2 \pi}\Big)^2 - \Big (\frac {cbh_{i}}{2 \pi} - 0.01\Big)^2 \Big)
 $$
-``` {r processNSCConcentrations}
+``` {r processNSCConcentrations, echo = FALSE}
 # read the sugar and starch concentration for needles, roots and first centimeter of wood
 #----------------------------------------------------------------------------------------
 suppressMessages (source (file = '/home/tim/projects/PlantGrowth/nonstructuralCarbon/processExpNSCData.R'))
@@ -45,7 +46,7 @@ stemData2017 <- filter (stemData2017, treeID <= 40)
 
 For example, a 10 $cm$ high stem section of 20 $cm$ diameter, would have a volume of 628 $cm^3$ and a mass of 182.06 $g$. At an average measured sugar and starch concentration of `r round (mean (stemData2017 [['sugar']] [stemData2017 [['date']] [1] == as_datetime("2017-07-05")], na.rm = TRUE), 2)` and `r round (mean (stemData2017 [['starch']] [stemData2017 [['date']] [1] == as_datetime("2017-07-05")], na.rm = TRUE), 2)` $\% \, dry \, mass$ in July, this equates to a total nonstructural carbon reserve of roughly 2 $g$ or 1 $g$ of easily accessible carbon in that stem section.
 
-``` {r calculateStemSectionNSCs, warning = FALSE}
+``` {r calculateStemSectionNSCs, warning = FALSE, echo = FALSE}
 # get the tree measurements of circumference from spreadsheet
 #----------------------------------------------------------------------------------------
 allometricData <- read_excel (path = '/media/tim/dataDisk/PlantGrowth/data/allometry/Exp2017/allometricDataExp2017.xlsx', 
@@ -53,13 +54,16 @@ allometricData <- read_excel (path = '/media/tim/dataDisk/PlantGrowth/data/allom
                               na = "NA")
 
 # Declare the height of the stem section (h, m)
+#----------------------------------------------------------------------------------------
 h <- 0.1
 
 # Declare mean stem wood density (rho_s, kg m-3)
+#----------------------------------------------------------------------------------------
 rho_w <- 289.9
 
 # Determine the volume of each stem section (m3) at various height (0.5m, 1m, 1.5m, 2m, 2.5m)
 # cbh is in cm, therefore divide by 100 and by 2.0 and pi to get the sections radius in m
+#----------------------------------------------------------------------------------------
 allometricData <- add_column (allometricData,   
                           V50  = ((allometricData[['cbh50']]/(100.0*2.0*pi))^2.0*pi*h) - 
                                  ((allometricData[['cbh50']]/(100.0*2.0*pi)-0.01)^2.0*pi*h),
@@ -82,7 +86,7 @@ allometricData <- add_column (allometricData,
                           M250 = allometricData [['V250']] * rho_w)
 ```
 
-``` {r getSugarConcentration}
+``` {r getSugarConcentration, echo = FALSE}
 # create responseVariables tibble
 #----------------------------------------------------------------------------------------
 responseVariables <- tibble (year = 2017,
@@ -98,27 +102,33 @@ responseVariables <- tibble (year = 2017,
 # Wrangle data to get sugar and starch concentrations (g kg-1) for each section and 
 # multiply the concentration by the dry mass of the section (kg) to obtain total sugar and 
 # starch reserves (kg)
+#----------------------------------------------------------------------------------------
 for (r in 1:dim (responseVariables) [1]) {
   treeID <- responseVariables [['tree']] [r]
   iMonth <- responseVariables [['month']] [r]
   
   # Tree is in the control group (treatment 1)
+  #--------------------------------------------------------------------------------------
   if (unique (stemData2017 [['treatment']] [stemData2017 [['treeID']] == treeID]) == 1) {
     
     # Determine sugar reserves
+    #------------------------------------------------------------------------------------
     responseVariables [['sugarW150']] [r] <- 
       allometricData [['M150']] [allometricData [['tree']] == treeID] * 
       (stemData2017 [['sugar']] [stemData2017 [['treeID']] == treeID & 
                              month (stemData2017 [['date']]) == iMonth] / 100) * 1000
     # Determine starch reserves
+    #------------------------------------------------------------------------------------
     responseVariables [['starchW150']] [r] <- 
       allometricData [['M150']] [allometricData [['tree']] == treeID] * 
       (stemData2017 [['starch']] [stemData2017 [['treeID']] == treeID & 
                              month (stemData2017 [['date']]) == iMonth] / 100) * 1000
   # Tree is in the girled or compressed group (treatment 2 or 3)
+    #------------------------------------------------------------------------------------
   } else if (unique (stemData2017 [['treatment']] [stemData2017 [['treeID']] == responseVariables [['tree']] [r]]) == 2 | unique (stemData2017 [['treatment']] [stemData2017 [['treeID']] == responseVariables [['tree']] [r]]) == 3) {
     
     # Determine sugar reserves
+    #------------------------------------------------------------------------------------
     responseVariables [['sugarW100']] [r] <- 
       allometricData [['M100']] [allometricData [['tree']] == treeID] * 
       (stemData2017 [['sugar']] [stemData2017 [['treeID']] == treeID & 
@@ -130,6 +140,7 @@ for (r in 1:dim (responseVariables) [1]) {
                              stemData2017 [['sampleHeight']] == 2 &
                              month (stemData2017 [['date']]) == iMonth] / 100) * 1000
     # Determine starch reserves
+    #------------------------------------------------------------------------------------
     responseVariables [['starchW100']] [r] <- 
       allometricData [['M100']] [allometricData [['tree']] == treeID] * 
       (stemData2017 [['starch']] [stemData2017 [['treeID']] == treeID & 
@@ -142,9 +153,11 @@ for (r in 1:dim (responseVariables) [1]) {
                              month (stemData2017 [['date']]) == iMonth] / 100) * 1000
     
   # Tree is in the double compression group (treatment 4)
+    #------------------------------------------------------------------------------------
   } else if (unique (stemData2017 [['treatment']] [stemData2017 [['treeID']] == responseVariables [['tree']] [r]]) == 4) {
     
     # Determine sugar reserves
+    #------------------------------------------------------------------------------------
     responseVariables [['sugarW50']] [r] <- 
       allometricData [['M50']] [allometricData [['tree']] == treeID] * 
       (stemData2017 [['sugar']] [stemData2017 [['treeID']] == treeID & 
@@ -162,6 +175,7 @@ for (r in 1:dim (responseVariables) [1]) {
                              month (stemData2017 [['date']]) == iMonth] / 100) * 1000
     
     # Determine starch reserves  
+    #------------------------------------------------------------------------------------
     responseVariables [['starchW50']] [r] <- 
       allometricData [['M50']] [allometricData [['tree']] == treeID] * 
       (stemData2017 [['starch']] [stemData2017 [['treeID']] == treeID & 
@@ -190,7 +204,7 @@ $$
 B = exp (\beta_0 + \beta_1 \; ln \; d_{t})
 $$
 
-``` {r totalBiomass}
+``` {r totalBiomass, echo = FALSE}
 biomass04 <- exp (2.4800 + 2.4835 * log (allometricData [['cbh150']] [allometricData [['tree']] != 41] / pi))  
 #biomass08 <- exp (-2.6177 + 2.4638 * log (allometricData [['cbh150']] / pi)) # with specific gravity < 0.45
 #biomass08 <- exp (-3.0506 + 2.6465 * log (allometricData [['cbh150']] / pi)) # with specific gravity >= 0.45
@@ -202,7 +216,7 @@ with generic pine species (Pinus spp.) parameters of $\beta_0 = -2.4800$ and $\b
 $$
 f = exp (\alpha_0 + \frac {\alpha_1} {d_t})
 $$
-``` {r fractionalBiomass}
+``` {r fractionalBiomass, echo = FALSE}
 rootFraction <- exp (-1.5619 + ( 0.6614 / (allometricData [['cbh150']] [allometricData [['tree']] != 41] / pi)))
 stemFraction <- exp (-0.3737 + (-1.8055 / (allometricData [['cbh150']] [allometricData [['tree']] != 41] / pi)))
 barkFraction <- exp (-2.0980 + (-1.1432 / (allometricData [['cbh150']] [allometricData [['tree']] != 41] / pi)))
@@ -225,7 +239,7 @@ Root biomass was also estimated as a fraction of total aboveground biomass with 
 
 For each organ and the entire tree we multiplied the respecitve biomass with the average sugar and starch concentration (in $% dry weight$) derived from colourimetric assays. The total nonstructural carbon estimates are the sum of the mass of sugar and starch. 
 
-```{r totalFoliage reserves}
+```{r totalFoliage reserves, echo = FALSE}
 # determine tissue sugar reserves
 #----------------------------------------------------------------------------------------
 responseVariables [['sugarRoot']]   <- rootData2017 [['sugar']] * rootMass
