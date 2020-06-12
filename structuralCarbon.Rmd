@@ -13,104 +13,46 @@ library ('knitr')
 library ('tidyverse')
 library ('lubridate')
 library ('googledrive')
-#library ('plotrix')
 library ('zoo')
 
-# Specify the user:
-options (gargle_oauth_email = "tr625@nau.edu")
-
-# source plotting functions for colour schemes and plotting functions
+# Specify the user and neglect warnings
 #----------------------------------------------------------------------------------------
-source ('plotingFunctions.R')
-
+options (gargle_oauth_email = "tr625@nau.edu")
 options (warn = -1)
 ```
 
 ## Structural carbon estimation for stem sections of the 2017 experiment at Harvard Forest
 
 ``` {r getData, echo = FALSE}
-# Get list of folder on shared PlantGrowth google drive
-GDFolders  <- drive_ls (path = 'https://drive.google.com/drive/u/1/folders/0ABA0-TtlzSLPUk9PVA')
-
-# Get id for data folder on shared PlantGrowth google drive
-GDDataID <- GDFolders [['id']] [GDFolders [['name']] == 'data']
-
-# Get list of folders in data folder
-GDFoldersData <- drive_ls (path = as_id (GDDataID))
-
-# Get microcores folder id
-GDmicrocoresID <- GDFoldersData [['id']] [GDFoldersData [['name']] == 'microcores']
-
-# Get list of folders in micrcores folder
-GDFoldersMicrocores <- drive_ls (path = as_id (GDmicrocoresID))
-
-# Get woodAnatomy folder id
-GDwoodAnatomyID <- GDFoldersMicrocores [['id']] [GDFoldersMicrocores [['name']] == 'woodAnatomy']
-
-# Get list of folders in woodAnatomy folder
-GDFoldersWoodAnatomy <- drive_ls (path = as_id (GDwoodAnatomyID))
-
-# Get Exp2017 folder id
-GDExp2017ID <- GDFoldersWoodAnatomy [['id']] [GDFoldersWoodAnatomy [['name']] == 'Exp2017']
-
-# Get list of files in Exp2017 folder
-GDFilesExp2017 <- drive_ls (path = as_id (GDExp2017ID))
-
-# Get id of file with data for 20 mu band anatomical averages
-GDExp2017FileID <- GDFilesExp2017 [['id']] [GDFilesExp2017 [['name']] == '20muband_ALL.xlsx']
-
-# Get id of folder with ring width measurements from TRIAD
-GDFolderringWidthTRIADID <- GDFilesExp2017 [['id']] [GDFilesExp2017 [['name']] == 'ringWidthTRIAD']
-
-# Get list of ids for all ringwidth measurements
-GDringWidthFilesIDs <- drive_ls (path = as_id (GDFolderringWidthTRIADID))
-
-# Identify allometry folder
-GDallometryID <- GDFoldersData [['id']] [GDFoldersData [['name']] == 'allometry']
-
-# List files in allometry folder
-GDFilesAllometry <- drive_ls (path = as_id (GDallometryID))
-
-# Identify id of file with allometry data for the 2017 Experiment
-GDExp2017AllometryFileID <- GDFilesAllometry [['id']] [GDFilesAllometry [['name']] == 'allometricDataExp2017.xlsx']
-
-# Change working directory
-setwd ('/media/tim/dataDisk/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ringWidthTRIAD/')
-
-# Download the files for ring width measurements of the Exp 2017 microcores
-# for (i in 1:dim (GDringWidthFilesIDs) [1]) {
-#   fileExp2017 <- drive_download (file = as_id (GDringWidthFilesIDs [['id']] [i]), verbose = FALSE, overwrite = TRUE)
-#   rm (fileExp2017)
-#   print (i)
-# }
-
-# Reset the working directory
-setwd ('/home/tim/projects/PlantGrowth/Exp2017Analysis/')
+# source plotting functions for colour schemes and plotting functions
+#----------------------------------------------------------------------------------------
+source ('plotingFunctions.R')
 
 # Source anatomical data
+#----------------------------------------------------------------------------------------
 source ('processAnatomicalData.R')
 ```
 
-The estimation of structural carbon gain for each stem section is scaled from the cell wall area of one thinsections sampled at the end of the growing season (3$^{rd}$ of November 2017) and divided into sections grown in each period (e.g., prior, during and after treatment) by association with the fraction of the ring formed at each sampling date. For each sampling date two microcores were collected and stored. One microcore was embedded in parafin, cut using a microtome, stained with astra blue and safranin red, and scanned on a sliding scanner. Where the resulting image of the first microcore did not fully include the necessary rings or had other quality issues, we cut and processed the second microcore. Between the two microcores, we were able to obtain high-quality image data for 315<!-- TR - Image 06.1 M for 2017/08/09 only contains part of the 2017 ring. And images 06.1 M, 24.4 A and 24.4 B are missing the 2015 ring. There must be one additional ring missing because the numbferOfSamples suggests so!!!--> out of 320 samples (i.e., 4 sampling dates times 40 trees times on average two sampling heights). Only for one tree (tree id: 06; treament: control) both thinsections collected in October did not contain a full set of rings necessary for the analysis. For each image, we identified and divided the ring formed in 2017 into 20 micron-wide discrete zones and derived the average anatomical structure for cells in each zone using ROXAS [@von_arx_roxas_2014]. In particular, we measured cell wall area, cell wall thickness, as well as tangential and radial lumen diameter. The ring width of the fully formed 2017 ring ranged between `r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [1]/1000, 2)` and `r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [2] / 1000, 2 )` mm with a mean of `r round (mean (unique (data [['MRW']] [data [['year']] == 2017]))/1000, 2)` mm. Even the smallest ring was divided into `r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [1]/20)` discrete zones of a width of 20-microns with anatomical data.
+We estimate structural carbon gain for each stem section and period from the cell-wall area estimated to have formed in that period. The cell-wall area of one thinsections sampled at the end of the growing season (3$^{rd}$ of November 2017) ais therefore divided into sections grown between sampling dates (e.g., prior, during and after treatment) by association with the fraction of the ring formed at each sampling date. For each sampling date two microcores were collected and stored with trephor tool [@rossi_trephor:_2006]. One microcore was embedded in parafin (Tissue Processor 1020 Leica, Switzerland), 7 𝜇m-thick crossectional cuts were obtained using a rotary microtome  (Leica RM2245, Switzerland). The cuts were stained with astra blue and safranin red, and scanned on a sliding scanner. Where the resulting image of the first microcore did not fully include the necessary rings or had other quality issues, we cut and processed the second microcore. Between the two microcores, we were able to obtain high-quality image data for 315<!-- TR - Image 06.1 M for 2017/08/09 only contains part of the 2017 ring. And images 06.1 M, 24.4 A and 24.4 B are missing the 2015 ring. There must be one additional ring missing because the numbferOfSamples suggests so!!!--> out of 320 samples (i.e., 4 sampling dates times 40 trees times on average two sampling heights). Only for one tree (tree id: 06; treament: control) both thinsections collected in October did not contain a full set of rings necessary for the analysis. For each image, we identified and divided the ring formed in 2017 into 20 𝜇m-wide discrete tangential bands and derived the average anatomical structure for cells in each band using ROXAS [@von_arx_roxas_2014]. In particular, we measured average cell-wall area, cell wall thickness, as well as tangential and radial lumen diameter. The ring width of the fully formed 2017 ring ranged between `r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [1]/1000, 2)` and `r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [2] / 1000, 2 )` mm with a mean of `r round (mean (unique (data [['MRW']] [data [['year']] == 2017]))/1000, 2)` mm. Even the smallest ring was divided into `r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [1]/20)` discrete bands of a width of 20-𝜇m with anatomical data.
 
 ### Estimating period of formation for cells 
 
-Standardised ring widths at the different sampling dates were used to associate proportions of the final ring, thus included 20-micron wide zones, to specific growth periods. For this purpose we identified and measured ring widths in thinsections taken prior (e.g., 3$^{rd}$ of July 2017) and during the treatment (e.g., 10$^{th}$ of August 2017, and 9$^{th}$ of October 2017), as well as at the end of the growing season (3$^{rd}$ of November). All ring width measurements were performed with a self-developed webservice called the Tree Ring Image Analysis and Database (TRIAD). The accuracy of TRIAD is ultimately limited by the resolution of the uploaded images; here roughly 1.5 microns. 
+Ring widths were measured for all sampling dates. The ring widths were standardised to account for lcoa variations in growth in thin-sections. Standardised ring widths from the different sampling dates were then used to associate proportions of the final ring from the November microcore (e.g., which 20-𝜇m wide bade to include), to specific growth periods. For this purpose we identified and measured ring widths in thinsections taken prior (e.g., 3$^{rd}$ of July 2017) and during the treatment (e.g., 10$^{th}$ of August 2017, and 9$^{th}$ of October 2017), as well as at the end of the growing season (3$^{rd}$ of November). All ring width measurements were performed using the self-developed Tree Ring Image Analysis and Database (TRIAD). The accuracy of TRIAD is ultimately limited by the resolution of the uploaded images; here roughly 1.5𝜇m. 
 
-Microcores in August, October and November were punched in close proximity to the July sample. The samples were offset by, at least, 5cm horizontally on the same vertical axis to avoid sampling a wound reaction of the injury inflicted by previous cores. As growth varies locally around the circumference of the stem, sampling relatively close was a first step to minimised local differences in growth between sampling dates. As a second step, we used the 2015 ring width from the same thinsection to correct for local variation in growth between microcores. 
+Microcores in August, October and November were punched in close proximity to the July sample. However, the samples were offset by, at least, 5cm horizontally on the same vertical axis to avoid sampling a wound reaction of the injury inflicted by previous cores. As growth varies locally around the circumference of the stem, sampling relatively close was a first step to minimised local differences in growth between sampling dates. As a second step, we used the width of an older ring from the same thinsection to correct for local variation in growth between microcores. 
 
 $$
 f_{m,17} = \frac {rw_{m,17} \times rw_{end, 15}} {rw_{m,15}} \times \frac {1} {rw_{end,17}}
 $$
 
-, where $f_{m,17}$ is the fraction of the ring width formed in month $m$ (e.g., July, August, or October), $rw_{m, 15}$ and $rw_{m, 17}$ are respecitvely the 2015 and 2017 ring width in the thinsection collected in month $m$, and $rw_{end, 15}$ and $rw_{end, 17}$ are respectively the 2015 and 2017 ring widths in the thinsection from the November sample. This assumes that the ring was fully formed on the 1$^{st}$ of November, which is about two weeks after the typical end of cell wall thickening for white pine at Harvard Forest. Then, $f_{m, 17}$ theoretically varies between 0 and 1 with 0 meaning none of the ring was formed at the sampling date and 1 meaning that the entire ring was already formed.
+, where $f_{m,17}$ is the fraction of the ring width formed in month $m$ (e.g., July, August, or October), $rw_{m, 15}$ and $rw_{m, 17}$ are respecitvely the 2015 and 2017 ring width in the thinsection collected in month $m$, and $rw_{end, 15}$ and $rw_{end, 17}$ are respectively the 2015 and 2017 ring widths in the thinsection from the November sample. This assumes that the ring was fully formed on the 3$^{rd}$ of November, which is about two weeks after the typical end of cell wall thickening for white pine at Harvard Forest. Then, $f_{m, 17}$ theoretically varies between 0 and 1 with 0 meaning none of the ring was formed at the sampling date and 1 meaning that the entire ring was already formed.
 
 ```{r climateData, echo = FALSE}
 metData <- read_csv (url ('https://harvardforest.fas.harvard.edu/data/p30/hf300/hf300-01-annual-m.csv'), 
                      col_types = cols ())
 ```
 
-The number of measurements for growth rings drops off strongly after the 2015 growth ring (table 1), because the older rings are further away from the bark, hence they are less likely within the 15mm reach of the trephor tool [@rossi_trephor:_2006] used to collect the microcores. Among the recent years with high replication, 2015 was preferred over 2016, because of an abnormally dry growing season in 2016 (total annual precipitation of `r metData [['prec']] [metData [['year']] == 2016]` $mm$, which is `r round (mean (metData [['prec']]) - metData [['prec']] [metData [['year']] == 2016])` below the long-term average of `r round (mean (metData [['prec']]))` $mm$). In fact, about three quarters of trees included in this study showed a intra-annual density fluctuation in 2016 due to the dry growing season and the remaining quarter of trees had a relatively narrower ring. Consequently, standardisation by the 2016 ring would introduce a systematic bias based on the bi-modal ring width distribution in 2016. In contrast, 2015 did not include any outstading climatological events or resulting systematic bias in growth. Indeed, the 2015 growing season climate was similar to the 2017 growing season climate with a mean annual temperature of `r metData [['airt']] [metData [['year']] == 2015]` $^{\circ}C$ and a total annual precipitation of `r metData [['prec']] [metData [['year']] == 2015]` $mm$.
+The number of measurements for growth rings drops off strongly after the 2015 growth ring (table 1), because the older rings are further away from the bark, hence they are less likely within the 15mm reach of the trephor tool [@rossi_trephor:_2006] used to collect the microcores. Among the recent years with high replication, 2015 was preferred over 2016, because of an abnormally dry growing season in 2016 (total annual precipitation of `r metData [['prec']] [metData [['year']] == 2016]` $mm$, which is `r round (mean (metData [['prec']]) - metData [['prec']] [metData [['year']] == 2016])` below the long-term average of `r round (mean (metData [['prec']]))` $mm$). In fact, about three quarters of trees included in this study showed an intra-annual density fluctuation in 2016 due to the dry growing season and the remaining quarter of trees had a relatively narrower ring. 2016 was 0.90 ℃ warmer with 234 mm less precipitation compared to the 30-year average. Consequently, standardisation by the 2016 ring would introduce a systematic bias based on the bi-modal ring width distribution in 2016. In contrast, 2015 did not include any outstading climatological events or resulting systematic bias in growth. Indeed, the 2015 growing season climate was similar to the 2017 growing season climate with a mean annual temperature of `r metData [['airt']] [metData [['year']] == 2015]` $^{\circ}C$ and a total annual precipitation of `r metData [['prec']] [metData [['year']] == 2015]` $mm$. Both 2017 and 2015 were close to the long-term averages mentioned above.
 
 ``` {r plotBasicRingStats, echo = FALSE, fig.width = 11}
 
@@ -212,287 +154,26 @@ numberOfSamples [3, ] <- round (numberOfSamples [3, ], 2)
 kable (numberOfSamples, caption = 'Number of measured growth ring widths for all trees out of a potential 320 thinsection images.')
 ```
 
-On average, `r round (mean (unlist (f_Jul), na.rm = TRUE) * 100.0, 1)`%, `r round (mean (unlist (f_Aug), na.rm = TRUE) * 100.0, 1)`%, and `r round (mean (unlist (f_Oct), na.rm = TRUE) * 100.0, 1)`% of the ring width had respectively grown in July, August and October. Thus, a bit more than half of the ring widths was already formed before the start of the treatment and ring width growth had <i>de facto</i> finished by Ocotober. However, there were substantial differences between treatments and sampling heights for August and October.  
+On average, `r round (mean (unlist (f_Jul), na.rm = TRUE) * 100.0, 1)`%, `r round (mean (unlist (f_Aug), na.rm = TRUE) * 100.0, 1)`%, and `r round (mean (unlist (f_Oct), na.rm = TRUE) * 100.0, 1)`% of the ring width had respectively grown in July, August and October. Thus, a bit more than half of the ring widths was already formed before the start of the treatment and ring width growth had <i>de facto</i> finished by Ocotober. However, there were substantial differences between treatments and sampling heights in the timeline of xylogenesis.  
 
-Using the fractional ring widths as boundaries, each 20-micron zone was associated with one of the four periods: (i) beginning of growing season to start of experiment ($3^{rd}$ of July 2017), (ii) first month of the experiment ($4^{th}$ of July to $9^{th}$ of August 2017), (iii) second month of the experiment ($10^{th}$ of August to $8^{th}$ of October 2017), (iv) end of double compression to end of growing season ($9^{th}$ of October to $3^{rd}$ of November 2017).
-
-``` {r cellularData, echo = FALSE}
-
-# define tree labels for each group
-#----------------------------------------------------------------------------------------
-controlTrees      <- c ('01M','03M','04M','06M','07M','09M','18M','30M','31M','36M')
-girdledTreesAbove <- c ('05A','11A','15A','16A','19A','23A','29A','35A','39A','40A')
-girdledTreesBelow <- c ('05B','11B','15B','16B','19B','23B','29B','35B','39B','40B')
-compresTreesAbove <- c ('10A','12A','13A','17A','20A','21A','28A','32A','33A','38A')
-compresTreesBelow <- c ('10B','12B','13B','17B','20B','21B','28B','32B','33B','38B')
-douCompTreesAbove <- c ('02A','08A','14A','22A','24A','25A','26A','27A','34A','37A')
-douCompTreesInBet <- c ('02M','08M','14M','22M','24M','25M','26M','27M','34M','37M')
-douCompTreesBelow <- c ('02B','08B','14B','22B','24B','25B','26B','27B','34B','37B')
-
-# function to plot fraction of cummulative cell wall area for an individual tree
-#----------------------------------------------------------------------------------------
-plotCWA <- function (tree, date, treatment, yPos = 1, symbol = 21, alpha = 0.4, 
-                     VERBOSE = FALSE) {
-  points (x = sum (data [['CWA']] [data [['tree']] == tree &
-                                   data [['year']] == 2017 &
-                                   data [['period']] <= as_date (date)], na.rm = TRUE) / 
-              sum (data [['CWA']] [data [['tree']] == tree &
-                                   data [['year']] == 2015], na.rm = TRUE),
-          y = xPositions [yPos], pch = symbol, 
-          col = addOpacity (tColours [['colour']] [treatment], alpha), 
-          bg  = addOpacity (tColours [['colour']] [treatment], alpha))
-  if (VERBOSE) {
-    print (paste (date, tree, treatment, sum (data [['CWA']] [data [['tree']] == tree &
-                                   data [['year']] == 2017 &
-                                   data [['period']] <= as_date (date)], na.rm = TRUE) / 
-              sum (data [['CWA']] [data [['tree']] == tree &
-                                   data [['year']] == 2015], na.rm = TRUE)))
-  }
-}
-
-# function to plot mean fraction of cummulative cell wall area for a treatment 
-#----------------------------------------------------------------------------------------
-plotCWAByTreatment <- function (date, alpha = 0.4, VERBOSE = FALSE) {
-  
-  # create tibble with cummlative cell wall areas
-  #--------------------------------------------------------------------------------------
-  treeCWA <- tibble (date = date, tree = NA, treatment = NA, height = NA, CCWA = NA)
-    
-  # loop over groups of treatment and sampling height
-  #--------------------------------------------------------------------------------------
-  for (g in 1:8) {
-    
-    # get tree identifiers
-    #------------------------------------------------------------------------------------
-    if (g == 1) {
-      treeLabels <- controlTrees [-4]
-      t <- 1; h <- 'C'
-      nTrees <- 9
-      s <- 21 # symbol for plotting
-      } else if (g == 2) {
-      treeLabels <- girdledTreesBelow
-      t <- 2; h <- 'B'
-      nTrees <- 10
-      s <- 25 # symbol for plotting
-    } else if (g == 3) {
-      treeLabels <- girdledTreesAbove
-      t <- 2; h <- 'A'
-      nTrees <- 10
-      s <- 24 # symbol for plotting
-    } else if (g == 4) {
-      treeLabels <- compresTreesBelow
-      t <- 3; h <- 'B'
-      nTrees <- 10
-      s <- 25 # symbol for plotting
-    } else if (g == 5) {
-      treeLabels <- compresTreesAbove
-      t <- 3; h <- 'A'
-      nTrees <- 9
-      s <- 24 # symbol for plotting
-    } else if (g == 6) {
-      treeLabels <- douCompTreesBelow
-      t <- 4; h <- 'B'
-      nTrees <- 9
-      s <- 25 # symbol for plotting
-    } else if (g == 7) {
-      treeLabels <- douCompTreesInBet
-      t <- 4; h <- 'M'
-      nTrees <- 10
-      s <- 22 # symbol for plotting
-    } else if (g == 8) {
-      treeLabels <- douCompTreesAbove
-      t <- 4; h <- 'A'
-      nTrees <- 9
-      s <- 24 # symbol for plotting
-    }
-    
-    # loop over trees to calculate standard deviation between trees
-    #------------------------------------------------------------------------------------
-    for (iTree in 1:nTrees) {
-     
-      # identify tree
-      #----------------------------------------------------------------------------------
-      treeID <- treeLabels [iTree]
-      
-      # calculate fraction of cumulative cell wall area
-      #----------------------------------------------------------------------------------
-      f_CCWA <- sum (data [['CWA']] [data [['tree']] == treeID & 
-                                     data [['year']] == 2017 &
-                                     data [['period']] <= as_date (date)], na.rm = TRUE) /
-                sum (data [['CWA']] [data [['tree']] == treeID &
-                                     data [['year']] == 2015], na.rm = TRUE)
-
-      # fill all known fields in tibble
-      #----------------------------------------------------------------------------------
-      treeCWA <- add_row (treeCWA, date = iDate, 
-                          tree = as.numeric (substr (treeID, 1, 2)), treatment = t, 
-                          height = h, CCWA = f_CCWA)
-      
-    } # end tree loop    
-
-    # print outputs if requested
-    #------------------------------------------------------------------------------------
-    if (VERBOSE) print (treeCWA) 
-    
-    # get mean 
-    #------------------------------------------------------------------------------------
-    meanCWA <- mean (treeCWA [['CCWA']] [treeCWA [['date']] == as_date (date) &
-                                         treeCWA [['treatment']] == t & 
-                                         treeCWA [['height']]    == h & 
-                                         !is.na (treeCWA [['treatment']]) &
-                                         !is.na (treeCWA [['height']])], na.rm = TRUE)
-    sdCWA    <- sd (treeCWA [['CCWA']] [treeCWA [['date']] == as_date (date) &
-                                        treeCWA [['treatment']] == t & 
-                                        treeCWA [['height']] == h & 
-                                        !is.na (treeCWA [['treatment']]) &
-                                        !is.na (treeCWA [['height']])], na.rm = TRUE)
-    
-    # plot the mean and standard deviation
-    #------------------------------------------------------------------------------------
-    arrows (x0 = meanCWA - sdCWA, x1 = meanCWA + sdCWA, y0 = yPositions [g], 
-            col = '#333333', angle = 90, length = 0.05, code = 3, lwd = 2)
-    points (x = meanCWA,
-            y = yPositions [g],
-            col = tColours [['colour']] [t],
-            bg  = 'white',
-            pch = s,
-            cex = 2, lwd = 3)
-  } # end of treatment loop
-  
-  # return treeCWA without first line
-  #--------------------------------------------------------------------------------------
-  return (treeCWA [-1, ])
-} # end of function
-
-# create layout for the data-based cummulative cell wall area plot 
-#----------------------------------------------------------------------------------------
-layout (matrix (1:4, nrow = 1, byrow = TRUE), widths = c (1.8, 1, 1, 1.1))
-
-# loop over dates to create on plot for each
-#----------------------------------------------------------------------------------------
-for (iDate in as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03'))) {
-  
-  # choose appropriate plot margins 
-  #--------------------------------------------------------------------------------------
-  if (iDate == as_date ('2017-07-03')) {
-    par (mar = c (5, 10, 1, 0))
-  } else if (iDate == as_date ('2017-08-09') | iDate == as_date ('2017-10-09')) {
-    par (mar = c (5, 0, 1, 0))
-  } else {
-    par (mar = c (5, 0, 1, 1))
-  }
-  
-  # plot the cummulative cell wall area for each period
-  #--------------------------------------------------------------------------------------
-  plot (x = 0.5,
-        y = yPositions [1], las = 1, xlab = '', ylab = '', axes = FALSE,
-        xlim = c (-0.1, 2.0), ylim = c (0, 6.6), pch = 21, col = 'white', bg = 'white')
-  
-  # add x-axis
-  #--------------------------------------------------------------------------------------
-  axis (side = 1, at = seq (0, 1.8, by = 0.6))
-  
-  # add panel labels and axis 
-  #--------------------------------------------------------------------------------------
-  if (iDate == as_date ('2017-07-03')) {
-          
-    # add y-axis
-    #------------------------------------------------------------------------------------
-    axis (side = 2, at = yPositions, labels = c ('C','B','A','B','A','B','M','A'), 
-          las = 1)
-    
-    # add treatments
-    #------------------------------------------------------------------------------------
-    mtext (side = 2, line = 2, text = 'control',    at = yPositions [1])
-    mtext (side = 2, line = 2, text = 'girdled',    at = mean (yPositions [c(2,3)]))
-    mtext (side = 2, line = 2, text = 'compressed', at = mean (yPositions [c(4,5)]))
-    mtext (side = 2, line = 3, text = 'double',     at = mean (yPositions [c(6,7,8)]))
-    mtext (side = 2, line = 2, text = 'compressed', at = mean (yPositions [c(6,7,8)]))
-    
-    # add title
-    #------------------------------------------------------------------------------------
-    mtext (side = 2, line = 6, text = 'cell wall area', cex = 1.5)
-    
-    # add panel descriptor
-    #------------------------------------------------------------------------------------
-    text (x = 0, y = 6.6, pos = 4, labels = 'july', cex = 1.3)
-  } else if (iDate == as_date ('2017-08-09')) {
-    # add panel descriptor
-    #------------------------------------------------------------------------------------
-    text (x = 0, y = 6.6, pos = 4, labels = 'august', cex = 1.3)
-    
-    # add x-axis label
-    #------------------------------------------------------------------------------------
-    mtext (side = 1, line = 4, at = 2.0, cex = 1.0,
-           text = 'fraction of cummulative cell wall area')
-  } else if (iDate == as_date ('2017-10-09')) {
-    # add panel descriptor
-    #------------------------------------------------------------------------------------
-    text (x = 0, y = 6.6, pos = 4, labels = 'ocotber', cex = 1.3)
-  } else if (iDate == as_date ('2017-11-03')) {
-    # add panel descriptor
-    #------------------------------------------------------------------------------------
-    text (x = 0, y = 6.6, pos = 4, labels = 'november', cex = 1.3)
-  }
-  
-  # loop over control trees
-  # [-4] to exclude sample 06Mwhich would be zero due to the November image not containing the 2015 ring
-  #--------------------------------------------------------------------------------------
-  #for (iTree in controlTrees [-4]) plotCWA (tree = iTree, date = iDate, treatment = 1)
-  
-  # loop over sections below and above the girdle
-  #--------------------------------------------------------------------------------------
-  #for (iTree in girdledTreesBelow) plotCWA (tree = iTree, date = iDate, treatment = 2,
-  #                                          symbol = 25, yPos = 2)
-  #for (iTree in girdledTreesAbove) plotCWA (tree = iTree, date = iDate, treatment = 2,
-  #                                         symbol = 24, yPos = 3)
-  
-  # loop over sections below and above the compression
-  #--------------------------------------------------------------------------------------
-  #for (iTree in compresTreesBelow) plotCWA (tree = iTree, date = iDate, treatment = 3,
-  #                                          symbol = 25, yPos = 4)
-  #for (iTree in compresTreesAbove) plotCWA (tree = iTree, date = iDate, treatment = 3,
-  #                                          symbol = 24, yPos = 5)
-
-  # loop over sections below, in between and above the double compression
-  #--------------------------------------------------------------------------------------
-  #for (iTree in douCompTreesBelow) plotCWA (tree = iTree, date = iDate, treatment = 4, 
-  #                                         symbol = 25, yPos = 6)
-  #for (iTree in douCompTreesInBet) plotCWA (tree = iTree, date = iDate, treatment = 4,
-  #                                          symbol = 22, yPos = 7)
-  #for (iTree in douCompTreesAbove) plotCWA (tree = iTree, date = iDate, treatment = 4,
-  #                                         symbol = 24, yPos = 8)
-  
-  # plot means and standard deviations
-  #--------------------------------------------------------------------------------------
-  if (iDate == as_date ('2017-07-03')) {
-    treeCWA <- plotCWAByTreatment (date = iDate, VERBOSE = FALSE)
-  } else {
-    treeCWA <- rbind (treeCWA, plotCWAByTreatment (date = iDate, VERBOSE = FALSE))
-  }
-  
-  # make a line separating the panels
-  #--------------------------------------------------------------------------------------
-  if (iDate != as_date ('2017-11-03')) abline (v = 2.05, col = '#666666')
-}
-```
+Using the fractional ring widths as boundaries, each 20-𝜇m band was associated with one of the four periods: (1) beginning of growing season to start of experiment ($3^{rd}$ of July 2017), (2) first month of the experiment ($4^{th}$ of July to $9^{th}$ of August 2017), (3) second month of the experiment ($10^{th}$ of August to $8^{th}$ of October 2017), (4) end of double compression to end of growing season ($9^{th}$ of October to $3^{rd}$ of November 2017). These period are illustrated in Fig. 1 (main manuscript).
 
 ### Scaling measured cell wall area to stem section 
 
-After we associated each zone with a growth period, each zone is scaled to the circumference of the stem section by multiplication of the mean zonal cell wall area by the number of times the average zonal tangential cell width ($w_{t,s}$) fits into the entire circumference of each stem section. To account for the bark (average bark thickness of 0.8 cm) we reduced the circumference, as measured at the beginning of the experiment ($CBH_{outer,s}$) according to the following equation:
+After we associated each tangential band with a growth period, each band is scaled to the circumference of the stem section by multiplication of the mean zonal cell-wall area by the number of times the average zonal tangential cell width ($w_{t,s}$) fits into the entire circumference of each stem section. To account for the bark (assuming a bark thickness of 0.8cm) we reduced the circumference, as measured at the beginning of the experiment ($CBH_{outer,s}$) according to the following equation:
 
 $$
 CBH_{s} = CBH_{outer,s} − 0.8 cm \times 2 \pi
 $$
-The zonal cell wall area for each zone is then summed across fractions of the ring were previously associated with the same period of formation. As a result we obtain the total cell wall area formed during each period.
+The zonal cell wall area for each band is then summed across fractions of the ring were previously associated with the same period of formation. As a result we obtain an estimate of the total cell wall area formed during each period.
 
-To further scale the total circumferential cell wall area to a cell wall volume per stem section, we assume that the measured cell wall area ($CWA_{s,p}$) is representative of the longitudinal wood profile for the stem section, hence we can simply multiply it with the height of the stem section (h = 10cm). 
+To further scale the total circumferential cell-wall area to a cell-wall volume per stem section, we assume that the measured cell-wall area ($CWA_{s,p}$) is representative of the longitudinal wood profile for the stem section, hence we can simply multiply it with the height of the stem section (h = 10cm). 
 
 $$
 V_{CW,s,p} = \frac {CBH_{s}} {w_{t,s}} \times h_{s} \times \bar {CWA}
 $$
 
-Implicitly, this approach assumes that wood is circumferentially and longitudinally homogenous and the measured tracheids are representative of the woody tissue. thus, the approach does not account for other types of tissue than tracheids, such as rays and resin ducts. Tracheids make up 93% of the volume of wood in white pines with resin ducts and rays  accounting for 1% and 6%, respectively [@brown_textbook_1949]. However, since there was no clear treatment effect on the occurance of resin ducts or rays cells, this assumption ought not to cause a bias in carbon sequestration in strucutre between treatments. As ray cells and resin ducts have a slightly lower carbon density, this approach does over estimate carbon density marginally.
+Implicitly, this approach assumes that wood is circumferentially and longitudinally homogenous and the measured tracheids are representative of the woody tissue. thus, the approach does not account for other types of tissue than tracheids, such as rays and resin ducts. Tracheids make up 93% of the volume of wood in white pines with resin ducts and rays accounting for 1% and 6%, respectively [@brown_textbook_1949]. However, since there was no clear treatment effect on the occurance of resin ducts or rays cells, this assumption should not introduce a bias in carbon sequestration in strucutre between treatments. As ray cells and resin ducts have a slightly lower carbon density, this approach does, however, over estimate carbon density marginally.
 
 ``` {r scalingToCircumference , echo = FALSE}
 # Find zonal Cell Wall Area and multiplier
@@ -506,9 +187,9 @@ for (i in 1:dim (data) [1]) {
   if (data [['year']] [i] != 2017) next
   
   # get treeID, treatment and sample height
-  treeID <- as.numeric (substr (data [['TREE']] [i], 1, 2))
-  sampleHeight <- substr (data [['TREE']] [i], 3, 3)
-  treatment <- as.numeric (substr (data [['PLOT']] [i], 2, 2))
+  treeID <- data [['tree']] [i]
+  sampleHeight <- data [['height']] [i]
+  treatment <- data [['treatment']] [i]
 
   # factor to account for bark thickness of (8mm or 8000 microns) in circumference
   fBark <- 2.0 * pi * 8000 
@@ -553,7 +234,7 @@ circumferentialData <- tibble (tree = rep (1:40, 4),
 for (iTree in 1:40) {
   
   # get treatment
-  treatment <- unique (as.numeric (substr (data [['PLOT']] [as.numeric (substr (data [['TREE']], 1, 2)) == iTree], 2, 2)))
+  treatment <- unique (data [['treatment']] [data [['tree']] == iTree])
   
   # loop over periods
   for (iDate in as_date (c ('2017-07-03','2017-08-09','2017-10-09','2017-11-03'))) {
@@ -562,9 +243,9 @@ for (iTree in 1:40) {
     if (treatment == 1) {
       
       # condition for only height being "M"
-      con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
-             data [['period']]                           == iDate & 
-             data [['year']]                             == 2017
+      con <- data [['tree']]   == iTree & 
+             data [['period']] == iDate & 
+             data [['year']]   == 2017
       
       # sum zonal cell wall area (mm2) for each period
       circumferentialData [['CWAat150']] [circumferentialData [['tree']]   == iTree &
@@ -572,50 +253,50 @@ for (iTree in 1:40) {
     } else if (treatment == 2 | treatment == 3) {
 
       # condition for above
-      con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
-             data [['period']]                           == iDate &
-             data [['POS']]                              == 'A'   & 
-             data [['year']]                             == 2017
+      con <- data [['tree']]   == iTree & 
+             data [['period']] == iDate &
+             data [['height']] == 'A'   & 
+             data [['year']]   == 2017
      
       # sum zonal cell wall area (mm2) for each period
       circumferentialData [['CWAat200']] [circumferentialData [['tree']]   == iTree &
                                           circumferentialData [['period']] == iDate] <- sum (data [['zonalCWA']] [con], na.rm = T) / 1.0e6
       
       # condition for above
-      con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
-             data [['period']]                           == iDate &
-             data [['POS']]                              == 'B'   & 
-             data [['year']]                             == 2017
+      con <- data [['tree']]   == iTree & 
+             data [['period']] == iDate &
+             data [['height']] == 'B'   & 
+             data [['year']]   == 2017
       
       # sum zonal cell wall area (mm2) for each period
       circumferentialData [['CWAat100']] [circumferentialData [['tree']]   == iTree &
                                           circumferentialData [['period']] == iDate] <- sum (data [['zonalCWA']] [con], na.rm = T) / 1.0e6
     } else if (treatment == 4) {
       # condition for above
-      con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
-             data [['period']]                           == iDate &
-             data [['POS']]                              == 'A'   & 
-             data [['year']]                             == 2017
+      con <- data [['tree']]   == iTree & 
+             data [['period']] == iDate &
+             data [['height']] == 'A'   & 
+             data [['year']]   == 2017
      
       # sum zonal cell wall area (mm2) for each period
       circumferentialData [['CWAat250']] [circumferentialData [['tree']]   == iTree &
                                           circumferentialData [['period']] == iDate] <- sum (data [['zonalCWA']] [con], na.rm = T) / 1.0e6
       
       # condition for middle
-      con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
-             data [['period']]                           == iDate &
-             data [['POS']]                              == 'M'   & 
-             data [['year']]                             == 2017
+      con <- data [['tree']]   == iTree & 
+             data [['period']] == iDate &
+             data [['height']] == 'M'   & 
+             data [['year']]   == 2017
       
       # sum zonal cell wall area (mm2) for each period
       circumferentialData [['CWAat150']] [circumferentialData [['tree']]   == iTree &
                                           circumferentialData [['period']] == iDate] <- sum (data [['zonalCWA']] [con], na.rm = T) / 1.0e6
       
       # condition for above
-      con <- as.numeric (substr (data [['TREE']], 1, 2)) == iTree & 
-             data [['period']]                           == iDate &
-             data [['POS']]                              == 'B'   & 
-             data [['year']]                             == 2017
+      con <- data [['tree']]   == iTree & 
+             data [['period']] == iDate &
+             data [['height']] == 'B'   & 
+             data [['year']]   == 2017
       
       # sum zonal cell wall area (mm2) for each period
       circumferentialData [['CWAat050']] [circumferentialData [['tree']]   == iTree &
@@ -689,7 +370,7 @@ if (WRITE) {
 }
 ```
 
-Finally, the cell wall volume for each ring portion of the stem section ($V_{CW,s,p}$) is multiplied by a fixed cell wall density ($\rho_{CW}$) of `r rhoCW` $kg \, m^{-3}$  (measured for Scots pine by @plotze_porosity_2011) and a carbon content of `r CC` %  for white pine [@lamlom_reassessment_2003] to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in g). 
+Finally, the cell-wall volume for each ring portion of the stem section ($V_{CW,s,p}$) is multiplied by a fixed cell-wall density ($\rho_{CW}$) of `r rhoCW` $kg \, m^{-3}$  (measured for Scots pine by @plotze_porosity_2011) and a carbon content of `r CC`%  typical of white pine [@lamlom_reassessment_2003] to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in g). 
 
 $$
 M_{s,p} = V_{CW,s,p} \times \rho_{CW} \times 49.74\%
@@ -697,7 +378,7 @@ $$
 
 ### Alternative estimate using wood density
 
-Alternatively, the carbon could simply be estimated as a product of the volume of wood and an average wood density. X-ray densiometry was performed on 18 increment cores from the ten control trees. 
+To better understand uncertanties associated witgh our assumptions we also used an alternative estimate based on wood density. For this alternative estimation, the carbon is simply estimated as a product of the volume of wood and an average wood density. To obtain wood density values, X-ray densiometry was performed on 18 increment cores from the ten control trees. 
 
 ```{r simpleEstimate, echo = FALSE}
 # declare mean stem wood density (kg m-3)
