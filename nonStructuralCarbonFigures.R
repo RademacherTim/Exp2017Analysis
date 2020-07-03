@@ -161,7 +161,7 @@ for (i in c (1, 3, 4, 2)) {
   con1 <- summaryDataLeaf [['treatment']] == 1
   plot (x = summaryDataLeaf [['date']] [con],
         y = summaryDataLeaf [['meanStarch']] [con], 
-        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 6), axes = FALSE, 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 4.5), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 3, 
         col = 'white', cex.lab = 1.8)
   
@@ -210,7 +210,7 @@ for (i in c (1, 3, 4, 2)) {
   
   # Add panel descriptor
   #--------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 6, pos = 4, labels = descriptor, cex = 2.7, 
+  text (x = as_date ('2017-06-20'), y = 4.5, pos = 4, labels = descriptor, cex = 2.7, 
         col = '#333333')
   
   # Add panel separator
@@ -219,7 +219,7 @@ for (i in c (1, 3, 4, 2)) {
   
   # Add legend 
   #--------------------------------------------------------------------------------------
-  if (i == 1) legend (x = as_date ('2017-07-20'), y = 5.3, box.lty = 0, lwd = c (3, 2, 3), lty = c (1, 1, 2), 
+  if (i == 1) legend (x = as_date ('2017-07-20'), y = 4.3, box.lty = 0, lwd = c (3, 2, 3), lty = c (1, 1, 2), 
                       legend = c ('control','adjusted control','above'), col = c ('#91b9a4','#999999','#999999'), 
                       bg = 'transparent', cex = 2.3)
 }
@@ -450,7 +450,7 @@ PLOT <- TRUE; if (PLOT) {
   con1 <- summaryDataStem [['treatment']] == 1
   plot (x = summaryDataStem [['date']] [con1],
         y = summaryDataStem [['meanStarch']] [con1], 
-        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.5), axes = FALSE, 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 3, 
         col = tColours [['colour']] [1], cex.lab = 1.8)
   
@@ -484,7 +484,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 1.5, pos = 4, labels = 'control', cex = 2.7, 
+  text (x = as_date ('2017-06-20'), y = 1.2, pos = 4, labels = 'control', cex = 2.7, 
         col = '#333333')
   
   # Add  line to separate panels
@@ -493,7 +493,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add legend 
   #----------------------------------------------------------------------------------------
-  legend (x = as_date ('2017-07-20'), y = 1.3, box.lty = 0, lwd = c (3, 2, 3, 3, 3), 
+  legend (x = as_date ('2017-07-20'), y = 1.1, box.lty = 0, lwd = c (3, 2, 3, 3, 3), 
           lty = c (1, 1, 2, 4, 3), 
           legend = c ('control','adjusted control','above','middle','below'), 
           col = c ('#91b9a4', rep ('#999999', 4)), 
@@ -505,7 +505,7 @@ PLOT <- TRUE; if (PLOT) {
   par (mar = c (5, 0, 1, 0))
   plot (x = summaryDataStem [['date']] [con1],
         y = summaryDataStem [['meanStarch']] [con1] * summaryDataStem [['adjRatioStarch']] [con], 
-        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.5), axes = FALSE, 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
   polygon (x = c (summaryDataStem [['date']] [con1], 
                   rev (summaryDataStem [['date']] [con1])),
@@ -549,7 +549,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 1.5, pos = 4, labels = 'compressed', cex = 2.8, 
+  text (x = as_date ('2017-06-20'), y = 1.2, pos = 4, labels = 'compressed', cex = 2.8, 
         col = '#333333')
   
   # Add panel for double compressed trees
@@ -558,7 +558,7 @@ PLOT <- TRUE; if (PLOT) {
   con <- summaryDataStem [['treatment']] == 4 & summaryDataStem [['sampleHeight']] == 2.5
   plot (x = summaryDataStem [['date']] [con1],
         y = summaryDataStem [['meanStarch']] [con1] * summaryDataStem [['adjRatioStarch']] [con], 
-        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.5), axes = FALSE, 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
   polygon (x = c (summaryDataStem [['date']] [con1], 
                   rev (summaryDataStem [['date']] [con1])),
@@ -612,7 +612,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 1.5, pos = 4, labels = 'double compressed', cex = 2.8, 
+  text (x = as_date ('2017-06-20'), y = 1.2, pos = 4, labels = 'double compressed', cex = 2.8, 
         col = '#333333')
   
   # Add panel of the girdled trees
@@ -621,7 +621,7 @@ PLOT <- TRUE; if (PLOT) {
   con <- summaryDataStem [['treatment']] == 2 & summaryDataStem [['sampleHeight']] == 2
   plot (x = summaryDataStem [['date']] [con1],
         y = summaryDataStem [['meanStarch']] [con1] * summaryDataStem [['adjRatioStarch']] [con], 
-        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.5), axes = FALSE, 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
   polygon (x = c (summaryDataStem [['date']] [con1], 
                   rev (summaryDataStem [['date']] [con1])),
@@ -661,7 +661,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 1.5, pos = 4, labels = 'girdled', cex = 2.8, 
+  text (x = as_date ('2017-06-20'), y = 1.2, pos = 4, labels = 'girdled', cex = 2.8, 
         col = '#333333')
   
   dev.off  ()
@@ -774,7 +774,7 @@ for (i in c (1, 3, 4, 2)) {
   con1 <- summaryDataRoot [['treatment']] == 1
   plot (x = summaryDataRoot [['date']] [con],
         y = summaryDataRoot [['meanStarch']] [con], 
-        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.5), axes = FALSE, 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 3, 
         col = 'white', cex.lab = 1.8)
   
@@ -823,7 +823,7 @@ for (i in c (1, 3, 4, 2)) {
   
   # Add panel descriptor
   #--------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 1.5, pos = 4, labels = descriptor, cex = 2.7, 
+  text (x = as_date ('2017-06-20'), y = 1.2, pos = 4, labels = descriptor, cex = 2.7, 
         col = '#333333')
   
   # Add panel separator
@@ -832,9 +832,10 @@ for (i in c (1, 3, 4, 2)) {
   
   # Add legend 
   #--------------------------------------------------------------------------------------
-  if (i == 1) legend (x = as_date ('2017-07-20'), y = 1.2, box.lty = 0, lwd = c (3, 2, 3), 
+  if (i == 1) legend (x = as_date ('2017-07-20'), y = 1.1, box.lty = 0, lwd = c (3, 2, 3), 
                       lty = c (1, 1, 3), legend = c ('control','adjusted control','below'), 
                       col = c ('#91b9a4', rep ('#999999', 2)), 
                       bg = 'transparent', cex = 2.3)
 }
 dev.off  ()
+
