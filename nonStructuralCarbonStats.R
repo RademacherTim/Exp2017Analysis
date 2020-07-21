@@ -42,7 +42,7 @@ for (i in 1:dim (stemData2017) [1]) {
   }
 }
 stemData2017 [['height']] <- factor (stemData2017 [['height']], levels = c ('A','M','B','C'))
-stemData2017 <- filter (stemData2017, treeID <= 40)
+stemData2017 <- filter (stemData2017, treeID <= 40 & sampleDepth == 1) # TR Need to check that this works and excludes the 1-2cm NSCs.
 
 # Convert tree, date, treatment and sampleHeight to factors for leaf data
 #----------------------------------------------------------------------------------------
