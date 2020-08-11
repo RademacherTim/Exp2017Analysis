@@ -41,7 +41,7 @@ plot (x = filter (stemData2017, date == as_datetime ('2017-07-05') & sampleDepth
       y = filter (stemData2017, date == as_datetime ('2017-07-05') & sampleDepth == 2 & 
                      treatment == 1) [['starch']],
       las = 1, xlab = 'starch concentration in 0-1 cm (% dry weight)', xlim = c (0, 0.8), ylim = c (0, 0.8),
-      ylab = 'soluble sugar concentration in 1-2 cm (% dry weight)', col = tColours [['colour']] [1], pch = 19)
+      ylab = 'starch concentration in 1-2 cm (% dry weight)', col = tColours [['colour']] [1], pch = 19)
 points (x = filter (stemData2017, date == as_datetime ('2017-07-05') & sampleDepth == 1 & 
                        treatment == 2) [['starch']],
         y = filter (stemData2017, date == as_datetime ('2017-07-05') & sampleDepth == 2 & 
@@ -93,7 +93,7 @@ plot (x = filter (stemData2017, date == as_datetime ('2017-11-03') & sampleDepth
       y = filter (stemData2017, date == as_datetime ('2017-11-03') & sampleDepth == 2 & 
                      treatment == 1) [['starch']],
       las = 1, xlab = 'starch concentration in 0-1 cm (% dry weight)', xlim = c (0, 0.8), ylim = c (0, 0.8),
-      ylab = 'soluble sugar concentration in 1-2 cm (% dry weight)', col = tColours [['colour']] [1], pch = 19)
+      ylab = 'starch concentration in 1-2 cm (% dry weight)', col = tColours [['colour']] [1], pch = 19)
 points (x = filter (stemData2017, date == as_datetime ('2017-11-03') & sampleDepth == 1 & 
                        treatment == 2) [['starch']],
         y = filter (stemData2017, date == as_datetime ('2017-11-03') & sampleDepth == 2 & 
