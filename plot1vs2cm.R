@@ -6,6 +6,7 @@
 #----------------------------------------------------------------------------------------
 source ('/home/tim/projects/PlantGrowth/nonstructuralCarbon/processExpNSCData.R')
 source ('plotingFunctions.R')
+library ('vioplot')
 
 # Plot scatterplot of sugar in 1cm versus sugar in second cm for July
 #----------------------------------------------------------------------------------------
@@ -110,4 +111,102 @@ abline (a = 0, b = 1, col = '#666666', lty = 2)
 text (x = 0.75, y = 0.75, cex = 2, label = 'July')
 legend (x = 0, y = 0.72, legend = c ('control','compression','double compression','girdled'),
         box.lty = 0, col = tColours [['colour']] [c (1,3,4,2)], pch = 19)
+
+# Time series plots of July versus November samples 
+#----------------------------------------------------------------------------------------
+par (mfrow = c (2, 2))
+plot (x = filter (stemData2017, sampleDepth == 2, treatment == 1) [['date']],
+      y = filter (stemData2017, sampleDepth == 2, treatment == 1) [['sugar']], las = 1, 
+      pch = 19, col = tColours [['colour']] [1], xlab = 'date', 
+      ylab = 'sugar concentration (% dry weight)', ylim = c (0.2, 1.3))
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 1) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 1) [['sugar']], col = tColours [['colour']] [1]))
+plot (x = filter (stemData2017, sampleDepth == 2, treatment == 2, sampleHeight == 1) [['date']],
+      y = filter (stemData2017, sampleDepth == 2, treatment == 2, sampleHeight == 1) [['sugar']], las = 1, 
+      pch = 19, col = tColours [['colour']] [2], xlab = 'date', 
+      ylab = 'sugar concentration (% dry weight)', ylim = c (0.2, 1.3))
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 2, sampleHeight == 1) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 2, sampleHeight == 1) [['sugar']], col = tColours [['colour']] [2]))
+points (x = filter (stemData2017, sampleDepth == 2, treatment == 2, sampleHeight == 2) [['date']],
+        y = filter (stemData2017, sampleDepth == 2, treatment == 2, sampleHeight == 2) [['sugar']], las = 1, 
+        col = tColours [['colour']] [2])
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 2, sampleHeight == 2) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 2, sampleHeight == 2) [['sugar']], lty = 2, col = tColours [['colour']] [2]))
+plot (x = filter (stemData2017, sampleDepth == 2, treatment == 3, sampleHeight == 1) [['date']],
+      y = filter (stemData2017, sampleDepth == 2, treatment == 3, sampleHeight == 1) [['sugar']], las = 1, 
+      pch = 19, col = tColours [['colour']] [3], xlab = 'date', 
+      ylab = 'sugar concentration (% dry weight)', ylim = c (0.2, 1.3))
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 3, sampleHeight == 1) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 3, sampleHeight == 1) [['sugar']], col = tColours [['colour']] [3]))
+points (x = filter (stemData2017, sampleDepth == 2, treatment == 3, sampleHeight == 2) [['date']],
+        y = filter (stemData2017, sampleDepth == 2, treatment == 3, sampleHeight == 2) [['sugar']], las = 1, 
+        col = tColours [['colour']] [3])
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 3, sampleHeight == 2) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 3, sampleHeight == 2) [['sugar']], lty = 2, col = tColours [['colour']] [3]))
+plot (x = filter (stemData2017, sampleDepth == 2, treatment == 4, sampleHeight == 0.5) [['date']],
+      y = filter (stemData2017, sampleDepth == 2, treatment == 4, sampleHeight == 0.5) [['sugar']], las = 1, 
+      pch = 19, col = tColours [['colour']] [4], xlab = 'date', 
+      ylab = 'sugar concentration (% dry weight)', ylim = c (0.2, 1.3))
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 4, sampleHeight == 0.5) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 4, sampleHeight == 0.5) [['sugar']], col = tColours [['colour']] [4]))
+points (x = filter (stemData2017, sampleDepth == 2, treatment == 4, sampleHeight == 1.5) [['date']],
+        y = filter (stemData2017, sampleDepth == 2, treatment == 4, sampleHeight == 1.5) [['sugar']], las = 1, 
+        col = tColours [['colour']] [4], pch = 23)
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 4, sampleHeight == 1.5) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 4, sampleHeight == 1.5) [['sugar']], lty = 3, col = tColours [['colour']] [4]))
+points (x = filter (stemData2017, sampleDepth == 2, treatment == 4, sampleHeight == 2.5) [['date']],
+        y = filter (stemData2017, sampleDepth == 2, treatment == 4, sampleHeight == 2.5) [['sugar']], las = 1, 
+        col = tColours [['colour']] [4])
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 4, sampleHeight == 2.5) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 4, sampleHeight == 2.5) [['sugar']], lty = 2, col = tColours [['colour']] [4]))
+
+# Time series plots of July versus November samples 
+#----------------------------------------------------------------------------------------
+par (mfrow = c (2, 2))
+plot (x = filter (stemData2017, sampleDepth == 2, treatment == 1) [['date']],
+      y = filter (stemData2017, sampleDepth == 2, treatment == 1) [['starch']], las = 1, 
+      pch = 19, col = tColours [['colour']] [1], xlab = 'date', 
+      ylab = 'starch concentration (% dry weight)', ylim = c (0, 0.9))
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 1) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 1) [['starch']], col = tColours [['colour']] [1]))
+plot (x = filter (stemData2017, sampleDepth == 2, treatment == 2, sampleHeight == 1) [['date']],
+      y = filter (stemData2017, sampleDepth == 2, treatment == 2, sampleHeight == 1) [['starch']], las = 1, 
+      pch = 19, col = tColours [['colour']] [2], xlab = 'date', 
+      ylab = 'starch concentration (% dry weight)', ylim = c (0, 0.9))
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 2, sampleHeight == 1) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 2, sampleHeight == 1) [['starch']], col = tColours [['colour']] [2]))
+points (x = filter (stemData2017, sampleDepth == 2, treatment == 2, sampleHeight == 2) [['date']],
+        y = filter (stemData2017, sampleDepth == 2, treatment == 2, sampleHeight == 2) [['starch']], las = 1, 
+        col = tColours [['colour']] [2])
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 2, sampleHeight == 2) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 2, sampleHeight == 2) [['starch']], lty = 2, col = tColours [['colour']] [2]))
+plot (x = filter (stemData2017, sampleDepth == 2, treatment == 3, sampleHeight == 1) [['date']],
+      y = filter (stemData2017, sampleDepth == 2, treatment == 3, sampleHeight == 1) [['starch']], las = 1, 
+      pch = 19, col = tColours [['colour']] [3], xlab = 'date', 
+      ylab = 'starch concentration (% dry weight)', ylim = c (0, 0.9))
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 3, sampleHeight == 1) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 3, sampleHeight == 1) [['starch']], col = tColours [['colour']] [3]))
+points (x = filter (stemData2017, sampleDepth == 2, treatment == 3, sampleHeight == 2) [['date']],
+        y = filter (stemData2017, sampleDepth == 2, treatment == 3, sampleHeight == 2) [['starch']], las = 1, 
+        col = tColours [['colour']] [3])
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 3, sampleHeight == 2) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 3, sampleHeight == 2) [['starch']], lty = 2, col = tColours [['colour']] [3]))
+plot (x = filter (stemData2017, sampleDepth == 2, treatment == 4, sampleHeight == 0.5) [['date']],
+      y = filter (stemData2017, sampleDepth == 2, treatment == 4, sampleHeight == 0.5) [['starch']], las = 1, 
+      pch = 19, col = tColours [['colour']] [4], xlab = 'date', 
+      ylab = 'starch concentration (% dry weight)', ylim = c (0, 0.9))
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 4, sampleHeight == 0.5) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 4, sampleHeight == 0.5) [['starch']], col = tColours [['colour']] [4]))
+points (x = filter (stemData2017, sampleDepth == 2, treatment == 4, sampleHeight == 1.5) [['date']],
+        y = filter (stemData2017, sampleDepth == 2, treatment == 4, sampleHeight == 1.5) [['starch']], las = 1, 
+        col = tColours [['colour']] [4], pch = 23)
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 4, sampleHeight == 1.5) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 4, sampleHeight == 1.5) [['starch']], lty = 3, col = tColours [['colour']] [4]))
+points (x = filter (stemData2017, sampleDepth == 2, treatment == 4, sampleHeight == 2.5) [['date']],
+        y = filter (stemData2017, sampleDepth == 2, treatment == 4, sampleHeight == 2.5) [['starch']], las = 1, 
+        col = tColours [['colour']] [4])
+sapply (1:41, function (x) lines (x = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 4, sampleHeight == 2.5) [['date']],
+                                  y = filter (stemData2017, sampleDepth == 2, treeID == x, treatment == 4, sampleHeight == 2.5) [['starch']], lty = 2, col = tColours [['colour']] [4]))
+
 #========================================================================================
+
