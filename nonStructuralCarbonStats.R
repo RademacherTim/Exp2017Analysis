@@ -42,7 +42,8 @@ for (i in 1:dim (stemData2017) [1]) {
   }
 }
 stemData2017 [['height']] <- factor (stemData2017 [['height']], levels = c ('A','M','B','C'))
-stemData2017 <- filter (stemData2017, treeID <= 40 & sampleDepth == 1) # TR Need to check that this works and excludes the 1-2cm NSCs.
+deepStemData2017 <- filter (stemData2017, treeID <= 40 & sampleDepth == 2)
+stemData2017     <- filter (stemData2017, treeID <= 40 & sampleDepth == 1)
 
 # Convert tree, date, treatment and sampleHeight to factors for leaf data
 #----------------------------------------------------------------------------------------
@@ -68,20 +69,23 @@ stemData2017 [['deltaSugar']] <- stemData2017 [['sugar']] -
                                  stemData2017 [['sugar']] [1:80]
 stemData2017 [['deltaStarch']] <- stemData2017 [['starch']] - 
                                   stemData2017 [['starch']] [1:80]
+deepStemData2017 [['deltaSugar']] <- deepStemData2017 [['sugar']] - 
+                                 deepStemData2017 [['sugar']] [1:80]
+deepStemData2017 [['deltaStarch']] <- deepStemData2017 [['starch']] - 
+                                  deepStemData2017 [['starch']] [1:80]
 rootData2017 [['deltaSugar']] <- rootData2017 [['sugar']] - 
                                  rootData2017 [['sugar']] [1:40]
 rootData2017 [['deltaStarch']] <- rootData2017 [['starch']] - 
                                   rootData2017 [['starch']] [1:40]
-
-# Fit mixed effects model with tree as random effect to analyse stem soluble sugar for 1cm of wood,
-# Fit model to the difference from the July baseline
+# Fit mixed effects model with tree as random effect to analyse stem soluble sugar for 
+# 0-1 cm of wood, fit model to the difference from the July baseline
 #----------------------------------------------------------------------------------------
 M1 <- lmer (formula = deltaSugar ~ (1 | tree) + date + date:treatment:height,
             data = stemData2017 [81:320, ],
             REML = TRUE)
 summary (M1)
 
-# Difference in stem starch concentrations
+# Fit mixed effects model to the wood starch concentration difference from baseline for 0-1 cm  
 #----------------------------------------------------------------------------------------
 M2 <- lmer (formula = deltaStarch ~ (1 | tree) + date + date:treatment:height,
             data = stemData2017 [81:320, ],
@@ -94,7 +98,6 @@ M3 <- lmer (formula = deltaSugar ~ (1 | tree) + date + treatment:date,
             data = leafData2017 [41:160, ],
             REML = TRUE)
 summary (M3)
-
 
 # Fit mixed effects model to the leaf starch concentration difference from baseline 
 #----------------------------------------------------------------------------------------
@@ -116,5 +119,23 @@ M6 <- lmer (formula = deltaStarch ~ (1 | tree) + date + treatment:date,
             data = rootData2017 [41:160, ],
             REML = TRUE)
 summary (M6)
+
+# Check whether mean difference in wood soluble sugars was less in 1-2 cm than in 0-1 cm 
+#----------------------------------------------------------------------------------------
+t.test (stemData2017     [['deltaSugar']] [stemData2017     [['date']] == '2017-11-03'],
+        deepStemData2017 [['deltaSugar']] [deepStemData2017 [['date']] == '2017-11-03'], 
+        paired = TRUE, alternative = 'less')
+
+# Check whether mean difference in wood starch was less in 1-2 cm than in 0-1 cm
+#----------------------------------------------------------------------------------------
+t.test (stemData2017     [['deltaStarch']] [stemData2017     [['date']] == '2017-11-03'],
+        deepStemData2017 [['deltaStarch']] [deepStemData2017 [['date']] == '2017-11-03'], 
+        paired = TRUE, alternative = 'less')
+
+deepStemData2017 %>% group_by (treatment, sampleHeight) %>% 
+  summarise (meanDeltaSugar  = mean (deltaSugar),
+             seDeltaSugar    = se   (deltaSugar),
+             meanDeltaStarch = mean (deltaStarch),
+             seDeltaStarch   = se   (deltaStarch))
 
 #========================================================================================

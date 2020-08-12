@@ -29,7 +29,7 @@ rootData2017 [['date']] <- as_date (rootData2017 [['date']])
 summaryDataLeaf <- leafData2017 %>% group_by (date, treatment) %>% 
   summarise (meanSugar  = mean (sugar,  na.rm = T), seSugar  = se (sugar),  nSugar  = sum (!is.na (sugar)),
              meanStarch = mean (starch, na.rm = T), seStarch = se (starch), nStarch = sum (!is.na (starch)))
-summaryDataStem <- stemData2017 %>% group_by (date, treatment, sampleHeight) %>% 
+summaryDataStem <- stemData2017 %>% group_by (date, treatment, sampleHeight, sampleDepth) %>% 
   summarise (meanSugar  = mean (sugar,  na.rm = T), seSugar  = se (sugar),  nSugar  = sum (!is.na (sugar)),
              meanStarch = mean (starch, na.rm = T), seStarch = se (starch), nStarch = sum (!is.na (starch)))
 summaryDataRoot <- rootData2017 %>% group_by (date, treatment) %>% 
@@ -40,21 +40,35 @@ summaryDataRoot <- rootData2017 %>% group_by (date, treatment) %>%
 #----------------------------------------------------------------------------------------
 adjRatiosSugar  <- summaryDataLeaf [['meanSugar']]  [1:4] / summaryDataLeaf [['meanSugar']]  [1]
 adjRatiosStarch <- summaryDataLeaf [['meanStarch']] [1:4] / summaryDataLeaf [['meanStarch']] [1]
-summaryDataLeaf  <- summaryDataLeaf %>% mutate (adjRatioSugar = adjRatiosSugar [treatment],
+summaryDataLeaf  <- summaryDataLeaf %>% mutate (adjRatioSugar  = adjRatiosSugar  [treatment],
                                                 adjRatioStarch = adjRatiosStarch [treatment])
-ratios  <- summaryDataStem %>% filter (date == '2017-07-05') %>% 
+ratios0 <- summaryDataStem %>% filter (date == '2017-07-05', sampleDepth == 1) %>% 
   group_by (treatment) %>% mutate (treatmentMeanSugar = mean (meanSugar), 
-                                   treatmentMeanStarch = mean (meanStarch)) %>%
-  add_column (controlMeanSugar = summaryDataStem [['meanSugar']] [1], 
+                                                treatmentMeanStarch = mean (meanStarch)) %>%
+  add_column (controlMeanSugar  = summaryDataStem [['meanSugar']]  [1], 
               controlMeanStarch = summaryDataStem [['meanStarch']] [1]) %>%  
-  mutate (adjRatioSugar = treatmentMeanSugar / controlMeanSugar, 
-          adjRatioStarch = treatmentMeanStarch / controlMeanStarch) %>% ungroup %>% select (adjRatioSugar, adjRatioStarch)
-summaryDataStem <- add_column (summaryDataStem, adjRatioSugar = rep (ratios [['adjRatioSugar']], 4), 
-                               adjRatioStarch = rep (ratios [['adjRatioStarch']], 4))
+  mutate (adjRatioSugar  = treatmentMeanSugar  / controlMeanSugar, 
+          adjRatioStarch = treatmentMeanStarch / controlMeanStarch) %>% ungroup %>% 
+  select (adjRatioSugar, adjRatioStarch)
+summaryDataStem0 <- summaryDataStem %>% filter (sampleDepth == 1) %>% 
+  add_column (adjRatioSugar  = rep (ratios0 [['adjRatioSugar']],  4), 
+              adjRatioStarch = rep (ratios0 [['adjRatioStarch']], 4))
+ratios1 <- summaryDataStem %>% filter (date == '2017-07-05', sampleDepth == 2) %>% 
+  group_by (treatment) %>% mutate (treatmentMeanSugar  = mean (meanSugar), 
+                                   treatmentMeanStarch = mean (meanStarch)) %>%
+  add_column (controlMeanSugar  = summaryDataStem [['meanSugar']]  [1], 
+              controlMeanStarch = summaryDataStem [['meanStarch']] [1]) %>%  
+  mutate (adjRatioSugar  = treatmentMeanSugar  / controlMeanSugar, 
+          adjRatioStarch = treatmentMeanStarch / controlMeanStarch) %>% ungroup %>% 
+  select (adjRatioSugar, adjRatioStarch)
+summaryDataStem1 <- summaryDataStem %>% filter (sampleDepth == 2) %>% 
+  add_column (adjRatioSugar  = rep (ratios0 [['adjRatioSugar']],  2), 
+              adjRatioStarch = rep (ratios0 [['adjRatioStarch']], 2))
 adjRatiosSugar  <- summaryDataRoot [['meanSugar']]  [1:4] / summaryDataRoot [['meanSugar']]  [1]
 adjRatiosStarch <- summaryDataRoot [['meanStarch']] [1:4] / summaryDataRoot [['meanStarch']] [1]
 summaryDataRoot  <- summaryDataRoot %>% mutate (adjRatioSugar = adjRatiosSugar [treatment],
                                                 adjRatioStarch = adjRatiosStarch [treatment])
+
 # Plot leaf soluble sugar concentrations over time
 #----------------------------------------------------------------------------------------
 png ('../fig/Exp2017LeafSugarConcentrationOverDateAdjusted.png', width = 1200, height = 380)
@@ -225,15 +239,15 @@ for (i in c (1, 3, 4, 2)) {
 }
 dev.off  ()
 
-# Plot wood soluble sugar concentrations over time
+# Plot wood soluble sugar concentrations for 0-1 cm over time
 #----------------------------------------------------------------------------------------
 PLOT <- TRUE; if (PLOT) {
   png ('../fig/Exp2017StemSugarConcentrationOverDateAdjusted.png', width = 1200, height = 380)
   layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
   par (mgp = c (3, 1, 0), mar = c (5, 12, 1, 0))
-  con1 <- summaryDataStem [['treatment']] == 1
-  plot (x = summaryDataStem [['date']] [con1],
-        y = summaryDataStem [['meanSugar']] [con1], 
+  con1 <- summaryDataStem0 [['treatment']] == 1
+  plot (x = summaryDataStem0 [['date']] [con1],
+        y = summaryDataStem0 [['meanSugar']] [con1], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 2.5), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 3, 
         col = tColours [['colour']] [1], cex.lab = 1.8)
@@ -242,13 +256,13 @@ PLOT <- TRUE; if (PLOT) {
   #--------------------------------------------------------------------------------------
   return <- criticalDates ('control') 
   
-  polygon (x = c (summaryDataStem [['date']] [con1], 
-                  rev (summaryDataStem [['date']] [con1])),
-           y = c (summaryDataStem [['meanSugar']] [con1] - summaryDataStem [['seSugar']] [con1], 
-                  rev (summaryDataStem [['meanSugar']] [con1] + summaryDataStem [['seSugar']] [con1])),
+  polygon (x = c (summaryDataStem0 [['date']] [con1], 
+                  rev (summaryDataStem0 [['date']] [con1])),
+           y = c (summaryDataStem0 [['meanSugar']] [con1] - summaryDataStem0 [['seSugar']] [con1], 
+                  rev (summaryDataStem0 [['meanSugar']] [con1] + summaryDataStem0 [['seSugar']] [con1])),
            col = addOpacity (tColours [['colour']] [1], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con1], 
-         y = summaryDataStem [['meanSugar']] [con1],
+  lines (x = summaryDataStem0 [['date']] [con1], 
+         y = summaryDataStem0 [['meanSugar']] [con1],
          col = tColours [['colour']] [1], lwd = 3)
   
   # Add axis and labels
@@ -280,15 +294,15 @@ PLOT <- TRUE; if (PLOT) {
   # Add panel of the compressed trees
   #----------------------------------------------------------------------------------------
   par (mar = c (5, 0, 1, 0))
-  con <- summaryDataStem [['treatment']] == 3 & summaryDataStem [['sampleHeight']] == 2
-  plot (x = summaryDataStem [['date']] [con1],
-        y = summaryDataStem [['meanSugar']] [con1] * summaryDataStem [['adjRatioSugar']] [con], 
+  con <- summaryDataStem0 [['treatment']] == 3 & summaryDataStem0 [['sampleHeight']] == 2
+  plot (x = summaryDataStem0 [['date']] [con1],
+        y = summaryDataStem0 [['meanSugar']] [con1] * summaryDataStem0 [['adjRatioSugar']] [con], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 2.5), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
-  polygon (x = c (summaryDataStem [['date']] [con1], 
-                  rev (summaryDataStem [['date']] [con1])),
-           y = c (summaryDataStem [['meanSugar']] [con1] * summaryDataStem [['adjRatioSugar']] [con] - summaryDataStem [['seSugar']] [con1], 
-                  rev (summaryDataStem [['meanSugar']] [con1] * summaryDataStem [['adjRatioSugar']] [con] + summaryDataStem [['seSugar']] [con1])),
+  polygon (x = c (summaryDataStem0 [['date']] [con1], 
+                  rev (summaryDataStem0 [['date']] [con1])),
+           y = c (summaryDataStem0 [['meanSugar']] [con1] * summaryDataStem0 [['adjRatioSugar']] [con] - summaryDataStem0 [['seSugar']] [con1], 
+                  rev (summaryDataStem0 [['meanSugar']] [con1] * summaryDataStem0 [['adjRatioSugar']] [con] + summaryDataStem0 [['seSugar']] [con1])),
            col = addOpacity ('#999999', 0.2), lty = 0)
   # Add critical dates
   #--------------------------------------------------------------------------------------
@@ -299,22 +313,22 @@ PLOT <- TRUE; if (PLOT) {
   abline (v = as_date ('2017-11-15'), col = '#999999')
   
   # Add compressed trees
-  polygon (x = c (summaryDataStem [['date']] [con], 
-                  rev (summaryDataStem [['date']] [con])),
-           y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
-                  rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+  polygon (x = c (summaryDataStem0 [['date']] [con], 
+                  rev (summaryDataStem0 [['date']] [con])),
+           y = c (summaryDataStem0 [['meanSugar']] [con] - summaryDataStem0 [['seSugar']] [con], 
+                  rev (summaryDataStem0 [['meanSugar']] [con] + summaryDataStem0 [['seSugar']] [con])),
            col = addOpacity (tColours [['colour']] [3], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con], 
-         y = summaryDataStem [['meanSugar']] [con],
+  lines (x = summaryDataStem0 [['date']] [con], 
+         y = summaryDataStem0 [['meanSugar']] [con],
          col = tColours [['colour']] [3], lwd = 3, lty = 2)
-  con <- summaryDataStem [['treatment']] == 3 & summaryDataStem [['sampleHeight']] == 1
-  polygon (x = c (summaryDataStem [['date']] [con], 
-                  rev (summaryDataStem [['date']] [con])),
-           y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
-                  rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+  con <- summaryDataStem0 [['treatment']] == 3 & summaryDataStem0 [['sampleHeight']] == 1
+  polygon (x = c (summaryDataStem0 [['date']] [con], 
+                  rev (summaryDataStem0 [['date']] [con])),
+           y = c (summaryDataStem0 [['meanSugar']] [con] - summaryDataStem0 [['seSugar']] [con], 
+                  rev (summaryDataStem0 [['meanSugar']] [con] + summaryDataStem0 [['seSugar']] [con])),
            col = addOpacity (tColours [['colour']] [3], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con], 
-         y = summaryDataStem [['meanSugar']] [con],
+  lines (x = summaryDataStem0 [['date']] [con], 
+         y = summaryDataStem0 [['meanSugar']] [con],
          col = tColours [['colour']] [3], lwd = 3, lty = 3)
   
   # Add axis
@@ -331,15 +345,15 @@ PLOT <- TRUE; if (PLOT) {
   # Add panel for double compressed trees
   #----------------------------------------------------------------------------------------
   par (mar = c (5, 0, 1, 0))
-  con <- summaryDataStem [['treatment']] == 4 & summaryDataStem [['sampleHeight']] == 2.5
-  plot (x = summaryDataStem [['date']] [con1],
-        y = summaryDataStem [['meanSugar']] [con1] * summaryDataStem [['adjRatioSugar']] [con], 
+  con <- summaryDataStem0 [['treatment']] == 4 & summaryDataStem0 [['sampleHeight']] == 2.5
+  plot (x = summaryDataStem0 [['date']] [con1],
+        y = summaryDataStem0 [['meanSugar']] [con1] * summaryDataStem0 [['adjRatioSugar']] [con], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 2.5), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
-  polygon (x = c (summaryDataStem [['date']] [con1], 
-                  rev (summaryDataStem [['date']] [con1])),
-           y = c (summaryDataStem [['meanSugar']] [con1] * summaryDataStem [['adjRatioSugar']] [con] - summaryDataStem [['seSugar']] [con1], 
-                  rev (summaryDataStem [['meanSugar']] [con1] * summaryDataStem [['adjRatioSugar']] [con] + summaryDataStem [['seSugar']] [con1])),
+  polygon (x = c (summaryDataStem0 [['date']] [con1], 
+                  rev (summaryDataStem0 [['date']] [con1])),
+           y = c (summaryDataStem0 [['meanSugar']] [con1] * summaryDataStem0 [['adjRatioSugar']] [con] - summaryDataStem0 [['seSugar']] [con1], 
+                  rev (summaryDataStem0 [['meanSugar']] [con1] * summaryDataStem0 [['adjRatioSugar']] [con] + summaryDataStem0 [['seSugar']] [con1])),
            col = addOpacity ('#999999', 0.2), lty = 0)
   # Add critical dates
   #--------------------------------------------------------------------------------------
@@ -347,31 +361,31 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add double compressed trees
   #----------------------------------------------------------------------------------------
-  polygon (x = c (summaryDataStem [['date']] [con], 
-                  rev (summaryDataStem [['date']] [con])),
-           y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
-                  rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+  polygon (x = c (summaryDataStem0 [['date']] [con], 
+                  rev (summaryDataStem0 [['date']] [con])),
+           y = c (summaryDataStem0 [['meanSugar']] [con] - summaryDataStem0 [['seSugar']] [con], 
+                  rev (summaryDataStem0 [['meanSugar']] [con] + summaryDataStem0 [['seSugar']] [con])),
            col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con], 
-         y = summaryDataStem [['meanSugar']] [con],
+  lines (x = summaryDataStem0 [['date']] [con], 
+         y = summaryDataStem0 [['meanSugar']] [con],
          col = tColours [['colour']] [4], lwd = 3, lty = 2)
-  con <- summaryDataStem [['treatment']] == 4 & summaryDataStem [['sampleHeight']] == 1.5
-  polygon (x = c (summaryDataStem [['date']] [con], 
-                  rev (summaryDataStem [['date']] [con])),
-           y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
-                  rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+  con <- summaryDataStem0 [['treatment']] == 4 & summaryDataStem0 [['sampleHeight']] == 1.5
+  polygon (x = c (summaryDataStem0 [['date']] [con], 
+                  rev (summaryDataStem0 [['date']] [con])),
+           y = c (summaryDataStem0 [['meanSugar']] [con] - summaryDataStem0 [['seSugar']] [con], 
+                  rev (summaryDataStem0 [['meanSugar']] [con] + summaryDataStem0 [['seSugar']] [con])),
            col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con], 
-         y = summaryDataStem [['meanSugar']] [con],
+  lines (x = summaryDataStem0 [['date']] [con], 
+         y = summaryDataStem0 [['meanSugar']] [con],
          col = tColours [['colour']] [4], lwd = 3, lty = 4)
-  con <- summaryDataStem [['treatment']] == 4 & summaryDataStem [['sampleHeight']] == 0.5
-  polygon (x = c (summaryDataStem [['date']] [con], 
-                  rev (summaryDataStem [['date']] [con])),
-           y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
-                  rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+  con <- summaryDataStem0 [['treatment']] == 4 & summaryDataStem0 [['sampleHeight']] == 0.5
+  polygon (x = c (summaryDataStem0 [['date']] [con], 
+                  rev (summaryDataStem0 [['date']] [con])),
+           y = c (summaryDataStem0 [['meanSugar']] [con] - summaryDataStem0 [['seSugar']] [con], 
+                  rev (summaryDataStem0 [['meanSugar']] [con] + summaryDataStem0 [['seSugar']] [con])),
            col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con], 
-         y = summaryDataStem [['meanSugar']] [con],
+  lines (x = summaryDataStem0 [['date']] [con], 
+         y = summaryDataStem0 [['meanSugar']] [con],
          col = tColours [['colour']] [4], lwd = 3, lty = 3)
   
   # Add axis
@@ -392,15 +406,15 @@ PLOT <- TRUE; if (PLOT) {
   # Add panel of the girdled trees
   #----------------------------------------------------------------------------------------
   par (mar = c (5, 0, 1, 0))
-  con <- summaryDataStem [['treatment']] == 2 & summaryDataStem [['sampleHeight']] == 2
-  plot (x = summaryDataStem [['date']] [con1],
-        y = summaryDataStem [['meanSugar']] [con1] * summaryDataStem [['adjRatioSugar']] [con], 
+  con <- summaryDataStem0 [['treatment']] == 2 & summaryDataStem0 [['sampleHeight']] == 2
+  plot (x = summaryDataStem0 [['date']] [con1],
+        y = summaryDataStem0 [['meanSugar']] [con1] * summaryDataStem0 [['adjRatioSugar']] [con], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 2.5), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
-  polygon (x = c (summaryDataStem [['date']] [con1], 
-                  rev (summaryDataStem [['date']] [con1])),
-           y = c (summaryDataStem [['meanSugar']] [con1] * summaryDataStem [['adjRatioSugar']] [con] - summaryDataStem [['seSugar']] [con1], 
-                  rev (summaryDataStem [['meanSugar']] [con1] * summaryDataStem [['adjRatioSugar']] [con] + summaryDataStem [['seSugar']] [con1])),
+  polygon (x = c (summaryDataStem0 [['date']] [con1], 
+                  rev (summaryDataStem0 [['date']] [con1])),
+           y = c (summaryDataStem0 [['meanSugar']] [con1] * summaryDataStem0 [['adjRatioSugar']] [con] - summaryDataStem0 [['seSugar']] [con1], 
+                  rev (summaryDataStem0 [['meanSugar']] [con1] * summaryDataStem0 [['adjRatioSugar']] [con] + summaryDataStem0 [['seSugar']] [con1])),
            col = addOpacity ('#999999', 0.2), lty = 0)
   # Add critical dates
   #--------------------------------------------------------------------------------------
@@ -408,23 +422,23 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add girdled trees
   #----------------------------------------------------------------------------------------
-  con <- summaryDataStem [['treatment']] == 2 & summaryDataStem [['sampleHeight']] == 2
-  polygon (x = c (summaryDataStem [['date']] [con], 
-                  rev (summaryDataStem [['date']] [con])),
-           y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
-                  rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+  con <- summaryDataStem0 [['treatment']] == 2 & summaryDataStem0 [['sampleHeight']] == 2
+  polygon (x = c (summaryDataStem0 [['date']] [con], 
+                  rev (summaryDataStem0 [['date']] [con])),
+           y = c (summaryDataStem0 [['meanSugar']] [con] - summaryDataStem0 [['seSugar']] [con], 
+                  rev (summaryDataStem0 [['meanSugar']] [con] + summaryDataStem0 [['seSugar']] [con])),
            col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con], 
-         y = summaryDataStem [['meanSugar']] [con],
+  lines (x = summaryDataStem0 [['date']] [con], 
+         y = summaryDataStem0 [['meanSugar']] [con],
          col = tColours [['colour']] [2], lwd = 3, lty = 2)
-  con <- summaryDataStem [['treatment']] == 2 & summaryDataStem [['sampleHeight']] == 1
-  polygon (x = c (summaryDataStem [['date']] [con], 
-                  rev (summaryDataStem [['date']] [con])),
-           y = c (summaryDataStem [['meanSugar']] [con] - summaryDataStem [['seSugar']] [con], 
-                  rev (summaryDataStem [['meanSugar']] [con] + summaryDataStem [['seSugar']] [con])),
+  con <- summaryDataStem0 [['treatment']] == 2 & summaryDataStem0 [['sampleHeight']] == 1
+  polygon (x = c (summaryDataStem0 [['date']] [con], 
+                  rev (summaryDataStem0 [['date']] [con])),
+           y = c (summaryDataStem0 [['meanSugar']] [con] - summaryDataStem0 [['seSugar']] [con], 
+                  rev (summaryDataStem0 [['meanSugar']] [con] + summaryDataStem0 [['seSugar']] [con])),
            col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con], 
-         y = summaryDataStem [['meanSugar']] [con],
+  lines (x = summaryDataStem0 [['date']] [con], 
+         y = summaryDataStem0 [['meanSugar']] [con],
          col = tColours [['colour']] [2], lwd = 3, lty = 3)
   
   # Add axis
@@ -441,15 +455,15 @@ PLOT <- TRUE; if (PLOT) {
   dev.off  ()
 }
 
-# Plot wood starch concentrations over time
+# Plot wood starch concentrations for 0-1 cm over time
 #----------------------------------------------------------------------------------------
 PLOT <- TRUE; if (PLOT) {
   png ('../fig/Exp2017StemStarchConcentrationOverDateAdjusted.png', width = 1200, height = 380)
   layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
   par (mgp = c (3, 1, 0), mar = c (5, 12, 1, 0))
-  con1 <- summaryDataStem [['treatment']] == 1
-  plot (x = summaryDataStem [['date']] [con1],
-        y = summaryDataStem [['meanStarch']] [con1], 
+  con1 <- summaryDataStem0 [['treatment']] == 1
+  plot (x = summaryDataStem0 [['date']] [con1],
+        y = summaryDataStem0 [['meanStarch']] [con1], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 3, 
         col = tColours [['colour']] [1], cex.lab = 1.8)
@@ -464,13 +478,13 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add actual group
   #----------------------------------------------------------------------------------------
-  polygon (x = c (summaryDataStem [['date']] [con1], 
-                  rev (summaryDataStem [['date']] [con1])),
-           y = c (summaryDataStem [['meanStarch']] [con1] - summaryDataStem [['seStarch']] [con1], 
-                  rev (summaryDataStem [['meanStarch']] [con1] + summaryDataStem [['seStarch']] [con1])),
+  polygon (x = c (summaryDataStem0 [['date']] [con1], 
+                  rev (summaryDataStem0 [['date']] [con1])),
+           y = c (summaryDataStem0 [['meanStarch']] [con1] - summaryDataStem0 [['seStarch']] [con1], 
+                  rev (summaryDataStem0 [['meanStarch']] [con1] + summaryDataStem0 [['seStarch']] [con1])),
            col = addOpacity (tColours [['colour']] [1], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con1], 
-         y = summaryDataStem [['meanStarch']] [con1],
+  lines (x = summaryDataStem0 [['date']] [con1], 
+         y = summaryDataStem0 [['meanStarch']] [con1],
          col = tColours [['colour']] [1], lwd = 3)
   
   # Add axis and labels
@@ -501,16 +515,16 @@ PLOT <- TRUE; if (PLOT) {
 
   # Add panel of the compressed trees
   #----------------------------------------------------------------------------------------
-  con <- summaryDataStem [['treatment']] == 3 & summaryDataStem [['sampleHeight']] == 2
+  con <- summaryDataStem0 [['treatment']] == 3 & summaryDataStem0 [['sampleHeight']] == 2
   par (mar = c (5, 0, 1, 0))
-  plot (x = summaryDataStem [['date']] [con1],
-        y = summaryDataStem [['meanStarch']] [con1] * summaryDataStem [['adjRatioStarch']] [con], 
+  plot (x = summaryDataStem0 [['date']] [con1],
+        y = summaryDataStem0 [['meanStarch']] [con1] * summaryDataStem0 [['adjRatioStarch']] [con], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
-  polygon (x = c (summaryDataStem [['date']] [con1], 
-                  rev (summaryDataStem [['date']] [con1])),
-           y = c (summaryDataStem [['meanStarch']] [con1] * summaryDataStem [['adjRatioStarch']] [con] - summaryDataStem [['seStarch']] [con1], 
-                  rev (summaryDataStem [['meanStarch']] [con1] * summaryDataStem [['adjRatioStarch']] [con] + summaryDataStem [['seStarch']] [con1])),
+  polygon (x = c (summaryDataStem0 [['date']] [con1], 
+                  rev (summaryDataStem0 [['date']] [con1])),
+           y = c (summaryDataStem0 [['meanStarch']] [con1] * summaryDataStem0 [['adjRatioStarch']] [con] - summaryDataStem0 [['seStarch']] [con1], 
+                  rev (summaryDataStem0 [['meanStarch']] [con1] * summaryDataStem0 [['adjRatioStarch']] [con] + summaryDataStem0 [['seStarch']] [con1])),
            col = addOpacity ('#999999', 0.2), lty = 0)
   
   # Add critical dates
@@ -523,22 +537,22 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add compressed trees
   #----------------------------------------------------------------------------------------
-  polygon (x = c (summaryDataStem [['date']] [con], 
-                  rev (summaryDataStem [['date']] [con])),
-           y = c (summaryDataStem [['meanStarch']] [con] - summaryDataStem [['seStarch']] [con], 
-                  rev (summaryDataStem [['meanStarch']] [con] + summaryDataStem [['seStarch']] [con])),
+  polygon (x = c (summaryDataStem0 [['date']] [con], 
+                  rev (summaryDataStem0 [['date']] [con])),
+           y = c (summaryDataStem0 [['meanStarch']] [con] - summaryDataStem0 [['seStarch']] [con], 
+                  rev (summaryDataStem0 [['meanStarch']] [con] + summaryDataStem0 [['seStarch']] [con])),
            col = addOpacity (tColours [['colour']] [3], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con], 
-         y = summaryDataStem [['meanStarch']] [con],
+  lines (x = summaryDataStem0 [['date']] [con], 
+         y = summaryDataStem0 [['meanStarch']] [con],
          col = tColours [['colour']] [3], lwd = 3, lty = 2)
-  con <- summaryDataStem [['treatment']] == 3 & summaryDataStem [['sampleHeight']] == 1
-  polygon (x = c (summaryDataStem [['date']] [con], 
-                  rev (summaryDataStem [['date']] [con])),
-           y = c (summaryDataStem [['meanStarch']] [con] - summaryDataStem [['seStarch']] [con], 
-                  rev (summaryDataStem [['meanStarch']] [con] + summaryDataStem [['seStarch']] [con])),
+  con <- summaryDataStem0 [['treatment']] == 3 & summaryDataStem0 [['sampleHeight']] == 1
+  polygon (x = c (summaryDataStem0 [['date']] [con], 
+                  rev (summaryDataStem0 [['date']] [con])),
+           y = c (summaryDataStem0 [['meanStarch']] [con] - summaryDataStem0 [['seStarch']] [con], 
+                  rev (summaryDataStem0 [['meanStarch']] [con] + summaryDataStem0 [['seStarch']] [con])),
            col = addOpacity (tColours [['colour']] [3], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con], 
-         y = summaryDataStem [['meanStarch']] [con],
+  lines (x = summaryDataStem0 [['date']] [con], 
+         y = summaryDataStem0 [['meanStarch']] [con],
          col = tColours [['colour']] [3], lwd = 3, lty = 3)
   
   # Add axis
@@ -555,15 +569,15 @@ PLOT <- TRUE; if (PLOT) {
   # Add panel for double compressed trees
   #----------------------------------------------------------------------------------------
   par (mar = c (5, 0, 1, 0))
-  con <- summaryDataStem [['treatment']] == 4 & summaryDataStem [['sampleHeight']] == 2.5
-  plot (x = summaryDataStem [['date']] [con1],
-        y = summaryDataStem [['meanStarch']] [con1] * summaryDataStem [['adjRatioStarch']] [con], 
+  con <- summaryDataStem0 [['treatment']] == 4 & summaryDataStem0 [['sampleHeight']] == 2.5
+  plot (x = summaryDataStem0 [['date']] [con1],
+        y = summaryDataStem0 [['meanStarch']] [con1] * summaryDataStem0 [['adjRatioStarch']] [con], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
-  polygon (x = c (summaryDataStem [['date']] [con1], 
-                  rev (summaryDataStem [['date']] [con1])),
-           y = c (summaryDataStem [['meanStarch']] [con1] * summaryDataStem [['adjRatioStarch']] [con] - summaryDataStem [['seStarch']] [con1], 
-                  rev (summaryDataStem [['meanStarch']] [con1] * summaryDataStem [['adjRatioStarch']] [con] + summaryDataStem [['seStarch']] [con1])),
+  polygon (x = c (summaryDataStem0 [['date']] [con1], 
+                  rev (summaryDataStem0 [['date']] [con1])),
+           y = c (summaryDataStem0 [['meanStarch']] [con1] * summaryDataStem0 [['adjRatioStarch']] [con] - summaryDataStem0 [['seStarch']] [con1], 
+                  rev (summaryDataStem0 [['meanStarch']] [con1] * summaryDataStem0 [['adjRatioStarch']] [con] + summaryDataStem0 [['seStarch']] [con1])),
            col = addOpacity ('#999999', 0.2), lty = 0)
   
   # Add critical dates
@@ -576,32 +590,32 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add girdled trees
   #----------------------------------------------------------------------------------------
-  con <- summaryDataStem [['treatment']] == 4 & summaryDataStem [['sampleHeight']] == 2.5
-  polygon (x = c (summaryDataStem [['date']] [con], 
-                  rev (summaryDataStem [['date']] [con])),
-           y = c (summaryDataStem [['meanStarch']] [con] - summaryDataStem [['seStarch']] [con], 
-                  rev (summaryDataStem [['meanStarch']] [con] + summaryDataStem [['seStarch']] [con])),
+  con <- summaryDataStem0 [['treatment']] == 4 & summaryDataStem0 [['sampleHeight']] == 2.5
+  polygon (x = c (summaryDataStem0 [['date']] [con], 
+                  rev (summaryDataStem0 [['date']] [con])),
+           y = c (summaryDataStem0 [['meanStarch']] [con] - summaryDataStem0 [['seStarch']] [con], 
+                  rev (summaryDataStem0 [['meanStarch']] [con] + summaryDataStem0 [['seStarch']] [con])),
            col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con], 
-         y = summaryDataStem [['meanStarch']] [con],
+  lines (x = summaryDataStem0 [['date']] [con], 
+         y = summaryDataStem0 [['meanStarch']] [con],
          col = tColours [['colour']] [4], lwd = 3, lty = 2)
-  con <- summaryDataStem [['treatment']] == 4 & summaryDataStem [['sampleHeight']] == 1.5
-  polygon (x = c (summaryDataStem [['date']] [con], 
-                  rev (summaryDataStem [['date']] [con])),
-           y = c (summaryDataStem [['meanStarch']] [con] - summaryDataStem [['seStarch']] [con], 
-                  rev (summaryDataStem [['meanStarch']] [con] + summaryDataStem [['seStarch']] [con])),
+  con <- summaryDataStem0 [['treatment']] == 4 & summaryDataStem0 [['sampleHeight']] == 1.5
+  polygon (x = c (summaryDataStem0 [['date']] [con], 
+                  rev (summaryDataStem0 [['date']] [con])),
+           y = c (summaryDataStem0 [['meanStarch']] [con] - summaryDataStem0 [['seStarch']] [con], 
+                  rev (summaryDataStem0 [['meanStarch']] [con] + summaryDataStem0 [['seStarch']] [con])),
            col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con], 
-         y = summaryDataStem [['meanStarch']] [con],
+  lines (x = summaryDataStem0 [['date']] [con], 
+         y = summaryDataStem0 [['meanStarch']] [con],
          col = tColours [['colour']] [4], lwd = 3, lty = 4)
-  con <- summaryDataStem [['treatment']] == 4 & summaryDataStem [['sampleHeight']] == 0.5
-  polygon (x = c (summaryDataStem [['date']] [con], 
-                  rev (summaryDataStem [['date']] [con])),
-           y = c (summaryDataStem [['meanStarch']] [con] - summaryDataStem [['seStarch']] [con], 
-                  rev (summaryDataStem [['meanStarch']] [con] + summaryDataStem [['seStarch']] [con])),
+  con <- summaryDataStem0 [['treatment']] == 4 & summaryDataStem0 [['sampleHeight']] == 0.5
+  polygon (x = c (summaryDataStem0 [['date']] [con], 
+                  rev (summaryDataStem0 [['date']] [con])),
+           y = c (summaryDataStem0 [['meanStarch']] [con] - summaryDataStem0 [['seStarch']] [con], 
+                  rev (summaryDataStem0 [['meanStarch']] [con] + summaryDataStem0 [['seStarch']] [con])),
            col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con], 
-         y = summaryDataStem [['meanStarch']] [con],
+  lines (x = summaryDataStem0 [['date']] [con], 
+         y = summaryDataStem0 [['meanStarch']] [con],
          col = tColours [['colour']] [4], lwd = 3, lty = 3)
   
   # Add axis
@@ -618,15 +632,15 @@ PLOT <- TRUE; if (PLOT) {
   # Add panel of the girdled trees
   #----------------------------------------------------------------------------------------
   par (mar = c (5, 0, 1, 1))
-  con <- summaryDataStem [['treatment']] == 2 & summaryDataStem [['sampleHeight']] == 2
-  plot (x = summaryDataStem [['date']] [con1],
-        y = summaryDataStem [['meanStarch']] [con1] * summaryDataStem [['adjRatioStarch']] [con], 
+  con <- summaryDataStem0 [['treatment']] == 2 & summaryDataStem0 [['sampleHeight']] == 2
+  plot (x = summaryDataStem0 [['date']] [con1],
+        y = summaryDataStem0 [['meanStarch']] [con1] * summaryDataStem0 [['adjRatioStarch']] [con], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
-  polygon (x = c (summaryDataStem [['date']] [con1], 
-                  rev (summaryDataStem [['date']] [con1])),
-           y = c (summaryDataStem [['meanStarch']] [con1] * summaryDataStem [['adjRatioStarch']] [con] - summaryDataStem [['seStarch']] [con1], 
-                  rev (summaryDataStem [['meanStarch']] [con1] * summaryDataStem [['adjRatioStarch']] [con] + summaryDataStem [['seStarch']] [con1])),
+  polygon (x = c (summaryDataStem0 [['date']] [con1], 
+                  rev (summaryDataStem0 [['date']] [con1])),
+           y = c (summaryDataStem0 [['meanStarch']] [con1] * summaryDataStem0 [['adjRatioStarch']] [con] - summaryDataStem0 [['seStarch']] [con1], 
+                  rev (summaryDataStem0 [['meanStarch']] [con1] * summaryDataStem0 [['adjRatioStarch']] [con] + summaryDataStem0 [['seStarch']] [con1])),
            col = addOpacity ('#999999', 0.2), lty = 0)
   
   # Add critical dates
@@ -635,22 +649,22 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add girdled trees
   #----------------------------------------------------------------------------------------
-  polygon (x = c (summaryDataStem [['date']] [con], 
-                  rev (summaryDataStem [['date']] [con])),
-           y = c (summaryDataStem [['meanStarch']] [con] - summaryDataStem [['seStarch']] [con], 
-                  rev (summaryDataStem [['meanStarch']] [con] + summaryDataStem [['seStarch']] [con])),
+  polygon (x = c (summaryDataStem0 [['date']] [con], 
+                  rev (summaryDataStem0 [['date']] [con])),
+           y = c (summaryDataStem0 [['meanStarch']] [con] - summaryDataStem0 [['seStarch']] [con], 
+                  rev (summaryDataStem0 [['meanStarch']] [con] + summaryDataStem0 [['seStarch']] [con])),
            col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con], 
-         y = summaryDataStem [['meanStarch']] [con],
+  lines (x = summaryDataStem0 [['date']] [con], 
+         y = summaryDataStem0 [['meanStarch']] [con],
          col = tColours [['colour']] [2], lwd = 3, lty = 2)
-  con <- summaryDataStem [['treatment']] == 2 & summaryDataStem [['sampleHeight']] == 1
-  polygon (x = c (summaryDataStem [['date']] [con], 
-                  rev (summaryDataStem [['date']] [con])),
-           y = c (summaryDataStem [['meanStarch']] [con] - summaryDataStem [['seStarch']] [con], 
-                  rev (summaryDataStem [['meanStarch']] [con] + summaryDataStem [['seStarch']] [con])),
+  con <- summaryDataStem0 [['treatment']] == 2 & summaryDataStem0 [['sampleHeight']] == 1
+  polygon (x = c (summaryDataStem0 [['date']] [con], 
+                  rev (summaryDataStem0 [['date']] [con])),
+           y = c (summaryDataStem0 [['meanStarch']] [con] - summaryDataStem0 [['seStarch']] [con], 
+                  rev (summaryDataStem0 [['meanStarch']] [con] + summaryDataStem0 [['seStarch']] [con])),
            col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
-  lines (x = summaryDataStem [['date']] [con], 
-         y = summaryDataStem [['meanStarch']] [con],
+  lines (x = summaryDataStem0 [['date']] [con], 
+         y = summaryDataStem0 [['meanStarch']] [con],
          col = tColours [['colour']] [2], lwd = 3, lty = 3)
   
   # Add axis
@@ -839,3 +853,445 @@ for (i in c (1, 3, 4, 2)) {
 }
 dev.off  ()
 
+
+# Plot wood soluble sugar concentrations for 1-2 cm over time
+#----------------------------------------------------------------------------------------
+PLOT <- TRUE; if (PLOT) {
+  png ('../fig/Exp2017DeepStemSugarConcentrationOverDateAdjusted.png', width = 1200, height = 380)
+  layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
+  par (mgp = c (3, 1, 0), mar = c (5, 12, 1, 0))
+  con1 <- summaryDataStem1 [['treatment']] == 1
+  plot (x = summaryDataStem1 [['date']] [con1],
+        y = summaryDataStem1 [['meanSugar']] [con1], 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
+        xlab = '', ylab = '', typ = 'l', lwd = 3, 
+        col = tColours [['colour']] [1], cex.lab = 1.8)
+  
+  # Add critical dates
+  #--------------------------------------------------------------------------------------
+  return <- criticalDates ('control') 
+  
+  polygon (x = c (summaryDataStem1 [['date']] [con1], 
+                  rev (summaryDataStem1 [['date']] [con1])),
+           y = c (summaryDataStem1 [['meanSugar']] [con1] - summaryDataStem1 [['seSugar']] [con1], 
+                  rev (summaryDataStem1 [['meanSugar']] [con1] + summaryDataStem1 [['seSugar']] [con1])),
+           col = addOpacity (tColours [['colour']] [1], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con1], 
+         y = summaryDataStem1 [['meanSugar']] [con1],
+         col = tColours [['colour']] [1], lwd = 3)
+  
+  # Add axis and labels
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
+        cex.axis = 2.2, mgp = c (3, 2, 0))
+  axis (side = 2, cex.axis = 2.2, las = 1)
+  mtext (side = 2, line = 5, cex = 1.5, 'sugar concentration (% dry weight)')
+  mtext (side = 2, line = 9, cex = 3, 'wood')
+  
+  # Add panel descriptor
+  #----------------------------------------------------------------------------------------
+  text (x = as_date ('2017-06-20'), y = 1.2, pos = 4, labels = 'control', cex = 2.7, 
+        col = '#333333')
+  
+  # Add  line to separate panels
+  #----------------------------------------------------------------------------------------
+  abline (v = as_date ('2017-11-15'), col = '#999999')
+  
+  # Add legend 
+  #----------------------------------------------------------------------------------------
+  legend (x = as_date ('2017-07-20'), y = 1.1, box.lty = 0, lwd = c (3, 2, 3, 3, 3), 
+          lty = c (1, 1, 2, 4, 3), 
+          legend = c ('control','adjusted control','above','middle','below'), 
+          col = c ( '#91b9a4', rep ('#999999', 4)), 
+          bg = 'transparent', cex = 2.3)
+  
+  # Add panel of the compressed trees
+  #----------------------------------------------------------------------------------------
+  par (mar = c (5, 0, 1, 0))
+  con <- summaryDataStem1 [['treatment']] == 3 & summaryDataStem1 [['sampleHeight']] == 2
+  plot (x = summaryDataStem1 [['date']] [con1],
+        y = summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con], 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
+        xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
+  polygon (x = c (summaryDataStem1 [['date']] [con1], 
+                  rev (summaryDataStem1 [['date']] [con1])),
+           y = c (summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con] - summaryDataStem1 [['seSugar']] [con1], 
+                  rev (summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con] + summaryDataStem1 [['seSugar']] [con1])),
+           col = addOpacity ('#999999', 0.2), lty = 0)
+  # Add critical dates
+  #--------------------------------------------------------------------------------------
+  return <- criticalDates ('compressed') 
+  
+  # Add  line to separate panels
+  #----------------------------------------------------------------------------------------
+  abline (v = as_date ('2017-11-15'), col = '#999999')
+  
+  # Add compressed trees
+  polygon (x = c (summaryDataStem1 [['date']] [con], 
+                  rev (summaryDataStem1 [['date']] [con])),
+           y = c (summaryDataStem1 [['meanSugar']] [con] - summaryDataStem1 [['seSugar']] [con], 
+                  rev (summaryDataStem1 [['meanSugar']] [con] + summaryDataStem1 [['seSugar']] [con])),
+           col = addOpacity (tColours [['colour']] [3], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con], 
+         y = summaryDataStem1 [['meanSugar']] [con],
+         col = tColours [['colour']] [3], lwd = 3, lty = 2)
+  con <- summaryDataStem1 [['treatment']] == 3 & summaryDataStem1 [['sampleHeight']] == 1
+  polygon (x = c (summaryDataStem1 [['date']] [con], 
+                  rev (summaryDataStem1 [['date']] [con])),
+           y = c (summaryDataStem1 [['meanSugar']] [con] - summaryDataStem1 [['seSugar']] [con], 
+                  rev (summaryDataStem1 [['meanSugar']] [con] + summaryDataStem1 [['seSugar']] [con])),
+           col = addOpacity (tColours [['colour']] [3], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con], 
+         y = summaryDataStem1 [['meanSugar']] [con],
+         col = tColours [['colour']] [3], lwd = 3, lty = 3)
+  
+  # Add axis
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
+        cex.axis = 2.2, mgp = c (3, 2, 0))
+  
+  # Add panel descriptor
+  #----------------------------------------------------------------------------------------
+  text (x = as_date ('2017-06-20'), y = 1.2, pos = 4, labels = 'compressed', cex = 2.8, 
+        col = '#333333')
+  
+  # Add panel for double compressed trees
+  #----------------------------------------------------------------------------------------
+  par (mar = c (5, 0, 1, 0))
+  con <- summaryDataStem1 [['treatment']] == 4 & summaryDataStem1 [['sampleHeight']] == 2.5
+  plot (x = summaryDataStem1 [['date']] [con1],
+        y = summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con], 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
+        xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
+  polygon (x = c (summaryDataStem1 [['date']] [con1], 
+                  rev (summaryDataStem1 [['date']] [con1])),
+           y = c (summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con] - summaryDataStem1 [['seSugar']] [con1], 
+                  rev (summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con] + summaryDataStem1 [['seSugar']] [con1])),
+           col = addOpacity ('#999999', 0.2), lty = 0)
+  # Add critical dates
+  #--------------------------------------------------------------------------------------
+  return <- criticalDates ('double compressed') 
+  
+  # Add double compressed trees
+  #----------------------------------------------------------------------------------------
+  polygon (x = c (summaryDataStem1 [['date']] [con], 
+                  rev (summaryDataStem1 [['date']] [con])),
+           y = c (summaryDataStem1 [['meanSugar']] [con] - summaryDataStem1 [['seSugar']] [con], 
+                  rev (summaryDataStem1 [['meanSugar']] [con] + summaryDataStem1 [['seSugar']] [con])),
+           col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con], 
+         y = summaryDataStem1 [['meanSugar']] [con],
+         col = tColours [['colour']] [4], lwd = 3, lty = 2)
+  con <- summaryDataStem1 [['treatment']] == 4 & summaryDataStem1 [['sampleHeight']] == 1.5
+  polygon (x = c (summaryDataStem1 [['date']] [con], 
+                  rev (summaryDataStem1 [['date']] [con])),
+           y = c (summaryDataStem1 [['meanSugar']] [con] - summaryDataStem1 [['seSugar']] [con], 
+                  rev (summaryDataStem1 [['meanSugar']] [con] + summaryDataStem1 [['seSugar']] [con])),
+           col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con], 
+         y = summaryDataStem1 [['meanSugar']] [con],
+         col = tColours [['colour']] [4], lwd = 3, lty = 4)
+  con <- summaryDataStem1 [['treatment']] == 4 & summaryDataStem1 [['sampleHeight']] == 0.5
+  polygon (x = c (summaryDataStem1 [['date']] [con], 
+                  rev (summaryDataStem1 [['date']] [con])),
+           y = c (summaryDataStem1 [['meanSugar']] [con] - summaryDataStem1 [['seSugar']] [con], 
+                  rev (summaryDataStem1 [['meanSugar']] [con] + summaryDataStem1 [['seSugar']] [con])),
+           col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con], 
+         y = summaryDataStem1 [['meanSugar']] [con],
+         col = tColours [['colour']] [4], lwd = 3, lty = 3)
+  
+  # Add axis
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
+        cex.axis = 2.2, mgp = c (3, 2, 0))
+  
+  # Add panel descriptor
+  #----------------------------------------------------------------------------------------
+  text (x = as_date ('2017-06-20'), y = 1.2, pos = 4, labels = 'double compressed', cex = 2.8, 
+        col = '#333333')
+  
+  # Add  line to separate panels
+  #----------------------------------------------------------------------------------------
+  abline (v = as_date ('2017-11-15'), col = '#999999')
+  
+  # Add panel of the girdled trees
+  #----------------------------------------------------------------------------------------
+  par (mar = c (5, 0, 1, 0))
+  con <- summaryDataStem1 [['treatment']] == 2 & summaryDataStem1 [['sampleHeight']] == 2
+  plot (x = summaryDataStem1 [['date']] [con1],
+        y = summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con], 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
+        xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
+  polygon (x = c (summaryDataStem1 [['date']] [con1], 
+                  rev (summaryDataStem1 [['date']] [con1])),
+           y = c (summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con] - summaryDataStem1 [['seSugar']] [con1], 
+                  rev (summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con] + summaryDataStem1 [['seSugar']] [con1])),
+           col = addOpacity ('#999999', 0.2), lty = 0)
+  # Add critical dates
+  #--------------------------------------------------------------------------------------
+  return <- criticalDates ('girdled') 
+  
+  # Add girdled trees
+  #----------------------------------------------------------------------------------------
+  con <- summaryDataStem1 [['treatment']] == 2 & summaryDataStem1 [['sampleHeight']] == 2
+  polygon (x = c (summaryDataStem1 [['date']] [con], 
+                  rev (summaryDataStem1 [['date']] [con])),
+           y = c (summaryDataStem1 [['meanSugar']] [con] - summaryDataStem1 [['seSugar']] [con], 
+                  rev (summaryDataStem1 [['meanSugar']] [con] + summaryDataStem1 [['seSugar']] [con])),
+           col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con], 
+         y = summaryDataStem1 [['meanSugar']] [con],
+         col = tColours [['colour']] [2], lwd = 3, lty = 2)
+  con <- summaryDataStem1 [['treatment']] == 2 & summaryDataStem1 [['sampleHeight']] == 1
+  polygon (x = c (summaryDataStem1 [['date']] [con], 
+                  rev (summaryDataStem1 [['date']] [con])),
+           y = c (summaryDataStem1 [['meanSugar']] [con] - summaryDataStem1 [['seSugar']] [con], 
+                  rev (summaryDataStem1 [['meanSugar']] [con] + summaryDataStem1 [['seSugar']] [con])),
+           col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con], 
+         y = summaryDataStem1 [['meanSugar']] [con],
+         col = tColours [['colour']] [2], lwd = 3, lty = 3)
+  
+  # Add axis
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
+        cex.axis = 2.2, mgp = c (3, 2, 0))
+  
+  # Add panel descriptor
+  #----------------------------------------------------------------------------------------
+  text (x = as_date ('2017-06-20'), y = 1.2, pos = 4, labels = 'girdled', cex = 2.8, 
+        col = '#333333')
+  
+  dev.off  ()
+}
+
+# Plot wood starch concentrations for 0-1 cm over time
+#----------------------------------------------------------------------------------------
+PLOT <- TRUE; if (PLOT) {
+  png ('../fig/Exp2017StemStarchConcentrationOverDateAdjusted.png', width = 1200, height = 380)
+  layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
+  par (mgp = c (3, 1, 0), mar = c (5, 12, 1, 0))
+  con1 <- summaryDataStem1 [['treatment']] == 1
+  plot (x = summaryDataStem1 [['date']] [con1],
+        y = summaryDataStem1 [['meanStarch']] [con1], 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
+        xlab = '', ylab = '', typ = 'l', lwd = 3, 
+        col = tColours [['colour']] [1], cex.lab = 1.8)
+  
+  # Add critical dates
+  #----------------------------------------------------------------------------------------
+  return <- criticalDates ('control') 
+  
+  # Add  line to separate panels
+  #----------------------------------------------------------------------------------------
+  abline (v = as_date ('2017-11-15'), col = '#999999')
+  
+  # Add actual group
+  #----------------------------------------------------------------------------------------
+  polygon (x = c (summaryDataStem1 [['date']] [con1], 
+                  rev (summaryDataStem1 [['date']] [con1])),
+           y = c (summaryDataStem1 [['meanStarch']] [con1] - summaryDataStem1 [['seStarch']] [con1], 
+                  rev (summaryDataStem1 [['meanStarch']] [con1] + summaryDataStem1 [['seStarch']] [con1])),
+           col = addOpacity (tColours [['colour']] [1], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con1], 
+         y = summaryDataStem1 [['meanStarch']] [con1],
+         col = tColours [['colour']] [1], lwd = 3)
+  
+  # Add axis and labels
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
+        cex.axis = 2.2, mgp = c (3, 2, 0))
+  axis (side = 2, cex.axis = 2.2, las = 1)
+  mtext (side = 2, line = 5, cex = 1.5, 'starch concentration (% dry weight)')
+  mtext (side = 2, line = 9, cex = 3, 'wood')
+  
+  # Add panel descriptor
+  #----------------------------------------------------------------------------------------
+  text (x = as_date ('2017-06-20'), y = 1.2, pos = 4, labels = 'control', cex = 2.7, 
+        col = '#333333')
+  
+  # Add  line to separate panels
+  #----------------------------------------------------------------------------------------
+  abline (v = as_date ('2017-11-15'), col = '#999999')
+  
+  # Add legend 
+  #----------------------------------------------------------------------------------------
+  legend (x = as_date ('2017-07-20'), y = 1.1, box.lty = 0, lwd = c (3, 2, 3, 3, 3), 
+          lty = c (1, 1, 2, 4, 3), 
+          legend = c ('control','adjusted control','above','middle','below'), 
+          col = c ('#91b9a4', rep ('#999999', 4)), 
+          bg = 'transparent', cex = 2.3)
+  
+  # Add panel of the compressed trees
+  #----------------------------------------------------------------------------------------
+  con <- summaryDataStem1 [['treatment']] == 3 & summaryDataStem1 [['sampleHeight']] == 2
+  par (mar = c (5, 0, 1, 0))
+  plot (x = summaryDataStem1 [['date']] [con1],
+        y = summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con], 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
+        xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
+  polygon (x = c (summaryDataStem1 [['date']] [con1], 
+                  rev (summaryDataStem1 [['date']] [con1])),
+           y = c (summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con] - summaryDataStem1 [['seStarch']] [con1], 
+                  rev (summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con] + summaryDataStem1 [['seStarch']] [con1])),
+           col = addOpacity ('#999999', 0.2), lty = 0)
+  
+  # Add critical dates
+  #--------------------------------------------------------------------------------------
+  return <- criticalDates ('compressed') 
+  
+  # Add  line to separate panels
+  #----------------------------------------------------------------------------------------
+  abline (v = as_date ('2017-11-15'), col = '#999999')
+  
+  # Add compressed trees
+  #----------------------------------------------------------------------------------------
+  polygon (x = c (summaryDataStem1 [['date']] [con], 
+                  rev (summaryDataStem1 [['date']] [con])),
+           y = c (summaryDataStem1 [['meanStarch']] [con] - summaryDataStem1 [['seStarch']] [con], 
+                  rev (summaryDataStem1 [['meanStarch']] [con] + summaryDataStem1 [['seStarch']] [con])),
+           col = addOpacity (tColours [['colour']] [3], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con], 
+         y = summaryDataStem1 [['meanStarch']] [con],
+         col = tColours [['colour']] [3], lwd = 3, lty = 2)
+  con <- summaryDataStem1 [['treatment']] == 3 & summaryDataStem1 [['sampleHeight']] == 1
+  polygon (x = c (summaryDataStem1 [['date']] [con], 
+                  rev (summaryDataStem1 [['date']] [con])),
+           y = c (summaryDataStem1 [['meanStarch']] [con] - summaryDataStem1 [['seStarch']] [con], 
+                  rev (summaryDataStem1 [['meanStarch']] [con] + summaryDataStem1 [['seStarch']] [con])),
+           col = addOpacity (tColours [['colour']] [3], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con], 
+         y = summaryDataStem1 [['meanStarch']] [con],
+         col = tColours [['colour']] [3], lwd = 3, lty = 3)
+  
+  # Add axis
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
+        cex.axis = 2.2, mgp = c (3, 2, 0))
+  
+  # Add panel descriptor
+  #----------------------------------------------------------------------------------------
+  text (x = as_date ('2017-06-20'), y = 1.2, pos = 4, labels = 'compressed', cex = 2.8, 
+        col = '#333333')
+  
+  # Add panel for double compressed trees
+  #----------------------------------------------------------------------------------------
+  par (mar = c (5, 0, 1, 0))
+  con <- summaryDataStem1 [['treatment']] == 4 & summaryDataStem1 [['sampleHeight']] == 2.5
+  plot (x = summaryDataStem1 [['date']] [con1],
+        y = summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con], 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
+        xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
+  polygon (x = c (summaryDataStem1 [['date']] [con1], 
+                  rev (summaryDataStem1 [['date']] [con1])),
+           y = c (summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con] - summaryDataStem1 [['seStarch']] [con1], 
+                  rev (summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con] + summaryDataStem1 [['seStarch']] [con1])),
+           col = addOpacity ('#999999', 0.2), lty = 0)
+  
+  # Add critical dates
+  #--------------------------------------------------------------------------------------
+  return <- criticalDates ('double compressed') 
+  
+  # Add  line to separate panels
+  #----------------------------------------------------------------------------------------
+  abline (v = as_date ('2017-11-15'), col = '#999999')
+  
+  # Add girdled trees
+  #----------------------------------------------------------------------------------------
+  con <- summaryDataStem1 [['treatment']] == 4 & summaryDataStem1 [['sampleHeight']] == 2.5
+  polygon (x = c (summaryDataStem1 [['date']] [con], 
+                  rev (summaryDataStem1 [['date']] [con])),
+           y = c (summaryDataStem1 [['meanStarch']] [con] - summaryDataStem1 [['seStarch']] [con], 
+                  rev (summaryDataStem1 [['meanStarch']] [con] + summaryDataStem1 [['seStarch']] [con])),
+           col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con], 
+         y = summaryDataStem1 [['meanStarch']] [con],
+         col = tColours [['colour']] [4], lwd = 3, lty = 2)
+  con <- summaryDataStem1 [['treatment']] == 4 & summaryDataStem1 [['sampleHeight']] == 1.5
+  polygon (x = c (summaryDataStem1 [['date']] [con], 
+                  rev (summaryDataStem1 [['date']] [con])),
+           y = c (summaryDataStem1 [['meanStarch']] [con] - summaryDataStem1 [['seStarch']] [con], 
+                  rev (summaryDataStem1 [['meanStarch']] [con] + summaryDataStem1 [['seStarch']] [con])),
+           col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con], 
+         y = summaryDataStem1 [['meanStarch']] [con],
+         col = tColours [['colour']] [4], lwd = 3, lty = 4)
+  con <- summaryDataStem1 [['treatment']] == 4 & summaryDataStem1 [['sampleHeight']] == 0.5
+  polygon (x = c (summaryDataStem1 [['date']] [con], 
+                  rev (summaryDataStem1 [['date']] [con])),
+           y = c (summaryDataStem1 [['meanStarch']] [con] - summaryDataStem1 [['seStarch']] [con], 
+                  rev (summaryDataStem1 [['meanStarch']] [con] + summaryDataStem1 [['seStarch']] [con])),
+           col = addOpacity (tColours [['colour']] [4], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con], 
+         y = summaryDataStem1 [['meanStarch']] [con],
+         col = tColours [['colour']] [4], lwd = 3, lty = 3)
+  
+  # Add axis
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
+        cex.axis = 2.2, mgp = c (3, 2, 0))
+  
+  # Add panel descriptor
+  #----------------------------------------------------------------------------------------
+  text (x = as_date ('2017-06-20'), y = 1.2, pos = 4, labels = 'double compressed', cex = 2.8, 
+        col = '#333333')
+  
+  # Add panel of the girdled trees
+  #----------------------------------------------------------------------------------------
+  par (mar = c (5, 0, 1, 1))
+  con <- summaryDataStem1 [['treatment']] == 2 & summaryDataStem1 [['sampleHeight']] == 2
+  plot (x = summaryDataStem1 [['date']] [con1],
+        y = summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con], 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
+        xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
+  polygon (x = c (summaryDataStem1 [['date']] [con1], 
+                  rev (summaryDataStem1 [['date']] [con1])),
+           y = c (summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con] - summaryDataStem1 [['seStarch']] [con1], 
+                  rev (summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con] + summaryDataStem1 [['seStarch']] [con1])),
+           col = addOpacity ('#999999', 0.2), lty = 0)
+  
+  # Add critical dates
+  #--------------------------------------------------------------------------------------
+  return <- criticalDates ('girdled') 
+  
+  # Add girdled trees
+  #----------------------------------------------------------------------------------------
+  polygon (x = c (summaryDataStem1 [['date']] [con], 
+                  rev (summaryDataStem1 [['date']] [con])),
+           y = c (summaryDataStem1 [['meanStarch']] [con] - summaryDataStem1 [['seStarch']] [con], 
+                  rev (summaryDataStem1 [['meanStarch']] [con] + summaryDataStem1 [['seStarch']] [con])),
+           col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con], 
+         y = summaryDataStem1 [['meanStarch']] [con],
+         col = tColours [['colour']] [2], lwd = 3, lty = 2)
+  con <- summaryDataStem1 [['treatment']] == 2 & summaryDataStem1 [['sampleHeight']] == 1
+  polygon (x = c (summaryDataStem1 [['date']] [con], 
+                  rev (summaryDataStem1 [['date']] [con])),
+           y = c (summaryDataStem1 [['meanStarch']] [con] - summaryDataStem1 [['seStarch']] [con], 
+                  rev (summaryDataStem1 [['meanStarch']] [con] + summaryDataStem1 [['seStarch']] [con])),
+           col = addOpacity (tColours [['colour']] [2], 0.3), lty = 0)
+  lines (x = summaryDataStem1 [['date']] [con], 
+         y = summaryDataStem1 [['meanStarch']] [con],
+         col = tColours [['colour']] [2], lwd = 3, lty = 3)
+  
+  # Add axis
+  #----------------------------------------------------------------------------------------
+  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+        at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
+        cex.axis = 2.2, mgp = c (3, 2, 0))
+  
+  # Add panel descriptor
+  #----------------------------------------------------------------------------------------
+  text (x = as_date ('2017-06-20'), y = 1.2, pos = 4, labels = 'girdled', cex = 2.8, 
+        col = '#333333')
+  
+  dev.off  ()
+}
