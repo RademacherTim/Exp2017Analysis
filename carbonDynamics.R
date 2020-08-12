@@ -25,45 +25,73 @@ allometricData <- filter (allometricData, tree <= 40)
 
 # calculate change in concentration for NSC data
 #----------------------------------------------------------------------------------------
-data [['deltaSugarW250']] <- NA; data [['deltaStarchW250']] <- NA
-data [['deltaSugarW200']] <- NA; data [['deltaStarchW200']] <- NA
-data [['deltaSugarW150']] <- NA; data [['deltaStarchW150']] <- NA
-data [['deltaSugarW100']] <- NA; data [['deltaStarchW100']] <- NA
-data [['deltaSugarW50']]  <- NA; data [['deltaStarchW50']]  <- NA
+data [['deltaSugarW0_250']] <- NA; data [['deltaStarchW0_250']] <- NA
+data [['deltaSugarW0_200']] <- NA; data [['deltaStarchW0_200']] <- NA
+data [['deltaSugarW0_150']] <- NA; data [['deltaStarchW0_150']] <- NA
+data [['deltaSugarW0_100']] <- NA; data [['deltaStarchW0_100']] <- NA
+data [['deltaSugarW0_50']]  <- NA; data [['deltaStarchW0_50']]  <- NA
+data [['deltaSugarW1_250']] <- NA; data [['deltaStarchW1_250']] <- NA
+data [['deltaSugarW1_200']] <- NA; data [['deltaStarchW1_200']] <- NA
+data [['deltaSugarW1_150']] <- NA; data [['deltaStarchW1_150']] <- NA
+data [['deltaSugarW1_100']] <- NA; data [['deltaStarchW1_100']] <- NA
+data [['deltaSugarW1_50']]  <- NA; data [['deltaStarchW1_50']]  <- NA
 for (i in 41:160) {
-  data [['deltaSugarW250']] [i] <- data [['sugarW250']] [i] - data [['sugarW250']] [i-40]
-  data [['deltaSugarW200']] [i] <- data [['sugarW200']] [i] - data [['sugarW200']] [i-40]
-  data [['deltaSugarW150']] [i] <- data [['sugarW150']] [i] - data [['sugarW150']] [i-40]
-  data [['deltaSugarW100']] [i] <- data [['sugarW100']] [i] - data [['sugarW100']] [i-40]
-  data [['deltaSugarW50']]  [i] <- data [['sugarW50']]  [i] - data [['sugarW50']]  [i-40]
-  data [['deltaStarchW250']] [i] <- data [['starchW250']] [i] - data [['starchW250']] [i-40]
-  data [['deltaStarchW200']] [i] <- data [['starchW200']] [i] - data [['starchW200']] [i-40]
-  data [['deltaStarchW150']] [i] <- data [['starchW150']] [i] - data [['starchW150']] [i-40]
-  data [['deltaStarchW100']] [i] <- data [['starchW100']] [i] - data [['starchW100']] [i-40]
-  data [['deltaStarchW50']]  [i] <- data [['starchW50']]  [i] - data [['starchW50']]  [i-40]
+  data [['deltaSugarW0_250']] [i] <- data [['sugarW0_250']] [i] - data [['sugarW0_250']] [i-40]
+  data [['deltaSugarW0_200']] [i] <- data [['sugarW0_200']] [i] - data [['sugarW0_200']] [i-40]
+  data [['deltaSugarW0_150']] [i] <- data [['sugarW0_150']] [i] - data [['sugarW0_150']] [i-40]
+  data [['deltaSugarW0_100']] [i] <- data [['sugarW0_100']] [i] - data [['sugarW0_100']] [i-40]
+  data [['deltaSugarW0_50']]  [i] <- data [['sugarW0_50']]  [i] - data [['sugarW0_50']]  [i-40]
+  data [['deltaStarchW0_250']] [i] <- data [['starchW0_250']] [i] - data [['starchW0_250']] [i-40]
+  data [['deltaStarchW0_200']] [i] <- data [['starchW0_200']] [i] - data [['starchW0_200']] [i-40]
+  data [['deltaStarchW0_150']] [i] <- data [['starchW0_150']] [i] - data [['starchW0_150']] [i-40]
+  data [['deltaStarchW0_100']] [i] <- data [['starchW0_100']] [i] - data [['starchW0_100']] [i-40]
+  data [['deltaStarchW0_50']]  [i] <- data [['starchW0_50']]  [i] - data [['starchW0_50']]  [i-40]
+  if (i >= 121) {
+    data [['deltaSugarW1_250']] [i] <- data [['sugarW1_250']] [i] - data [['sugarW1_250']] [i-120]
+    data [['deltaSugarW1_200']] [i] <- data [['sugarW1_200']] [i] - data [['sugarW1_200']] [i-120]
+    data [['deltaSugarW1_150']] [i] <- data [['sugarW1_150']] [i] - data [['sugarW1_150']] [i-120]
+    data [['deltaSugarW1_100']] [i] <- data [['sugarW1_100']] [i] - data [['sugarW1_100']] [i-120]
+    data [['deltaSugarW1_50']]  [i] <- data [['sugarW1_50']]  [i] - data [['sugarW1_50']]  [i-120]
+    data [['deltaStarchW1_250']] [i] <- data [['starchW1_250']] [i] - data [['starchW1_250']] [i-120]
+    data [['deltaStarchW1_200']] [i] <- data [['starchW1_200']] [i] - data [['starchW1_200']] [i-120]
+    data [['deltaStarchW1_150']] [i] <- data [['starchW1_150']] [i] - data [['starchW1_150']] [i-120]
+    data [['deltaStarchW1_100']] [i] <- data [['starchW1_100']] [i] - data [['starchW1_100']] [i-120]
+    data [['deltaStarchW1_50']]  [i] <- data [['starchW1_50']]  [i] - data [['starchW1_50']]  [i-120]
+  }
 }
+
 
 # wrangle data to long format with unique labels
 #----------------------------------------------------------------------------------------
-respData <- data %>% select (c (2:3, 14:18)) %>% pivot_longer (cols =  c (3:7), 
+respData <- data %>% select (c (2:3, 24:28)) %>% pivot_longer (cols =  c (3:7), 
                                                                names_to = 'height',
                                                                names_prefix = 'resp',
                                                                values_to = 'resp')
 respData [['height']] [respData [['height']] == '050'] <- '50'
 respData [['resp']] <- -respData [['resp']]
-struData <- data %>% select (c (2:3, 19:23)) %>% pivot_longer (cols =  c (3:7), 
+struData <- data %>% select (c (2:3, 29:33)) %>% pivot_longer (cols =  c (3:7), 
                                                                names_to = 'height',
                                                                names_prefix = 'structuralCarbonat',
                                                                values_to = 'SC')
 struData [['height']] [struData [['height']] == '050'] <- '50'
-nonsData <- data %>% select (c (2:3, seq (24, 32, by = 2))) %>% 
-            pivot_longer (cols =  c (3:7), names_to = 'height',
-                          names_prefix = 'deltaSugarW', values_to = 'sugar')
-nonsData <- data %>% select (c (2:3, seq (25, 33, by = 2))) %>% 
-            pivot_longer (cols =  c (3:7), names_to = 'height',
-                          names_prefix = 'deltaStarchW', values_to = 'starch') %>%
-            right_join (nonsData, by = c ('month', 'tree', 'height'))
-nonsData [['total']] <- nonsData [['sugar']] + nonsData [['starch']]
+nonsData <- data %>% select (c (2:3, seq (34, 42, by = 2))) %>% 
+  pivot_longer (cols =  c (3:7), names_to = 'height',
+                names_prefix = 'deltaSugarW0_', values_to = 'sugar0')
+nonsData <- data %>% select (c (2:3, seq (35, 43, by = 2))) %>% 
+  pivot_longer (cols =  c (3:7), names_to = 'height',
+                names_prefix = 'deltaStarchW0_', values_to = 'starch0') %>%
+  right_join (nonsData, by = c ('month', 'tree', 'height'))
+nonsData <- data %>% select (c (2:3, seq (44, 52, by = 2))) %>% 
+  pivot_longer (cols =  c (3:7), names_to = 'height',
+                names_prefix = 'deltaSugarW1_', values_to = 'sugar1') %>%
+  right_join (nonsData, by = c ('month', 'tree', 'height'))
+nonsData <- data %>% select (c (2:3, seq (45, 53, by = 2))) %>% 
+  pivot_longer (cols =  c (3:7), names_to = 'height',
+                names_prefix = 'deltaStarchW1_', values_to = 'starch1') %>%
+  right_join (nonsData, by = c ('month', 'tree', 'height'))
+nonsData [['total0']] <- nonsData [['sugar0']] + nonsData [['starch0']]
+nonsData [['total1']] <- nonsData [['sugar1']] + nonsData [['starch1']]
+nonsData [['total']]  <- nonsData [['total0']] + nonsData [['total1']]
 
 # Add all data together
 allData <- right_join (respData, struData, by = c ('month', 'tree', 'height')) %>% 
@@ -88,23 +116,29 @@ allData [['height']] [allData [['height']] == 200 | allData [['height']]    == 2
 # summarise data by group
 #----------------------------------------------------------------------------------------
 summaryData <- allData %>% group_by (treatment, height, month) %>% 
-               summarise (meanResp   = mean (resp,   na.rm = TRUE), 
-                          meanSC     = mean (SC,     na.rm = TRUE), 
-                          meanNSC    = mean (total,  na.rm = TRUE),
-                          meanSugar  = mean (sugar,  na.rm = TRUE),
-                          meanStarch = mean (starch, na.rm = TRUE),
-                          sdResp   = sd (resp,   na.rm = TRUE), 
-                          sdSC     = sd (SC,     na.rm = TRUE), 
-                          sdNSC    = sd (total,  na.rm = TRUE),
-                          sdSugar  = sd (sugar,  na.rm = TRUE),
-                          sdStarch = sd (starch, na.rm = TRUE))
+               summarise (meanResp    = mean (resp,   na.rm = TRUE), 
+                          meanSC      = mean (SC,     na.rm = TRUE), 
+                          meanNSC0    = mean (total0,  na.rm = TRUE),
+                          meanSugar0  = mean (sugar0,  na.rm = TRUE),
+                          meanStarch0 = mean (starch0, na.rm = TRUE),
+                          meanNSC1    = mean (total1,  na.rm = TRUE),
+                          meanSugar1  = mean (sugar1,  na.rm = TRUE),
+                          meanStarch1 = mean (starch1, na.rm = TRUE),
+                          sdResp    = sd (resp,   na.rm = TRUE), 
+                          sdSC      = sd (SC,     na.rm = TRUE), 
+                          sdNSC0    = sd (total0,  na.rm = TRUE),
+                          sdSugar0  = sd (sugar0,  na.rm = TRUE),
+                          sdStarch0 = sd (starch0, na.rm = TRUE), 
+                          sdNSC1    = sd (total1,  na.rm = TRUE),
+                          sdSugar1  = sd (sugar1,  na.rm = TRUE),
+                          sdStarch1 = sd (starch1, na.rm = TRUE))
 
 # summarise data by group
 #----------------------------------------------------------------------------------------
 cumulativeData <- allData %>% group_by (tree, height, treatment) %>% 
-                  summarise (SC   = sum (SC, na.rm = TRUE),
-                             Resp = sum (resp, na.rm = TRUE),
-                             NSC  = sum (total, na.rm = TRUE))
+                  summarise (SC   = sum (SC,     na.rm = TRUE),
+                             Resp = sum (resp,   na.rm = TRUE),
+                             NSC  = sum (total0, na.rm = TRUE))
 cumulativeData <- cumulativeData %>% group_by (treatment, height) %>% 
                   summarise (meanSC   = mean (SC,   na.rm = TRUE),
                              meanNSC  = mean (NSC,  na.rm = TRUE),
@@ -125,7 +159,7 @@ for (m in c ('august','october','november','total')) {
     # get two matrices, one for structural carbon gain
     #----------------------------------------------------------------------------------------
     dataPos <- summaryData %>% ungroup %>% filter (month == m) %>% 
-      select (meanResp, meanSC, meanNSC, sdResp, sdSC, sdNSC)  
+      select (meanResp, meanSC, meanNSC0, sdResp, sdSC, sdNSC0)  
   } else {
     dataPos <- cumulativeData %>% ungroup %>% 
       select (meanResp, meanSC, meanNSC, sdResp, sdSC, sdNSC)
