@@ -857,7 +857,7 @@ dev.off  ()
 # Plot wood soluble sugar concentrations for 1-2 cm over time
 #----------------------------------------------------------------------------------------
 PLOT <- TRUE; if (PLOT) {
-  png ('../fig/Exp2017DeepStemSugarConcentrationOverDateAdjusted.png', width = 1200, height = 380)
+  png ('../fig/Exp2017DeepStemSugarConcentrationOverDate.png', width = 1200, height = 380)
   layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
   par (mgp = c (3, 1, 0), mar = c (5, 12, 1, 0))
   con1 <- summaryDataStem1 [['treatment']] == 1
@@ -887,7 +887,7 @@ PLOT <- TRUE; if (PLOT) {
         cex.axis = 2.2, mgp = c (3, 2, 0))
   axis (side = 2, cex.axis = 2.2, las = 1)
   mtext (side = 2, line = 5, cex = 1.5, 'sugar concentration (% dry weight)')
-  mtext (side = 2, line = 9, cex = 3, 'wood')
+  mtext (side = 2, line = 9, cex = 3, 'wood (1-2 cm)')
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
@@ -900,7 +900,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add legend 
   #----------------------------------------------------------------------------------------
-  legend (x = as_date ('2017-07-20'), y = 1.1, box.lty = 0, lwd = c (3, 2, 3, 3, 3), 
+  legend (x = as_date ('2017-07-20'), y = 1.15, box.lty = 0, lwd = c (3, 2, 3, 3, 3), 
           lty = c (1, 1, 2, 4, 3), 
           legend = c ('control','adjusted control','above','middle','below'), 
           col = c ( '#91b9a4', rep ('#999999', 4)), 
@@ -911,13 +911,13 @@ PLOT <- TRUE; if (PLOT) {
   par (mar = c (5, 0, 1, 0))
   con <- summaryDataStem1 [['treatment']] == 3 & summaryDataStem1 [['sampleHeight']] == 2
   plot (x = summaryDataStem1 [['date']] [con1],
-        y = summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con], 
+        y = summaryDataStem1 [['meanSugar']] [con1], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
   polygon (x = c (summaryDataStem1 [['date']] [con1], 
                   rev (summaryDataStem1 [['date']] [con1])),
-           y = c (summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con] - summaryDataStem1 [['seSugar']] [con1], 
-                  rev (summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con] + summaryDataStem1 [['seSugar']] [con1])),
+           y = c (summaryDataStem1 [['meanSugar']] [con1] - summaryDataStem1 [['seSugar']] [con1], 
+                  rev (summaryDataStem1 [['meanSugar']] [con1] + summaryDataStem1 [['seSugar']] [con1])),
            col = addOpacity ('#999999', 0.2), lty = 0)
   # Add critical dates
   #--------------------------------------------------------------------------------------
@@ -962,13 +962,13 @@ PLOT <- TRUE; if (PLOT) {
   par (mar = c (5, 0, 1, 0))
   con <- summaryDataStem1 [['treatment']] == 4 & summaryDataStem1 [['sampleHeight']] == 2.5
   plot (x = summaryDataStem1 [['date']] [con1],
-        y = summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con], 
+        y = summaryDataStem1 [['meanSugar']] [con1], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
   polygon (x = c (summaryDataStem1 [['date']] [con1], 
                   rev (summaryDataStem1 [['date']] [con1])),
-           y = c (summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con] - summaryDataStem1 [['seSugar']] [con1], 
-                  rev (summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con] + summaryDataStem1 [['seSugar']] [con1])),
+           y = c (summaryDataStem1 [['meanSugar']] [con1] - summaryDataStem1 [['seSugar']] [con1], 
+                  rev (summaryDataStem1 [['meanSugar']] [con1] + summaryDataStem1 [['seSugar']] [con1])),
            col = addOpacity ('#999999', 0.2), lty = 0)
   # Add critical dates
   #--------------------------------------------------------------------------------------
@@ -1023,13 +1023,13 @@ PLOT <- TRUE; if (PLOT) {
   par (mar = c (5, 0, 1, 0))
   con <- summaryDataStem1 [['treatment']] == 2 & summaryDataStem1 [['sampleHeight']] == 2
   plot (x = summaryDataStem1 [['date']] [con1],
-        y = summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con], 
+        y = summaryDataStem1 [['meanSugar']] [con1], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
   polygon (x = c (summaryDataStem1 [['date']] [con1], 
                   rev (summaryDataStem1 [['date']] [con1])),
-           y = c (summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con] - summaryDataStem1 [['seSugar']] [con1], 
-                  rev (summaryDataStem1 [['meanSugar']] [con1] * summaryDataStem1 [['adjRatioSugar']] [con] + summaryDataStem1 [['seSugar']] [con1])),
+           y = c (summaryDataStem1 [['meanSugar']] [con1] - summaryDataStem1 [['seSugar']] [con1], 
+                  rev (summaryDataStem1 [['meanSugar']] [con1] + summaryDataStem1 [['seSugar']] [con1])),
            col = addOpacity ('#999999', 0.2), lty = 0)
   # Add critical dates
   #--------------------------------------------------------------------------------------
@@ -1073,7 +1073,7 @@ PLOT <- TRUE; if (PLOT) {
 # Plot wood starch concentrations for 0-1 cm over time
 #----------------------------------------------------------------------------------------
 PLOT <- TRUE; if (PLOT) {
-  png ('../fig/Exp2017StemStarchConcentrationOverDateAdjusted.png', width = 1200, height = 380)
+  png ('../fig/Exp2017StemStarchConcentrationOverDate.png', width = 1200, height = 380)
   layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
   par (mgp = c (3, 1, 0), mar = c (5, 12, 1, 0))
   con1 <- summaryDataStem1 [['treatment']] == 1
@@ -1109,7 +1109,7 @@ PLOT <- TRUE; if (PLOT) {
         cex.axis = 2.2, mgp = c (3, 2, 0))
   axis (side = 2, cex.axis = 2.2, las = 1)
   mtext (side = 2, line = 5, cex = 1.5, 'starch concentration (% dry weight)')
-  mtext (side = 2, line = 9, cex = 3, 'wood')
+  mtext (side = 2, line = 9, cex = 3, 'wood (1-2 cm)')
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
@@ -1133,13 +1133,13 @@ PLOT <- TRUE; if (PLOT) {
   con <- summaryDataStem1 [['treatment']] == 3 & summaryDataStem1 [['sampleHeight']] == 2
   par (mar = c (5, 0, 1, 0))
   plot (x = summaryDataStem1 [['date']] [con1],
-        y = summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con], 
+        y = summaryDataStem1 [['meanStarch']] [con1], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
   polygon (x = c (summaryDataStem1 [['date']] [con1], 
                   rev (summaryDataStem1 [['date']] [con1])),
-           y = c (summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con] - summaryDataStem1 [['seStarch']] [con1], 
-                  rev (summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con] + summaryDataStem1 [['seStarch']] [con1])),
+           y = c (summaryDataStem1 [['meanStarch']] [con1] - summaryDataStem1 [['seStarch']] [con1], 
+                  rev (summaryDataStem1 [['meanStarch']] [con1] + summaryDataStem1 [['seStarch']] [con1])),
            col = addOpacity ('#999999', 0.2), lty = 0)
   
   # Add critical dates
@@ -1186,13 +1186,13 @@ PLOT <- TRUE; if (PLOT) {
   par (mar = c (5, 0, 1, 0))
   con <- summaryDataStem1 [['treatment']] == 4 & summaryDataStem1 [['sampleHeight']] == 2.5
   plot (x = summaryDataStem1 [['date']] [con1],
-        y = summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con], 
+        y = summaryDataStem1 [['meanStarch']] [con1], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
   polygon (x = c (summaryDataStem1 [['date']] [con1], 
                   rev (summaryDataStem1 [['date']] [con1])),
-           y = c (summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con] - summaryDataStem1 [['seStarch']] [con1], 
-                  rev (summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con] + summaryDataStem1 [['seStarch']] [con1])),
+           y = c (summaryDataStem1 [['meanStarch']] [con1] - summaryDataStem1 [['seStarch']] [con1], 
+                  rev (summaryDataStem1 [['meanStarch']] [con1] + summaryDataStem1 [['seStarch']] [con1])),
            col = addOpacity ('#999999', 0.2), lty = 0)
   
   # Add critical dates
@@ -1249,13 +1249,13 @@ PLOT <- TRUE; if (PLOT) {
   par (mar = c (5, 0, 1, 1))
   con <- summaryDataStem1 [['treatment']] == 2 & summaryDataStem1 [['sampleHeight']] == 2
   plot (x = summaryDataStem1 [['date']] [con1],
-        y = summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con], 
+        y = summaryDataStem1 [['meanStarch']] [con1], 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 1.2), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
   polygon (x = c (summaryDataStem1 [['date']] [con1], 
                   rev (summaryDataStem1 [['date']] [con1])),
-           y = c (summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con] - summaryDataStem1 [['seStarch']] [con1], 
-                  rev (summaryDataStem1 [['meanStarch']] [con1] * summaryDataStem1 [['adjRatioStarch']] [con] + summaryDataStem1 [['seStarch']] [con1])),
+           y = c (summaryDataStem1 [['meanStarch']] [con1] - summaryDataStem1 [['seStarch']] [con1], 
+                  rev (summaryDataStem1 [['meanStarch']] [con1] + summaryDataStem1 [['seStarch']] [con1])),
            col = addOpacity ('#999999', 0.2), lty = 0)
   
   # Add critical dates
