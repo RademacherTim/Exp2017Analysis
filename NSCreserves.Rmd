@@ -1,8 +1,10 @@
 ---
-title: 'Scaling nonstructural carbon reserves (SI 2)'
+title: |
+    | Supplementary Information 6:
+    | Scaling net changes in nonstructural carbon reserves
 author: Tim Rademacher
-date: "06/09/2019"
-output: html_document
+date: "14/08/2020"
+output: pdf_document
 bibliography: "/home/tim/projects/PlantGrowth/bib/Exp2017.bib"
 csl: "/home/tim/projects/PlantGrowth/bib/harvard.csl"
 ---
@@ -14,15 +16,19 @@ library ('readxl')
 options (warn = -1)
 ```
 
+\begin {center}
+\textit {This pdf was generated from an Rmarkdown file, which includes all R code necessary to reproduce the estimatations. The Rmarkdown file is available on github: https://github.com/TTRademacher/Exp2017Analysis.}
+\end {center}
+
 ## Calculating nonstructural carbon reserves for the 2017 experiment at Harvard Forest
 
-To estimate changes in soluble sugars and starch (measured as glucose equivalent) for various tissue, we scaled the concentrations derived using colorimetric assays as described in the methods. Below, we describe the scaling for easily accessible nonstrucutral carbon reserves in stem sections, for entire stems, roots and leaves, as well as the whole-tree reserves. The net differences in reserves over time (i.e., four sampling points) provide estimates of net gains or losses of soluble sugars and starch for each stem section, organ and tree. Generally, scaling involved multiplication of nonstructural carbon concentration by an estimate of tissue dry matter similar to @furze_whole-tree_2019. Below we provide exact methods and examples for each tissue.
+To estimate changes in soluble sugars and starch (measured as glucose equivalent) for various tissue, we scaled the concentrations derived using colorimetric assays as described in the methods. Below, we describe the scaling for easily accessible nonstrucutral carbon reserves in stem sections, for entire stems, roots and leaves, as well as the whole-tree reserves. The net differences in reserves over time (i.e., four sampling points) provide estimates of net gains or losses of soluble sugars and starch for each stem section. Generally, scaling involved multiplication of nonstructural carbon concentration by an estimate of tissue dry matter similar to @furze_whole-tree_2019. Below we provide exact methods and examples for each tissue.
 
 ## For stem sections
 
-We measured nonstructural carbon concentrations for the first centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith [@hoch_non-structural_2003;@furze_whole-tree_2018], we only consider nonstructural carbon reserves in the first centimeter underlying the bark for each stem section. We limit our analysis to these shallow reserves, because deeper reserves are assumed to less accessible [@carbone_age_2013],especially on timescales considered here (i.e. months).
+We measured nonstructural carbon concentrations for the first and second centimeter of the stem core (from the cambium towards the pith) as detailed in the methods section. While nonstructural carbon concentrations follow a generally decreasing gradient from the bark towards the pith [@hoch_non-structural_2003;@furze_whole-tree_2019], we only consider nonstructural carbon reserves in the first two centimeters underlying the bark for each stem section. The second centimeter already showed substantially smaller changes from July to November (Fig. S3) than the first centimeter. Because reserves in even deeper tissues are generally smaller [@hoch_non-structural_2003;@furze_whole-tree_2019] and are assumed to be less accessible [@carbone_age_2013], we limit our analysis to the first two centimeters.
 
-Assuming that the bulk of easily accessible nonstructural carbon can be found in the first centimeter and that our measurements are an adequate average of these reserves, we derive the total mass of nonstructural carbon in sugars and strach ($M_{sugar,i}$ and $M_{starch,i}$, respectively) by multiplying the dry matter of the hollow cylinder ($M_{i}$) of each stem section $i$ with the section's measured concentrations of sugar and starch ($c_{sugar,i}$ and $c_{starch,i}$, respectively). For sugar this is expressed as:
+Assuming that that our measurements are an adequate average of these reserves, we derive the total mass of nonstructural carbon in sugars and strach ($M_{sugar,i}$ and $M_{starch,i}$, respectively) by multiplying the dry matter of the hollow cylinder ($M_{i}$) of each stem section $i$ with the section's measured concentrations of sugar and starch ($c_{sugar,i}$ and $c_{starch,i}$, respectively). For sugar this is expressed as:
 
 $$
  M_{sugar,i} = c_{sugar,i} \times M_{i} = V_{i} \times \rho_w \times c_{sugar,i}
@@ -51,7 +57,7 @@ deepStemData2017 <- filter (stemData2017, treeID <= 40, sampleDepth == 2)
 stemData2017     <- filter (stemData2017, treeID <= 40, sampleDepth == 1)
 ```
 
-For example, a 10 $cm$ high stem section of 20 $cm$ diameter, would have a volume of 628 $cm^3$ and a mass of 182.06 $g$. At an average measured sugar and starch concentration of `r round (mean (stemData2017 [['sugar']] [stemData2017 [['date']] [1] == as_datetime("2017-07-05")], na.rm = TRUE), 2)` and `r round (mean (stemData2017 [['starch']] [stemData2017 [['date']] [1] == as_datetime("2017-07-05")], na.rm = TRUE), 2)` $\% \, dry \, mass$ in July, this equates to a total nonstructural carbon reserve of roughly 2 $g$ or 1 $g$ of easily accessible carbon in that stem section.
+For example, a 10 $cm$ high stem section of 20 $cm$ diameter, would have a volume of 628 $cm^3$ and a mass of 182.06 $g$. At an average measured sugar and starch concentration of $`r round (mean (stemData2017 [['sugar']] [stemData2017 [['date']] [1] == as_datetime("2017-07-05")], na.rm = TRUE), 2)`$ and $`r round (mean (stemData2017 [['starch']] [stemData2017 [['date']] [1] == as_datetime("2017-07-05")], na.rm = TRUE), 2)`$ $\% \, dry \, mass$ in July, this equates to a total nonstructural carbon reserve of roughly 2 $g$ or 1 $g$ of easily accessible carbon in that stem section.
 
 ``` {r calculateStemSectionNSCs, warning = FALSE, echo = FALSE}
 # get the tree measurements of circumference from spreadsheet
@@ -318,67 +324,6 @@ for (r in 1:dim (responseVariables) [1]) {
     }
   } # End of July and November condition
 }
-```
-
-## Total above ground biomass 
-
-According to @jenkins_comprehensive_2004, we calcualted total aboveground biomass ($B; in \; kg$) from the diameter at breast height of tree $t$ ($d_{t}; in \; m$) as follows:
-
-$$
-B = exp (\beta_0 + \beta_1 \; ln \; d_{t})
-$$
-
-``` {r totalBiomass, echo = FALSE}
-biomass04 <- exp (2.4800 + 2.4835 * log (allometricData [['cbh150']] [allometricData [['tree']] != 41] / pi))  
-#biomass08 <- exp (-2.6177 + 2.4638 * log (allometricData [['cbh150']] / pi)) # with specific gravity < 0.45
-#biomass08 <- exp (-3.0506 + 2.6465 * log (allometricData [['cbh150']] / pi)) # with specific gravity >= 0.45
-#biomassxx <- 2.2874 * exp (0.1968 * (allometricData [['cbh150']] / pi)) # From peichl
-```
-
-with generic pine species (Pinus spp.) parameters of $\beta_0 = -2.4800$ and $\beta_1 = 2.4835$. This total biomass includes foliage, stemwood, bark and branches. To get tissue specific values for the mass of stemwood, bark and foliage we estimated the fraction of the total aboveground biomass in each tissue using parameters from Table 2 in @jenkins_comprehensive_2004 (i.e. for stemwood $\alpha_0 = –0.3737$ and $\alpha_1 = –1.8055$) and the following equation:
-
-$$
-f = exp (\alpha_0 + \frac {\alpha_1} {d_t})
-$$
-``` {r fractionalBiomass, echo = FALSE}
-rootFraction <- exp (-1.5619 + ( 0.6614 / (allometricData [['cbh150']] [allometricData [['tree']] != 41] / pi)))
-stemFraction <- exp (-0.3737 + (-1.8055 / (allometricData [['cbh150']] [allometricData [['tree']] != 41] / pi)))
-barkFraction <- exp (-2.0980 + (-1.1432 / (allometricData [['cbh150']] [allometricData [['tree']] != 41] / pi)))
-foliFraction <- exp (-2.9584 + ( 4.4766 / (allometricData [['cbh150']] [allometricData [['tree']] != 41] / pi)))
-branFraction <- 1.0 - foliFraction - stemFraction - barkFraction
-
-rootMass <- biomass04 * rootFraction
-stemMass <- biomass04 * stemFraction
-barkMass <- biomass04 * barkFraction
-branMass <- biomass04 * branFraction
-foliMass <- biomass04 * foliFraction
-```
-
-Branch biomass was calculated as the residual of total aboveground biomass and the three other organs estimated above. Here, the mean stem, bark, branch and foliage fractions were `r round (mean (stemFraction) * 100.0,1)`%, `r round (mean (barkFraction) * 100.0,1)`%, `r round (mean (branFraction) * 100.0,1)`%, and  `r round (mean (foliFraction) * 100.0,1)`%, respectively.
-
-$$
-f_{branches} = 1.0 - f_{foliage} - f_{stemwood} - f_{bark}
-$$
-Root biomass was also estimated as a fraction of total aboveground biomass with an average of `r round (mean (rootFraction) * 100.0,1)`%.
-
-For each organ and the entire tree we multiplied the respecitve biomass with the average sugar and starch concentration (in $% dry weight$) derived from colourimetric assays. The total nonstructural carbon estimates are the sum of the mass of sugar and starch. 
-
-```{r totalFoliage reserves, echo = FALSE}
-# determine tissue sugar reserves
-#----------------------------------------------------------------------------------------
-responseVariables [['sugarRoot']]   <- rootData2017 [['sugar']] * rootMass
-responseVariables [['sugarNeedle']] <- leafData2017 [['sugar']] * foliMass
-
-# determine tissue starch reserves
-#----------------------------------------------------------------------------------------
-responseVariables [['starchRoot']]   <- rootData2017 [['starch']] * rootMass
-responseVariables [['starchNeedle']] <- leafData2017 [['starch']] * foliMass
-# TR I could also calculate sugar in branches and bark in the future with the samples we still have at NAU. Furthermore, I could average the stem section of the control to derive stem values.
-
-# export data if necessary
-#----------------------------------------------------------------------------------------
-WRITE <- TRUE
-if (WRITE) write_csv (responseVariables,  path = 'nonstructuralCarbon.csv')
 ```
 
 # References

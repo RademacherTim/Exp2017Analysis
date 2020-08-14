@@ -1,8 +1,10 @@
 ---
-title: "Estimating respiratory losses (SI 3)"
+title: |
+  | Supplementary Information 5:
+  | Estimating respiratory losses
 author: Tim Rademacher
-date: "09/09/2019"
-output: html_document
+date: "14/08/2020"
+output: pdf_document
 bibliography: "/home/tim/projects/PlantGrowth/bib/Exp2017.bib"
 csl: "/home/tim/projects/PlantGrowth/bib/harvard.csl"
 ---
@@ -12,18 +14,22 @@ knitr::opts_chunk$set(echo = TRUE)
 library ('tidyverse')
 library ('readxl')
 library ('lubridate')
-library ('googledrive')
 
 # source ploting funtions and colour schemes
 #----------------------------------------------------------------------------------------
 source ('plotingFunctions.R')
 ```
 
-## Estimating respiratory losses for stem sections
+
+\begin {center}
+\textit {This pdf was generated from an Rmarkdown file, which includes all R code necessary to reproduce the estimatations. The Rmarkdown file is available on github: https://github.com/TTRademacher/Exp2017Analysis.}
+\end {center}
+
+## Estimating total respiratory losses
 
 To estimate stem respiratory losses, weekly stem respiration measurements were made using a Li-Cor820 starting at 13.00h. The LiCor820 was attached to a PVC pipe (4" diameter) that were previously fitted and attached to the stem sections using silicone to create a closed chamber in which the enclosed air circulates via a small pump, similar to the Flux Puppy system [@carbone_flux_2019]. Respiration fluxes and uncertainties were calculate from the change in CO<sub>2</sub> using the RespChamberProc package [@perez-priego_sun-induced_2015] in R [@r_core_team_r:_2019]. The rates were corrected for fluctuations in atmospheric water vapour pressure using climate data from the Fisher meteorological station. Stem sections were measured in the same order every week to minimise variations in time of day of repeat measurements. 
 
-## Integration over the surface area of the stem section
+## Integration over the surface area of each stem section
 
 Instantaneous fluxes of diffusive CO<sub>2</sub> loss through the bark were measured as described above and subsequently integrated across space (e.g. the specific surface area of a 10 cm stem section) for each stem section to estimate the respiratrory loss in grams per stem section per day. To integrate the measured respiration rates across a 10cm stem section, we calculate the surface area of the i-th stem section ($A_{s,i}$) as follows:
 
@@ -33,7 +39,7 @@ $$
 , where is the $cbh_{s,i}$ is the circumference in cemtimeters and $h$ is the height of the section in meters (here $h = 0.1$m).
 
 The stem respiration rate over this surface area was then determined by multiplication of the instanteanous respiration flux (in $g \, m^{-2} \,day^{-1}$) by the surface area to get the respiration rate (in $g \, day_{-1}$).
-```{r integrateAcrossSpace}
+```{r integrateAcrossSpace, echo = FALSE}
 # get the tree measurements of circumference from spreadsheet
 #----------------------------------------------------------------------------------------
 allometricData <- read_excel (path = '/media/tim/dataDisk/PlantGrowth/data/allometry/Exp2017/allometricDataExp2017.xlsx', 
@@ -154,7 +160,7 @@ for (iTree in 1:40) {
 }
 ```
 
-# Integrate across time
+## Estimate respiratory losses for each periods
 
 Respiration rates were averaged for over four time periods: (i) pre-treatment, (ii) treatment period 1 (i.e. first month after start of the experiment), (iii) treament period 2 (i.e. second and third month after the start of the experiment) and (iii) treatment period 3 (i.e. fourth month after the start of the experiment to the end of the growing season). 
 
@@ -165,7 +171,7 @@ R_{i,j} = \frac {1} {n} \sum_{k=1}^{n} R_{i,k} \times l_p
 $$
 , where n is the number of weekly sampling dates during each period.
 
-``` {r temporalIntegration}
+``` {r temporalIntegration, echo = FALSE}
 # set period boundaries
 #----------------------------------------------------------------------------------------
 boundaries <- as.POSIXct (c ('2017-07-05','2017-08-10','2017-10-09','2017-11-01'), tz = 'EST')
@@ -226,7 +232,7 @@ WRITE <- TRUE; if (WRITE) write_csv (x = responseVariables, path = 'respiratoryL
 ```
 
 
-``` {r plotResp}
+``` {r plotResp, echo = FALSE}
 # add treatments to the responseVariables
 #----------------------------------------------------------------------------------------
 responseVariables <- add_column (responseVariables, treatment = rep (allometricData [['treatment']] [1:40], 4))

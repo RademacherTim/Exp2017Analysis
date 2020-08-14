@@ -1,8 +1,10 @@
 ---
-title: 'Scaling structural carbon (SI 1)'
+title: |
+  | Supplementary Information 4:
+  | Scaling structural carbon
 author: Tim Rademacher
-date: "01/11/2019"
-output: html_document
+date: "14/08/2020"
+output: pdf_document
 bibliography: "/home/tim/projects/PlantGrowth/bib/Exp2017.bib"
 csl: "/home/tim/projects/PlantGrowth/bib/harvard.csl"
 ---
@@ -12,14 +14,17 @@ knitr::opts_chunk$set(echo = TRUE)
 library ('knitr')
 library ('tidyverse')
 library ('lubridate')
-library ('googledrive')
+#library ('googledrive')
 library ('zoo')
 
 # Specify the user and neglect warnings
 #----------------------------------------------------------------------------------------
-options (gargle_oauth_email = "tr625@nau.edu")
 options (warn = -1)
 ```
+
+\begin {center}
+\textit {This pdf was generated from an Rmarkdown file, which includes all R code necessary to reproduce the estimatations. The Rmarkdown file is available on github: https://github.com/TTRademacher/Exp2017Analysis.}
+\end {center}
 
 ## Structural carbon estimation for stem sections of the 2017 experiment at Harvard Forest
 
@@ -33,11 +38,11 @@ source ('plotingFunctions.R')
 source ('processAnatomicalData.R')
 ```
 
-We estimate structural carbon gain for each stem section and period from the cell-wall area estimated to have formed in that period. The cell-wall area of one thinsections sampled at the end of the growing season (3$^{rd}$ of November 2017) ais therefore divided into sections grown between sampling dates (e.g., prior, during and after treatment) by association with the fraction of the ring formed at each sampling date. For each sampling date two microcores were collected and stored with trephor tool [@rossi_trephor:_2006]. One microcore was embedded in parafin (Tissue Processor 1020 Leica, Switzerland), 7 𝜇m-thick crossectional cuts were obtained using a rotary microtome  (Leica RM2245, Switzerland). The cuts were stained with astra blue and safranin red, and scanned on a sliding scanner. Where the resulting image of the first microcore did not fully include the necessary rings or had other quality issues, we cut and processed the second microcore. Between the two microcores, we were able to obtain high-quality image data for 315<!-- TR - Image 06.1 M for 2017/08/09 only contains part of the 2017 ring. And images 06.1 M, 24.4 A and 24.4 B are missing the 2015 ring. There must be one additional ring missing because the numbferOfSamples suggests so!!!--> out of 320 samples (i.e., 4 sampling dates times 40 trees times on average two sampling heights). Only for one tree (tree id: 06; treament: control) both thinsections collected in October did not contain a full set of rings necessary for the analysis. For each image, we identified and divided the ring formed in 2017 into 20 𝜇m-wide discrete tangential bands and derived the average anatomical structure for cells in each band using ROXAS [@von_arx_roxas_2014]. In particular, we measured average cell-wall area, cell wall thickness, as well as tangential and radial lumen diameter. The ring width of the fully formed 2017 ring ranged between `r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [1]/1000, 2)` and `r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [2] / 1000, 2 )` mm with a mean of `r round (mean (unique (data [['MRW']] [data [['year']] == 2017]))/1000, 2)` mm. Even the smallest ring was divided into `r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [1]/20)` discrete bands of a width of 20-𝜇m with anatomical data.
+We estimate structural carbon gain for each stem section and period from the cell-wall area estimated to have formed in that period. The cell-wall area of one thinsections sampled at the end of the growing season (3$^{rd}$ of November 2017) ais therefore divided into sections grown between sampling dates (e.g., prior, during and after treatment) by association with the fraction of the ring formed at each sampling date. For each sampling date two microcores were collected and stored with trephor tool [@rossi_trephor:_2006]. One microcore was embedded in parafin (Tissue Processor 1020 Leica, Switzerland), 7 $\mu m$-thick crossectional cuts were obtained using a rotary microtome  (Leica RM2245, Switzerland). The cuts were stained with astra blue and safranin red, and scanned on a sliding scanner. Where the resulting image of the first microcore did not fully include the necessary rings or had other quality issues, we cut and processed the second microcore. Between the two microcores, we were able to obtain high-quality image data for 315<!-- TR - Image 06.1 M for 2017/08/09 only contains part of the 2017 ring. And images 06.1 M, 24.4 A and 24.4 B are missing the 2015 ring. --> out of 320 samples (i.e., 4 sampling dates times 40 trees times on average two sampling heights). Only for one tree (tree id: 06; treament: control) both thinsections collected in October did not contain a full set of rings necessary for the analysis. For each image, we identified and divided the ring formed in 2017 into 20 $\mu m$-wide discrete tangential bands and derived the average anatomical structure for cells in each band using ROXAS [@von_arx_roxas_2014]. In particular, we measured average cell-wall area, cell wall thickness, as well as tangential and radial lumen diameter. The ring width of the fully formed 2017 ring ranged between $`r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [1]/1000, 2)`$ and $`r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [2] / 1000, 2 )`$ mm with a mean of $`r round (mean (unique (data [['MRW']] [data [['year']] == 2017]))/1000, 2)`$ mm. Even the smallest ring was divided into $`r round (range (unique (data [['MRW']] [data [['year']] == 2017])) [1]/20)`$ discrete bands of a width of 20-$\mu m$ with anatomical data.
 
-### Estimating period of formation for cells 
+### Estimating period of formation of tangential bands
 
-Ring widths were measured for all sampling dates. The ring widths were standardised to account for lcoa variations in growth in thin-sections. Standardised ring widths from the different sampling dates were then used to associate proportions of the final ring from the November microcore (e.g., which 20-𝜇m wide bade to include), to specific growth periods. For this purpose we identified and measured ring widths in thinsections taken prior (e.g., 3$^{rd}$ of July 2017) and during the treatment (e.g., 10$^{th}$ of August 2017, and 9$^{th}$ of October 2017), as well as at the end of the growing season (3$^{rd}$ of November). All ring width measurements were performed using the self-developed Tree Ring Image Analysis and Database (TRIAD). The accuracy of TRIAD is ultimately limited by the resolution of the uploaded images; here roughly 1.5𝜇m. 
+Ring widths were measured for all sampling dates using the Tree Ring Image Analysis and Database plaform (http://phenocam.nau.edu/TRIAD/). The ring widths were standardised to account for lcoa variations in growth in thin-sections. Standardised ring widths from the different sampling dates were then used to associate proportions of the final ring from the November microcore (e.g., which $20-\mu m$m wide bade to include), to specific growth periods. For this purpose we identified and measured ring widths in thinsections taken prior (e.g., 3$^{rd}$ of July 2017) and during the treatment (e.g., 10$^{th}$ of August 2017, and 9$^{th}$ of October 2017), as well as at the end of the growing season (3$^{rd}$ of November). All ring width measurements were performed using the self-developed Tree Ring Image Analysis and Database (TRIAD). The accuracy of TRIAD is ultimately limited by the resolution of the uploaded images; here roughly 1.5 $\mu m$. 
 
 Microcores in August, October and November were punched in close proximity to the July sample. However, the samples were offset by, at least, 5cm horizontally on the same vertical axis to avoid sampling a wound reaction of the injury inflicted by previous cores. As growth varies locally around the circumference of the stem, sampling relatively close was a first step to minimised local differences in growth between sampling dates. As a second step, we used the width of an older ring from the same thinsection to correct for local variation in growth between microcores. 
 
@@ -52,7 +57,7 @@ metData <- read_csv (url ('https://harvardforest.fas.harvard.edu/data/p30/hf300/
                      col_types = cols ())
 ```
 
-The number of measurements for growth rings drops off strongly after the 2015 growth ring (table 1), because the older rings are further away from the bark, hence they are less likely within the 15mm reach of the trephor tool [@rossi_trephor:_2006] used to collect the microcores. Among the recent years with high replication, 2015 was preferred over 2016, because of an abnormally dry growing season in 2016 (total annual precipitation of `r metData [['prec']] [metData [['year']] == 2016]` $mm$, which is `r round (mean (metData [['prec']]) - metData [['prec']] [metData [['year']] == 2016])` below the long-term average of `r round (mean (metData [['prec']]))` $mm$). In fact, about three quarters of trees included in this study showed an intra-annual density fluctuation in 2016 due to the dry growing season and the remaining quarter of trees had a relatively narrower ring. 2016 was 0.90 ℃ warmer with 234 mm less precipitation compared to the 30-year average. Consequently, standardisation by the 2016 ring would introduce a systematic bias based on the bi-modal ring width distribution in 2016. In contrast, 2015 did not include any outstading climatological events or resulting systematic bias in growth. Indeed, the 2015 growing season climate was similar to the 2017 growing season climate with a mean annual temperature of `r metData [['airt']] [metData [['year']] == 2015]` $^{\circ}C$ and a total annual precipitation of `r metData [['prec']] [metData [['year']] == 2015]` $mm$. Both 2017 and 2015 were close to the long-term averages mentioned above.
+The number of measurements for growth rings drops off strongly after the 2015 growth ring (table 1), because the older rings are further away from the bark, hence they are less likely within the 15mm reach of the trephor tool [@rossi_trephor:_2006] used to collect the microcores. Among the recent years with high replication, 2015 was preferred over 2016, because of an abnormally dry growing season in 2016 (total annual precipitation of $`r metData [['prec']] [metData [['year']] == 2016]`$ $mm$, which is $`r round (mean (metData [['prec']]) - metData [['prec']] [metData [['year']] == 2016])`$ below the long-term average of $`r round (mean (metData [['prec']]))`$ $mm$). In fact, about three quarters of trees included in this study showed an intra-annual density fluctuation in 2016 due to the dry growing season and the remaining quarter of trees had a relatively narrower ring. 2016 was 0.90 ℃ warmer with 234 mm less precipitation compared to the 30-year average. Consequently, standardisation by the 2016 ring would introduce a systematic bias based on the bi-modal ring width distribution in 2016. In contrast, 2015 did not include any outstading climatological events or resulting systematic bias in growth. Indeed, the 2015 growing season climate was similar to the 2017 growing season climate with a mean annual temperature of $`r metData [['airt']] [metData [['year']] == 2015]`$ $^{\circ}C$ and a total annual precipitation of $`r metData [['prec']] [metData [['year']] == 2015]`$ $mm$. Both 2017 and 2015 were close to the long-term averages mentioned above.
 
 ``` {r plotBasicRingStats, echo = FALSE, fig.width = 11}
 
@@ -154,16 +159,16 @@ numberOfSamples [3, ] <- round (numberOfSamples [3, ], 2)
 kable (numberOfSamples, caption = 'Number of measured growth ring widths for all trees out of a potential 320 thinsection images.')
 ```
 
-On average, `r round (mean (unlist (f_Jul), na.rm = TRUE) * 100.0, 1)`%, `r round (mean (unlist (f_Aug), na.rm = TRUE) * 100.0, 1)`%, and `r round (mean (unlist (f_Oct), na.rm = TRUE) * 100.0, 1)`% of the ring width had respectively grown in July, August and October. Thus, a bit more than half of the ring widths was already formed before the start of the treatment and ring width growth had <i>de facto</i> finished by Ocotober. However, there were substantial differences between treatments and sampling heights in the timeline of xylogenesis.  
+On average, $`r round (mean (unlist (f_Jul), na.rm = TRUE) * 100.0, 1)`$%, $`r round (mean (unlist (f_Aug), na.rm = TRUE) * 100.0, 1)`$%, and $`r round (mean (unlist (f_Oct), na.rm = TRUE) * 100.0, 1)`$% of the ring width had respectively grown in July, August and October. Thus, a bit more than half of the ring widths was already formed before the start of the treatment and ring width growth had *de facto* finished by Ocotober. However, there were substantial differences between treatments and sampling heights in the timeline of xylogenesis.  
 
-Using the fractional ring widths as boundaries, each 20-𝜇m band was associated with one of the four periods: (1) beginning of growing season to start of experiment ($3^{rd}$ of July 2017), (2) first month of the experiment ($4^{th}$ of July to $9^{th}$ of August 2017), (3) second month of the experiment ($10^{th}$ of August to $8^{th}$ of October 2017), (4) end of double compression to end of growing season ($9^{th}$ of October to $3^{rd}$ of November 2017). These period are illustrated in Fig. 1 (main manuscript).
+Using the fractional ring widths as boundaries, each 20-$\mu m$ band was associated with one of the four periods: (1) beginning of growing season to start of experiment ($3^{rd}$ of July 2017), (2) first month of the experiment ($4^{th}$ of July to $9^{th}$ of August 2017), (3) second month of the experiment ($10^{th}$ of August to $8^{th}$ of October 2017), (4) end of double compression to end of growing season ($9^{th}$ of October to $3^{rd}$ of November 2017). These period are illustrated in Fig. 1 (main manuscript).
 
 ### Scaling measured cell wall area to stem section 
 
 After we associated each tangential band with a growth period, each band is scaled to the circumference of the stem section by multiplication of the mean zonal cell-wall area by the number of times the average zonal tangential cell width ($w_{t,s}$) fits into the entire circumference of each stem section. To account for the bark (assuming a bark thickness of 0.8cm) we reduced the circumference, as measured at the beginning of the experiment ($CBH_{outer,s}$) according to the following equation:
 
 $$
-CBH_{s} = CBH_{outer,s} − 0.8 cm \times 2 \pi
+CBH_{s} = CBH_{outer,s} - 0.8 cm \times 2 \pi
 $$
 The zonal cell wall area for each band is then summed across fractions of the ring were previously associated with the same period of formation. As a result we obtain an estimate of the total cell wall area formed during each period.
 
@@ -370,7 +375,7 @@ if (WRITE) {
 }
 ```
 
-Finally, the cell-wall volume for each ring portion of the stem section ($V_{CW,s,p}$) is multiplied by a fixed cell-wall density ($\rho_{CW}$) of `r rhoCW` $kg \, m^{-3}$  (measured for Scots pine by @plotze_porosity_2011) and a carbon content of `r CC`%  typical of white pine [@lamlom_reassessment_2003] to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in g). 
+Finally, the cell-wall volume for each ring portion of the stem section ($V_{CW,s,p}$) is multiplied by a fixed cell-wall density ($\rho_{CW}$) of $`r rhoCW`$ $kg \, m^{-3}$  (measured for Scots pine by @plotze_porosity_2011) and a carbon content of $`r CC`$%  typical of white pine [@lamlom_reassessment_2003] to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in g). 
 
 $$
 M_{s,p} = V_{CW,s,p} \times \rho_{CW} \times 49.74\%
