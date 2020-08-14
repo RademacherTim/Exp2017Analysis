@@ -282,7 +282,7 @@ for (i in c (1,3,4,2)) {
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 6, cex = 1.5, 'cumulative number of cells (n)')
+    mtext (side = 2, line = 6, cex = 1.5, 'Cumulative number of cells (n)')
     
     # Add legend 
     #----------------------------------------------------------------------------------------
@@ -379,7 +379,7 @@ for (i in c (1,3,4,2)) {
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('mean radial cell diameter (',mu,m,')')))
+    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('Mean radial cell diameter (',mu,m,')')))
     
     # Add legend 
     #----------------------------------------------------------------------------------------
@@ -474,7 +474,7 @@ for (i in c (1,3,4,2)) {
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('mean cell wall thickness (',mu,m,')')))
+    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('Mean cell-wall thickness (',mu,m,')')))
     
     # Add legend 
     #----------------------------------------------------------------------------------------
@@ -571,7 +571,7 @@ for (i in c (1,3,4,2)) {
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('mean cell wall area (',mu,m^2,')')))
+    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('Mean cell-wall area (',mu,m^2,')')))
     
     # Add legend 
     #----------------------------------------------------------------------------------------
@@ -671,7 +671,7 @@ for (i in c (1,3,4,2)) {
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('cumulative cell wall area (',mu,m^2,')')))
+    mtext (side = 2, line = 6, cex = 1.5, expression (paste ('Cumulative cell-wall area (',mu,m^2,')')))
     
     # Add legend 
     #----------------------------------------------------------------------------------------

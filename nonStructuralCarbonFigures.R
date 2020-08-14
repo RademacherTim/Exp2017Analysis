@@ -71,7 +71,7 @@ summaryDataRoot  <- summaryDataRoot %>% mutate (adjRatioSugar = adjRatiosSugar [
 
 # Plot leaf soluble sugar concentrations over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017LeafSugarConcentrationOverDateAdjusted.png', width = 1200, height = 380)
+png ('../fig/Exp2017NeedleSugarConcentrationOverDateAdjusted.png', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
 par (mgp = c (3, 1, 0))
 for (i in c (1, 3, 4, 2)) {
@@ -133,8 +133,8 @@ for (i in c (1, 3, 4, 2)) {
   #--------------------------------------------------------------------------------------
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 5, cex = 1.5, 'sugar concentration (% dry weight)')
-    mtext (side = 2, line = 9, cex = 3, 'leaves')
+    mtext (side = 2, line = 5, cex = 1.5, 'Sugar concentration (% dry weight)')
+    mtext (side = 2, line = 9, cex = 3, 'Needles')
   }
   
   # Add panel descriptor
@@ -156,7 +156,7 @@ dev.off  ()
 
 # Plot leaf starch concentrations over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017LeafStarchConcentrationOverDateAdjusted.png', width = 1200, height = 380)
+png ('../fig/Exp2017NeedleStarchConcentrationOverDateAdjusted.png', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
 par (mgp = c (3, 1, 0))
 for (i in c (1, 3, 4, 2)) {
@@ -218,8 +218,8 @@ for (i in c (1, 3, 4, 2)) {
   #--------------------------------------------------------------------------------------
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 5, cex = 1.5, 'starch concentration (% dry weight)')
-    mtext (side = 2, line = 9, cex = 3, 'leaves')
+    mtext (side = 2, line = 5, cex = 1.5, 'Starch concentration (% dry weight)')
+    mtext (side = 2, line = 9, cex = 3, 'Needles')
   }
   
   # Add panel descriptor
@@ -271,8 +271,8 @@ PLOT <- TRUE; if (PLOT) {
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   axis (side = 2, cex.axis = 2.2, las = 1)
-  mtext (side = 2, line = 5, cex = 1.5, 'sugar concentration (% dry weight)')
-  mtext (side = 2, line = 9, cex = 3, 'wood')
+  mtext (side = 2, line = 5, cex = 1.5, 'Sugar concentration (% dry weight)')
+  mtext (side = 2, line = 9, cex = 3, 'Wood')
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
@@ -493,8 +493,8 @@ PLOT <- TRUE; if (PLOT) {
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   axis (side = 2, cex.axis = 2.2, las = 1)
-  mtext (side = 2, line = 5, cex = 1.5, 'starch concentration (% dry weight)')
-  mtext (side = 2, line = 9, cex = 3, 'wood')
+  mtext (side = 2, line = 5, cex = 1.5, 'Starch concentration (% dry weight)')
+  mtext (side = 2, line = 9, cex = 3, 'Wood')
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
@@ -745,8 +745,8 @@ for (i in c (1, 3, 4, 2)) {
   #--------------------------------------------------------------------------------------
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 5, cex = 1.5, 'sugar concentration (% dry weight)')
-    mtext (side = 2, line = 9, cex = 3, 'roots')
+    mtext (side = 2, line = 5, cex = 1.5, 'Sugar concentration (% dry weight)')
+    mtext (side = 2, line = 9, cex = 3, 'Roots')
   }
   
   # Add panel descriptor
@@ -831,8 +831,8 @@ for (i in c (1, 3, 4, 2)) {
   #--------------------------------------------------------------------------------------
   if (i == 1) {
     axis (side = 2, cex.axis = 2.2, las = 1)
-    mtext (side = 2, line = 5, cex = 1.5, 'starch concentration (% dry weight)')
-    mtext (side = 2, line = 9, cex = 3, 'roots')
+    mtext (side = 2, line = 5, cex = 1.5, 'Starch concentration (% dry weight)')
+    mtext (side = 2, line = 9, cex = 3, 'Roots')
   }
   
   # Add panel descriptor
@@ -869,7 +869,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add critical dates
   #--------------------------------------------------------------------------------------
-  return <- criticalDates ('control') 
+  return <- criticalDates ('Control') 
   
   polygon (x = c (summaryDataStem1 [['date']] [con1], 
                   rev (summaryDataStem1 [['date']] [con1])),
@@ -886,8 +886,8 @@ PLOT <- TRUE; if (PLOT) {
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   axis (side = 2, cex.axis = 2.2, las = 1)
-  mtext (side = 2, line = 5, cex = 1.5, 'sugar concentration (% dry weight)')
-  mtext (side = 2, line = 9, cex = 3, 'wood (1-2 cm)')
+  mtext (side = 2, line = 5, cex = 1.5, 'Sugar concentration (% dry weight)')
+  mtext (side = 2, line = 9, cex = 3, 'Wood (1-2 cm)')
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
@@ -1073,7 +1073,7 @@ PLOT <- TRUE; if (PLOT) {
 # Plot wood starch concentrations for 0-1 cm over time
 #----------------------------------------------------------------------------------------
 PLOT <- TRUE; if (PLOT) {
-  png ('../fig/Exp2017StemStarchConcentrationOverDate.png', width = 1200, height = 380)
+  png ('../fig/Exp2017DeepStemStarchConcentrationOverDate.png', width = 1200, height = 380)
   layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
   par (mgp = c (3, 1, 0), mar = c (5, 12, 1, 0))
   con1 <- summaryDataStem1 [['treatment']] == 1
@@ -1108,8 +1108,8 @@ PLOT <- TRUE; if (PLOT) {
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   axis (side = 2, cex.axis = 2.2, las = 1)
-  mtext (side = 2, line = 5, cex = 1.5, 'starch concentration (% dry weight)')
-  mtext (side = 2, line = 9, cex = 3, 'wood (1-2 cm)')
+  mtext (side = 2, line = 5, cex = 1.5, 'Starch concentration (% dry weight)')
+  mtext (side = 2, line = 9, cex = 3, 'Wood (1-2 cm)')
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
