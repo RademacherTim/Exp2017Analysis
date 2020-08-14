@@ -71,7 +71,7 @@ summaryDataRoot  <- summaryDataRoot %>% mutate (adjRatioSugar = adjRatiosSugar [
 
 # Plot leaf soluble sugar concentrations over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017NeedleSugarConcentrationOverDateAdjusted.png', width = 1200, height = 380)
+tiff ('../fig/Exp2017NeedleSugarConcentrationOverDateAdjusted.tiff', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
 par (mgp = c (3, 1, 0))
 for (i in c (1, 3, 4, 2)) {
@@ -156,7 +156,7 @@ dev.off  ()
 
 # Plot leaf starch concentrations over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017NeedleStarchConcentrationOverDateAdjusted.png', width = 1200, height = 380)
+tiff ('../fig/Exp2017NeedleStarchConcentrationOverDateAdjusted.tiff', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
 par (mgp = c (3, 1, 0))
 for (i in c (1, 3, 4, 2)) {
@@ -242,7 +242,7 @@ dev.off  ()
 # Plot wood soluble sugar concentrations for 0-1 cm over time
 #----------------------------------------------------------------------------------------
 PLOT <- TRUE; if (PLOT) {
-  png ('../fig/Exp2017StemSugarConcentrationOverDateAdjusted.png', width = 1200, height = 380)
+  tiff ('../fig/Exp2017StemSugarConcentrationOverDateAdjusted.tiff', width = 1200, height = 380)
   layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
   par (mgp = c (3, 1, 0), mar = c (5, 12, 1, 0))
   con1 <- summaryDataStem0 [['treatment']] == 1
@@ -458,7 +458,7 @@ PLOT <- TRUE; if (PLOT) {
 # Plot wood starch concentrations for 0-1 cm over time
 #----------------------------------------------------------------------------------------
 PLOT <- TRUE; if (PLOT) {
-  png ('../fig/Exp2017StemStarchConcentrationOverDateAdjusted.png', width = 1200, height = 380)
+  tiff ('../fig/Exp2017StemStarchConcentrationOverDateAdjusted.tiff', width = 1200, height = 380)
   layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
   par (mgp = c (3, 1, 0), mar = c (5, 12, 1, 0))
   con1 <- summaryDataStem0 [['treatment']] == 1
@@ -683,7 +683,7 @@ PLOT <- TRUE; if (PLOT) {
 
 # Plot root soluble sugar concentrations over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017RootSugarConcentrationOverDateAdjusted.png', width = 1200, height = 380)
+tiff ('../fig/Exp2017RootSugarConcentrationOverDateAdjusted.tiff', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
 par (mgp = c (3, 1, 0))
 for (i in c (1, 3, 4, 2)) {
@@ -769,7 +769,7 @@ dev.off  ()
 
 # Plot root starch concentrations over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017RootStarchConcentrationOverDateAdjusted.png', width = 1200, height = 380)
+tiff ('../fig/Exp2017RootStarchConcentrationOverDateAdjusted.tiff', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
 par (mgp = c (3, 1, 0))
 for (i in c (1, 3, 4, 2)) {
@@ -857,7 +857,7 @@ dev.off  ()
 # Plot wood soluble sugar concentrations for 1-2 cm over time
 #----------------------------------------------------------------------------------------
 PLOT <- TRUE; if (PLOT) {
-  png ('../fig/Exp2017DeepStemSugarConcentrationOverDate.png', width = 1200, height = 380)
+  tiff ('../fig/Exp2017DeepStemSugarConcentrationOverDate.tiff', width = 1200, height = 380)
   layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
   par (mgp = c (3, 1, 0), mar = c (5, 12, 1, 0))
   con1 <- summaryDataStem1 [['treatment']] == 1
@@ -1073,7 +1073,7 @@ PLOT <- TRUE; if (PLOT) {
 # Plot wood starch concentrations for 0-1 cm over time
 #----------------------------------------------------------------------------------------
 PLOT <- TRUE; if (PLOT) {
-  png ('../fig/Exp2017DeepStemStarchConcentrationOverDate.png', width = 1200, height = 380)
+  tiff ('../fig/Exp2017DeepStemStarchConcentrationOverDate.tiff', width = 1200, height = 380)
   layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.5, 1, 1, 1.05))
   par (mgp = c (3, 1, 0), mar = c (5, 12, 1, 0))
   con1 <- summaryDataStem1 [['treatment']] == 1

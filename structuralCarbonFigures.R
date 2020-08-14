@@ -128,7 +128,7 @@ thres <- 25 # Equates at least 25 20-micron wide sectors or an average growth of
 
 # Plot estimated ring width for each group over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017RingWidthOverDateAdjusted.png', width = 1200, height = 380)
+tiff ('../fig/Exp2017RingWidthOverDateAdjusted.tiff', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 for (i in c (1,3,4,2)) {
   par (mgp = c (3, 1, 0))
@@ -226,7 +226,7 @@ dev.off ()
 
 # Plot estimated number of cells over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017CellNumberOverDateAdjusted.png', width = 1200, height = 380)
+tiff ('../fig/Exp2017CellNumberOverDateAdjusted.tiff', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 for (i in c (1,3,4,2)) {
   par (mgp = c (3, 1, 0))
@@ -325,7 +325,7 @@ dev.off ()
 
 # Plot estimated cell size for each group over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017CellSizeOverDateAdjusted.png', width = 1200, height = 380)
+tiff ('../fig/Exp2017CellSizeOverDateAdjusted.tiff', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 for (i in c (1,3,4,2)) {
   
@@ -425,7 +425,7 @@ dev.off ()
 
 # Plot estimated cell wall thickness for each group over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017CellWallThicknessOverDate.png', width = 1200, height = 380)
+tiff ('../fig/Exp2017CellWallThicknessOverDate.tiff', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 for (i in c (1,3,4,2)) {
   
@@ -517,7 +517,7 @@ dev.off ()
 
 # Plot estimated cell wall area for each group over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017CellWallAreaOverDateAdjusted.png', width = 1200, height = 380)
+tiff ('../fig/Exp2017CellWallAreaOverDateAdjusted.tiff', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 for (i in c (1,3,4,2)) {
   
@@ -616,7 +616,7 @@ dev.off ()
 
 # Plot estimated cell wall area for each group over time
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017CumulativeCellWallAreaOverDateAdjusted.png', width = 1200, height = 380)
+tiff ('../fig/Exp2017CumulativeCellWallAreaOverDateAdjusted.tiff', width = 1200, height = 380)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 for (i in c (1,3,4,2)) {
   
@@ -714,7 +714,7 @@ dev.off ()
 
 # Plot cell wall area against ring width for each tree and group
 #----------------------------------------------------------------------------------------
-png ('../fig/Exp2017radialPositionVsCWT.png', width = 1000, height = 400)
+tiff ('../fig/Exp2017radialPositionVsCWT.tiff', width = 1000, height = 400)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1))
 par (mar = c (5, 5, 1, 0))
 con <- data [['tree']] == 1 & data [['year']] == 2017
@@ -951,8 +951,8 @@ cellNSD    <- aggregate (cellNumber [['n']],
 ALPHA <- 0.4
 
 # plot the estimated mean end of growth for each treatment
-#png (filename = '../fig/Exp2017EndOfGrowthAndCellNumbers.png', width = 600)
-png (filename = '../fig/Exp2017CellNumbers.png', width = 600)
+#----------------------------------------------------------------------------------------
+tiff (filename = '../fig/Exp2017CellNumbers.tiff', width = 600)
   # add new plot of cell number
   #--------------------------------------------------------------------------------------
   par (mfrow = c (1, 1))

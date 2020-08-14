@@ -60,8 +60,7 @@ for (i in 41:160) {
   }
 }
 
-
-# wrangle data to long format with unique labels
+# Wrangle data to long format with unique labels
 #----------------------------------------------------------------------------------------
 respData <- data %>% select (c (2:3, 24:28)) %>% pivot_longer (cols =  c (3:7), 
                                                                names_to = 'height',
@@ -94,6 +93,7 @@ nonsData [['total1']] <- nonsData [['sugar1']] + nonsData [['starch1']]
 nonsData [['total']]  <- nonsData [['total0']] + nonsData [['total1']]
 
 # Add all data together
+#----------------------------------------------------------------------------------------
 allData <- right_join (respData, struData, by = c ('month', 'tree', 'height')) %>% 
            right_join (nonsData, by = c ('month', 'tree', 'height')) %>%
            filter (month != 'july')
@@ -113,7 +113,7 @@ allData [['height']] [allData [['height']] == 150 & allData [['treatment']] == 4
 allData [['height']] [allData [['height']] == 150 & allData [['treatment']] == 1]   <- 'C' # control
 allData [['height']] [allData [['height']] == 200 | allData [['height']]    == 250] <- 'A' # above
 
-# summarise data by group
+# Summarise data by group
 #----------------------------------------------------------------------------------------
 summaryData <- allData %>% group_by (treatment, height, month) %>% 
                summarise (meanResp    = mean (resp,   na.rm = TRUE), 
@@ -133,7 +133,7 @@ summaryData <- allData %>% group_by (treatment, height, month) %>%
                           sdSugar1  = sd (sugar1,  na.rm = TRUE),
                           sdStarch1 = sd (starch1, na.rm = TRUE))
 
-# summarise data by group
+# Summarise data by group
 #----------------------------------------------------------------------------------------
 cumulativeData <- allData %>% group_by (tree, height, treatment) %>% 
                   summarise (SC   = sum (SC,     na.rm = TRUE),
@@ -149,7 +149,7 @@ cumulativeData <- cumulativeData %>% group_by (treatment, height) %>%
 
 # Create panel of three barplot for period changes and a fourth cumulative parplot panel  
 #----------------------------------------------------------------------------------------
-png (filename = '../fig/Exp2017carbonDynamicsAlongGradient.png', width = 1000, height = 400)
+tiff (filename = '../fig/Exp2017carbonDynamicsAlongGradient.tiff', width = 1000, height = 400)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), width = c (1.74,1,1,2.48))
 for (m in c ('august','october','november','total')) {
   
