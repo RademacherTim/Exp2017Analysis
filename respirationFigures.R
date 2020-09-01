@@ -49,7 +49,7 @@ summaryData <- summaryData %>% mutate (adjRatio = ratios [['adjRatio']] [treatme
 # Plot the respiration rate over time
 #----------------------------------------------------------------------------------------
 PLOT <- TRUE; if (PLOT) {
-  png ('../fig/Exp2017StemCO2Efflux.png', width = 1200, height = 380)
+  tiff ('../fig/Exp2017StemCO2Efflux.tiff', width = 1200, height = 380)
   layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
   par (mgp = c (3, 1, 0), mar = c (5, 7, 1, 0))
   con <- summaryData [['treatment']] == 1
@@ -265,7 +265,7 @@ PLOT <- TRUE; if (PLOT) {
 }
 
 PLOT <- TRUE; if (PLOT) {
-  png ('../fig/Exp2017StemCO2EffluxAdjusted.png', width = 1200, height = 380)
+  tiff ('../fig/Exp2017StemCO2EffluxAdjusted.tiff', width = 1200, height = 380)
   layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
   par (mgp = c (3, 1, 0), mar = c (5, 7, 1, 0))
   con1 <- summaryData [['treatment']] == 1
