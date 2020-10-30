@@ -458,11 +458,6 @@ PLOT <- TRUE; if (PLOT) {
   mtext (side = 2, line = 5, cex = 1.5, 'Starch concentration (% dry weight)')
   mtext (side = 2, line = 9, cex = 3, 'Wood')
   
-  # Add panel descriptor
-  #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-08-30'), y = 0.8, pos = 1, labels = 'control', cex = 3.2, 
-        col = '#333333')
-  
   # Add panel of the compressed trees
   #----------------------------------------------------------------------------------------
   con <- summaryDataStem0 [['treatment']] == 3 & summaryDataStem0 [['sampleHeight']] == 2
@@ -507,11 +502,6 @@ PLOT <- TRUE; if (PLOT) {
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   axis (side = 2, cex.axis = 2.2, las = 1, at = seq (0, 0.8, by = 0.2), labels = rep ('', 5))
-  
-  # Add panel descriptor
-  #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-08-30'), y = 0.8, pos = 1, labels = 'compressed', cex = 3.2, 
-        col = '#333333')
   
   # Add panel for double compressed trees
   #----------------------------------------------------------------------------------------
@@ -568,11 +558,6 @@ PLOT <- TRUE; if (PLOT) {
         cex.axis = 2.2, mgp = c (3, 2, 0))
   axis (side = 2, cex.axis = 2.2, las = 1, at = seq (0, 0.8, by = 0.2), labels = rep ('', 5))
   
-  # Add panel descriptor
-  #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-08-30'), y = 0.8, pos = 1, labels = 'double compressed', cex = 3.2, 
-        col = '#333333')
-  
   # Add panel of the girdled trees
   #----------------------------------------------------------------------------------------
   par (mar = c (3, 0, 1, 1))
@@ -617,11 +602,6 @@ PLOT <- TRUE; if (PLOT) {
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   axis (side = 2, cex.axis = 2.2, las = 1, at = seq (0, 0.8, by = 0.2), labels = rep ('', 5))
-  
-  # Add panel descriptor
-  #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-08-30'), y = 0.8, pos = 1, labels = 'girdled', cex = 3.2, 
-        col = '#333333')
   
   dev.off  ()
 }
