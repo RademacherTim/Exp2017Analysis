@@ -3,6 +3,10 @@
 # Harvard Forest.
 #----------------------------------------------------------------------------------------
 
+# load dependencies
+#----------------------------------------------------------------------------------------
+library ('lubridate')
+
 # set colour scheme for control, girdled, compressed, double compressed and chilled
 #----------------------------------------------------------------------------------------
 source ('plotingFunctions.R')
@@ -27,6 +31,14 @@ respData <- filter (respData, tree <= 40 & study == 'Exp2017' &
 # Wrangle the data 
 #----------------------------------------------------------------------------------------
 respData [['date']] <- as_date (respData [['timestamp']])
+
+# Get temperature ranges for 2017 and temperature variations for each date
+#----------------------------------------------------------------------------------------
+respData %>% select (airt.C) %>% range ()
+respData %>% select (vwc4) %>% range (na.rm = TRUE)
+respData %>% group_by (date) %>% filter (date > as_date ('2017-06-29')) %>% 
+  summarise (RanegAirT  = max (airt.C) - min (airt.C),
+             RangeSoilM = max (vwc4, na.rm = TRUE) - min (vwc4, na.rm = TRUE))
 
 # Calculate the treatment and sampling height means and standard errors 
 #----------------------------------------------------------------------------------------
@@ -82,7 +94,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = 'control', cex = 2.7, 
+  text (x = as_date ('2017-08-30'), y = 5.6, pos = 1, labels = 'control', cex = 3, 
         col = '#333333')
   
   # Add  line to separate panels
@@ -113,10 +125,6 @@ PLOT <- TRUE; if (PLOT) {
   #--------------------------------------------------------------------------------------
   return <- criticalDates ('compressed') 
   
-  # Add  line to separate panels
-  #----------------------------------------------------------------------------------------
-  abline (v = as_date ('2017-11-15'), col = '#999999')
-  
   # Add compressed trees
   #----------------------------------------------------------------------------------------
   con <- summaryData [['treatment']] == 3 & summaryData [['chamber']] == 2
@@ -143,10 +151,11 @@ PLOT <- TRUE; if (PLOT) {
   axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
+  axis (side = 2, at = 0:5, labels = rep ('', 6))
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = 'compressed', cex = 2.8, 
+  text (x = as_date ('2017-08-30'), y = 5.6, pos = 1, labels = 'compressed', cex = 3, 
         col = '#333333')
   
   # Add panel for double compressed trees
@@ -162,10 +171,6 @@ PLOT <- TRUE; if (PLOT) {
            y = c (summaryData [['meanResp']] [con] - summaryData [['seResp']] [con], 
                   rev (summaryData [['meanResp']] [con] + summaryData [['seResp']] [con])),
            col = addOpacity ('#999999', 0.2), lty = 0)
-  
-  # Add  line to separate panels
-  #----------------------------------------------------------------------------------------
-  abline (v = as_date ('2017-11-15'), col = '#999999')
   
   # Add critical dates
   #--------------------------------------------------------------------------------------
@@ -206,10 +211,11 @@ PLOT <- TRUE; if (PLOT) {
   axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
+  axis (side = 2, at = 0:5, labels = rep ('', 6))
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = 'double compressed', cex = 2.8, 
+  text (x = as_date ('2017-08-30'), y = 5.6, pos = 1, labels = 'double compressed', cex = 3, 
         col = '#333333')
   
   # Add panel of the girdled trees
@@ -255,10 +261,11 @@ PLOT <- TRUE; if (PLOT) {
   axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
+  axis (side = 2, at = 0:5, labels = rep ('', 6))
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = 'girdled', cex = 2.8, 
+  text (x = as_date ('2017-08-30'), y = 5.6, pos = 1, labels = 'girdled', cex = 3, 
         col = '#333333')
   
   dev.off  ()
@@ -298,12 +305,8 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = 'control', cex = 2.7, 
+  text (x = as_date ('2017-08-30'), y = 5.6, pos = 1, labels = 'control', cex = 2.7, 
         col = '#333333')
-  
-  # Add  line to separate panels
-  #----------------------------------------------------------------------------------------
-  abline (v = as_date ('2017-11-15'), col = '#999999')
   
   # Add legend 
   #----------------------------------------------------------------------------------------
@@ -328,10 +331,6 @@ PLOT <- TRUE; if (PLOT) {
   # Add critical dates
   #--------------------------------------------------------------------------------------
   return <- criticalDates ('compressed') 
-  
-  # Add  line to separate panels
-  #----------------------------------------------------------------------------------------
-  abline (v = as_date ('2017-11-15'), col = '#999999')
   
   # Add compressed trees
   #----------------------------------------------------------------------------------------
@@ -358,10 +357,11 @@ PLOT <- TRUE; if (PLOT) {
   axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
+  axis (side = 2, at = 0:5, labels = rep ('', 6))
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = 'compressed', cex = 2.8, 
+  text (x = as_date ('2017-08-30'), y = 5.6, pos = 1, labels = 'compressed', cex = 3.2, 
         col = '#333333')
   
   # Add panel for double compressed trees
@@ -416,16 +416,12 @@ PLOT <- TRUE; if (PLOT) {
   axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
+  axis (side = 2, at = 0:5, labels = rep ('', 6))
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = 'double compressed', cex = 2.8, 
+  text (x = as_date ('2017-08-30'), y = 5.6, pos = 1, labels = 'double compressed', cex = 3.2, 
         col = '#333333')
-
-  
-  # Add  line to separate panels
-  #----------------------------------------------------------------------------------------
-  abline (v = as_date ('2017-11-15'), col = '#999999')
   
   # Add panel of the girdled trees
   #----------------------------------------------------------------------------------------
@@ -466,15 +462,16 @@ PLOT <- TRUE; if (PLOT) {
   axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
-  
-  # Add panel descriptor
-  #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 5.5, pos = 4, labels = 'girdled', cex = 2.8, 
-        col = '#333333')
+  axis (side = 2, at = 0:5, labels = rep ('', 6))
   
   # Add critical dates
   #--------------------------------------------------------------------------------------
   return <- criticalDates ('compressed') 
+  
+  # Add panel descriptor
+  #----------------------------------------------------------------------------------------
+  text (x = as_date ('2017-08-30'), y = 5.6, pos = 1, labels = 'girdled', cex = 3.2, 
+        col = '#333333')
   
   dev.off  ()
 }

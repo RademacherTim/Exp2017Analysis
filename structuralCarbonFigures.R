@@ -226,7 +226,7 @@ dev.off ()
 
 # Plot estimated number of cells over time
 #----------------------------------------------------------------------------------------
-tiff ('../fig/Exp2017CellNumberOverDateAdjusted.tiff', width = 1200, height = 380)
+tiff ('../fig/Exp2017CellNumberOverDateAdjusted.tiff', width = 1200, height = 380) # May have to change the height
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 for (i in c (1,3,4,2)) {
   par (mgp = c (3, 1, 0))
@@ -235,16 +235,16 @@ for (i in c (1,3,4,2)) {
   #--------------------------------------------------------------------------------------
   if (i == 1) {
     descriptor <- 'control'
-    par (mar = c (5, 8, 1, 0))
+    par (mar = c (3, 8, 1, 0))
   } else if (i == 2) {
     descriptor <- 'girdled'
-    par (mar = c (5, 0, 1, 0))
+    par (mar = c (3, 0, 1, 0))
   } else if (i == 3) {
     descriptor <- 'compressed'
-    par (mar = c (5, 0, 1, 0))
+    par (mar = c (3, 0, 1, 0))
   } else if (i == 4) {
     descriptor <- 'double compressed'
-    par (mar = c (5, 0, 1, 1))
+    par (mar = c (3, 0, 1, 1))
   }
   
   # Plot new panel
@@ -257,7 +257,7 @@ for (i in c (1,3,4,2)) {
   con1 <- summaryData [['treatment']] == 1
   plot (x = summaryData [['period']] [con1],
         y = summaryData [['cumNCells']] [con1] * summaryData [['adjRatioCumNCells']] [con], 
-        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 70), axes = FALSE, 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 75), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = ifelse (i == 1, 3, 2), 
         col = ifelse (i == 1, tColours [['colour']] [1], '#999999'), cex.lab = 1.8)
   polygon (x = c (summaryData [['period']] [con1], 
@@ -267,21 +267,17 @@ for (i in c (1,3,4,2)) {
            col = addOpacity (ifelse (i == 1, tColours [['colour']] [1], '#999999'), ifelse (i == 1, 0.3, 0.2)), 
            lty = 0)
 
-  # Add  line to separate panels
-  #----------------------------------------------------------------------------------------
-  if (i != 4) abline (v = as_date ('2017-11-15'), col = '#999999')
-  
   # Add critical dates
   #--------------------------------------------------------------------------------------
   return <- criticalDates (descriptor) 
   
   # Add axis and labels
   #----------------------------------------------------------------------------------------
-  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+  axis (side = 1, labels = c ('','','','',''),
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
-    axis (side = 2, cex.axis = 2.2, las = 1)
+    axis (side = 2, cex.axis = 2.2, las = 1, at = seq (0, 70, by = 10))
     mtext (side = 2, line = 6, cex = 1.5, 'Cumulative number of cells (n)')
     
     # Add legend 
@@ -289,6 +285,8 @@ for (i in c (1,3,4,2)) {
     legend (x = as_date ('2017-07-20'), y = 30, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
             legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
             bg = 'transparent', cex = 2.3)
+  } else {
+    axis (side = 2, at = seq (0, 70, by = 10), lab = c ('','','','','','','',''))
   }
   
   # Add treatment group mean and standard error
@@ -317,7 +315,7 @@ for (i in c (1,3,4,2)) {
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 70, pos = 4, labels = descriptor, cex = 2.7, 
+  text (x = as_date ('2017-08-30'), y = 75, pos = 1, labels = descriptor, cex = 2.8, 
         col = '#333333')
   
 }
@@ -325,7 +323,7 @@ dev.off ()
 
 # Plot estimated cell size for each group over time
 #----------------------------------------------------------------------------------------
-tiff ('../fig/Exp2017CellSizeOverDateAdjusted.tiff', width = 1200, height = 380)
+tiff ('../fig/Exp2017CellSizeOverDateAdjusted.tiff', width = 1200, height = 390)
 layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
 for (i in c (1,3,4,2)) {
   
@@ -364,10 +362,7 @@ for (i in c (1,3,4,2)) {
                   rev (summaryData [['meanCellSize']] [con1] * summaryData [['adjRatioCellSize']] [con] + summaryData [['seCellSize']] [con1])),
            col = addOpacity (ifelse (i == 1, tColours [['colour']] [1], '#999999'), ifelse (i == 1, 0.3, 0.2)), 
            lty = 0)
-  # Add  line to separate panels
-  #----------------------------------------------------------------------------------------
-  if (i != 4) abline (v = as_date ('2017-11-15'), col = '#999999')
-  
+
   # Add critical dates
   #--------------------------------------------------------------------------------------
   return <- criticalDates (descriptor) 
@@ -378,20 +373,16 @@ for (i in c (1,3,4,2)) {
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
-    axis (side = 2, cex.axis = 2.2, las = 1)
+    axis (side = 2, cex.axis = 2.2, las = 1, at = seq (20, 50, by = 5))
     mtext (side = 2, line = 6, cex = 1.5, expression (paste ('Mean radial cell diameter (',mu,m,')')))
-    
-    # Add legend 
-    #----------------------------------------------------------------------------------------
-    legend (x = as_date ('2017-07-20'), y = 48, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
-            legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
-            bg = 'transparent', cex = 2.3)
+  } else {
+    axis (side = 2, cex.axis = 2.2, las = 1, at = seq (20, 50, by = 5), labels = c ('','','','','','',''))
   }
   
   # Add treatment group mean and standard error
   #--------------------------------------------------------------------------------------
   if (i != 1) {
-    # Figure out unqieu heights
+    # Figure out unique heights
     #------------------------------------------------------------------------------------
     con <- summaryData [['treatment']] == i
     heights <- unique (summaryData [['height']] [con])
@@ -413,12 +404,6 @@ for (i in c (1,3,4,2)) {
              lty = ifelse (h == 'A', 2, ifelse (h == 'B', 3, 4)))
     }
   }
-  
-  # Add panel descriptor
-  #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 50, pos = 4, labels = descriptor, cex = 2.7, 
-        col = '#333333')
-  
 }
 dev.off ()
 
@@ -525,16 +510,16 @@ for (i in c (1,3,4,2)) {
   #--------------------------------------------------------------------------------------
   if (i == 1) {
     descriptor <- 'control'
-    par (mar = c (5, 8, 1, 0))
+    par (mar = c (3, 8, 1, 0))
   } else if (i == 2) {
     descriptor <- 'girdled'
-    par (mar = c (5, 0, 1, 0))
+    par (mar = c (3, 0, 1, 0))
   } else if (i == 3) {
     descriptor <- 'compressed'
-    par (mar = c (5, 0, 1, 0))
+    par (mar = c (3, 0, 1, 0))
   } else if (i == 4) {
     descriptor <- 'double compressed'
-    par (mar = c (5, 0, 1, 1))
+    par (mar = c (3, 0, 1, 1))
   }
   
   # Plot new panel
@@ -547,7 +532,7 @@ for (i in c (1,3,4,2)) {
   con1 <- summaryData [['treatment']] == 1
   plot (x = summaryData [['period']] [con1],
         y = summaryData [['meanCWA']] [con1] * summaryData [['adjRatioCWA']] [con], 
-        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (250, 650), axes = FALSE, 
+        xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (275, 625), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = ifelse (i == 1, 3, 2), 
         col = ifelse (i == 1, tColours [['colour']] [1], '#999999'), cex.lab = 1.8)
   polygon (x = c (summaryData [['period']] [con1], 
@@ -556,28 +541,21 @@ for (i in c (1,3,4,2)) {
                   rev (summaryData [['meanCWA']] [con1] * summaryData [['adjRatioCWA']] [con] + summaryData [['seCWA']] [con1])),
            col = addOpacity (ifelse (i == 1, tColours [['colour']] [1], '#999999'), ifelse (i == 1, 0.3, 0.2)), 
            lty = 0)
-  # Add  line to separate panels
-  #----------------------------------------------------------------------------------------
-  if (i != 4) abline (v = as_date ('2017-11-15'), col = '#999999')
-  
+
   # Add critical dates
   #--------------------------------------------------------------------------------------
   return <- criticalDates (descriptor) 
   
   # Add axis and labels
   #----------------------------------------------------------------------------------------
-  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+  axis (side = 1, labels = rep ('', 5),
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
-    axis (side = 2, cex.axis = 2.2, las = 1)
+    axis (side = 2, cex.axis = 2.2, las = 1, at = seq (300, 600, by = 100))
     mtext (side = 2, line = 6, cex = 1.5, expression (paste ('Mean cell-wall area (',mu,m^2,')')))
-    
-    # Add legend 
-    #----------------------------------------------------------------------------------------
-    legend (x = as_date ('2017-07-20'), y = 410, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
-            legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
-            bg = 'transparent', cex = 2.3)
+  } else {
+    axis (side = 2, cex.axis = 2.2, las = 1, at = seq (300, 600, by = 100), labels = rep ('', 4))
   }
   
   # Add treatment group mean and standard error
@@ -605,12 +583,6 @@ for (i in c (1,3,4,2)) {
              lty = ifelse (h == 'A', 2, ifelse (h == 'B', 3, 4)))
     }
   }
-  
-  # Add panel descriptor
-  #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 650, pos = 4, labels = descriptor, cex = 2.7, 
-        col = '#333333')
-  
 }
 dev.off ()
 
@@ -624,16 +596,16 @@ for (i in c (1,3,4,2)) {
   #--------------------------------------------------------------------------------------
   if (i == 1) {
     descriptor <- 'control'
-    par (mar = c (5, 8, 1, 0))
+    par (mar = c (3, 8, 1, 0))
   } else if (i == 2) {
     descriptor <- 'girdled'
-    par (mar = c (5, 0, 1, 0))
+    par (mar = c (3, 0, 1, 0))
   } else if (i == 3) {
     descriptor <- 'compressed'
-    par (mar = c (5, 0, 1, 0))
+    par (mar = c (3, 0, 1, 0))
   } else if (i == 4) {
     descriptor <- 'double compressed'
-    par (mar = c (5, 0, 1, 1))
+    par (mar = c (3, 0, 1, 1))
   }
   
   # Plot new panel
@@ -656,28 +628,20 @@ for (i in c (1,3,4,2)) {
            col = addOpacity (ifelse (i == 1, tColours [['colour']] [1], '#999999'), ifelse (i == 1, 0.3, 0.2)), 
            lty = 0)
   
-  # Add  line to separate panels
-  #----------------------------------------------------------------------------------------
-  if (i != 4) abline (v = as_date ('2017-11-15'), col = '#999999')
-  
   # Add critical dates
   #--------------------------------------------------------------------------------------
   return <- criticalDates (descriptor) 
   
   # Add axis and labels
   #----------------------------------------------------------------------------------------
-  axis (side = 1, labels = c ('Jul','Aug','Sep','Oct','Nov'),
+  axis (side = 1, labels = rep ('', 5),
         at = as_date (c ('2017-07-01','2017-08-01','2017-09-01','2017-10-01','2017-11-01')),
         cex.axis = 2.2, mgp = c (3, 2, 0))
   if (i == 1) {
-    axis (side = 2, cex.axis = 2.2, las = 1)
+    axis (side = 2, cex.axis = 2.2, las = 1, at = seq (0, 35000, by = 10000))
     mtext (side = 2, line = 6, cex = 1.5, expression (paste ('Cumulative cell-wall area (',mu,m^2,')')))
-    
-    # Add legend 
-    #----------------------------------------------------------------------------------------
-    legend (x = as_date ('2017-07-20'), y = 14000, box.lty = 0, lwd = c (3, 2, 3, 3, 3), lty = c (1, 1, 2, 4, 3), 
-            legend = c ('control','adjusted control','above','middle','below'), col = c ('#91b9a4', rep ('#999999', 4)), 
-            bg = 'transparent', cex = 2.3)
+  } else {
+    axis (side = 2, cex.axis = 2.2, las = 1, at = seq (0, 35000, by = 10000), labels = rep ('', 4))
   }
   
   # Add treatment group mean and standard error
@@ -703,12 +667,6 @@ for (i in c (1,3,4,2)) {
              lty = ifelse (h == 'A', 2, ifelse (h == 'B', 3, 4)))
     }
   }
-  
-  # Add panel descriptor
-  #----------------------------------------------------------------------------------------
-  text (x = as_date ('2017-06-20'), y = 35000, pos = 4, labels = descriptor, cex = 2.7, 
-        col = '#333333')
-  
 }
 dev.off ()
 
