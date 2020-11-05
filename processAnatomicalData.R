@@ -35,7 +35,7 @@ allometricData <- read_excel (path = paste0 (getwd (),'/allometricDataExp2017.xl
 
 # Set working directory to read json files
 #----------------------------------------------------------------------------------------
-setwd ('/media/tim/dataDisk/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ringWidthTRIAD/')
+setwd ('/media/tim/dataDisk/PlantGrowth/data/microcores/woodAnatomy/Exp2017/ringWidthTRIAD/2017/')
 
 # Build data frame with ring width measurements for each of the four thinsections
 #----------------------------------------------------------------------------------------
