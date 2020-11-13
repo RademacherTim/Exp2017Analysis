@@ -428,13 +428,13 @@ PLOT <- TRUE; if (PLOT) {
   par (mar = c (5, 0, 1, 0))
   con <- summaryData [['treatment']] == 2 & summaryData [['chamber']] == 2
   plot (x = summaryData [['date']] [con1],
-        y = summaryData [['meanResp']] [con1] * summaryData [['adjRatio']] [con], 
+        y = summaryData [['meanResp']] [con1] * rep (unique (summaryData [['adjRatio']] [con]), 20), 
         xlim = as_date (c ('2017-06-20', '2017-11-10')), ylim = c (0, 5.5), axes = FALSE, 
         xlab = '', ylab = '', typ = 'l', lwd = 2, col = '#999999')
   polygon (x = c (summaryData [['date']] [con1], 
                   rev (summaryData [['date']] [con1])),
-           y = c (summaryData [['meanResp']] [con1] * summaryData [['adjRatio']] [con] - summaryData [['seResp']] [con1], 
-                  rev (summaryData [['meanResp']] [con1] * summaryData [['adjRatio']] [con] + summaryData [['seResp']] [con1])),
+           y = c (summaryData [['meanResp']] [con1] * rep (unique (summaryData [['adjRatio']] [con]), 20) - summaryData [['seResp']] [con1], 
+                  rev (summaryData [['meanResp']] [con1] * rep (unique (summaryData [['adjRatio']] [con]), 20) + summaryData [['seResp']] [con1])),
            col = addOpacity ('#999999', 0.2), lty = 0)
   
   # Add girdled trees
@@ -466,7 +466,7 @@ PLOT <- TRUE; if (PLOT) {
   
   # Add critical dates
   #--------------------------------------------------------------------------------------
-  return <- criticalDates ('compressed') 
+  return <- criticalDates ('girdled') 
   
   # Add panel descriptor
   #----------------------------------------------------------------------------------------

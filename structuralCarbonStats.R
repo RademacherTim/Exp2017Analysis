@@ -99,8 +99,6 @@ M1 <- lmer (formula = RW ~ (1 | tree) + treatment:height,
             data = RW2017,
             REML = TRUE)
 summary (M1)
-# plot (M1)
-# qqnorm (resid (M1))
 
 # create tibble with cell numbers per ring
 #----------------------------------------------------------------------------------------
@@ -171,8 +169,6 @@ M2 <- lmer (formula = n ~ (1 | tree) + period + period:treatment:height,
             data = filter (cellNumber, name != 'nTotal'),
             REML = TRUE)
 summary (M2)
-# plot (M2)
-# qqnorm (resid (M2))
 
 # wrangle wood anatomy data
 #----------------------------------------------------------------------------------------
@@ -232,8 +228,6 @@ M8.1 <- lmer (formula = CWTTAN ~ (1 | tree) + treatment:height:factor (period) +
               data = woodAnatomy, 
               REML = FALSE)
 summary (M8.1)
-plot (M8.1)
-qqnorm (resid (M8.1))
 #anova (M8.0, M8.1)
 
 # fit a mixed effects model to look at cell wall area

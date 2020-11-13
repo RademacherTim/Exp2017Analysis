@@ -227,7 +227,7 @@ dev.off ()
 # Plot estimated number of cells over time
 #----------------------------------------------------------------------------------------
 tiff ('../fig/Exp2017CellNumberOverDateAdjusted.tiff', width = 1200, height = 380) # May have to change the height
-layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
+layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.25, 1, 1, 1.05))
 for (i in c (1,3,4,2)) {
   par (mgp = c (3, 1, 0))
   
@@ -235,7 +235,7 @@ for (i in c (1,3,4,2)) {
   #--------------------------------------------------------------------------------------
   if (i == 1) {
     descriptor <- 'control'
-    par (mar = c (3, 8, 1, 0))
+    par (mar = c (3, 9, 1, 0))
   } else if (i == 2) {
     descriptor <- 'girdled'
     par (mar = c (3, 0, 1, 0))
@@ -324,14 +324,14 @@ dev.off ()
 # Plot estimated cell size for each group over time
 #----------------------------------------------------------------------------------------
 tiff ('../fig/Exp2017CellSizeOverDateAdjusted.tiff', width = 1200, height = 390)
-layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
+layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.25, 1, 1, 1.05))
 for (i in c (1,3,4,2)) {
   
   # Determine the panel name
   #--------------------------------------------------------------------------------------
   if (i == 1) {
     descriptor <- 'control'
-    par (mar = c (5, 8, 1, 0))
+    par (mar = c (5, 9, 1, 0))
   } else if (i == 2) {
     descriptor <- 'girdled'
     par (mar = c (5, 0, 1, 0))
@@ -411,7 +411,7 @@ dev.off ()
 # Plot estimated cell wall thickness for each group over time
 #----------------------------------------------------------------------------------------
 tiff ('../fig/Exp2017CellWallThicknessOverDate.tiff', width = 1200, height = 380)
-layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
+layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.25, 1, 1, 1.05))
 for (i in c (1,3,4,2)) {
   
   # Determine the panel name
@@ -503,14 +503,14 @@ dev.off ()
 # Plot estimated cell wall area for each group over time
 #----------------------------------------------------------------------------------------
 tiff ('../fig/Exp2017CellWallAreaOverDateAdjusted.tiff', width = 1200, height = 380)
-layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
+layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.25, 1, 1, 1.05))
 for (i in c (1,3,4,2)) {
   
   # Determine the panel name
   #--------------------------------------------------------------------------------------
   if (i == 1) {
     descriptor <- 'control'
-    par (mar = c (3, 8, 1, 0))
+    par (mar = c (3, 9, 1, 0))
   } else if (i == 2) {
     descriptor <- 'girdled'
     par (mar = c (3, 0, 1, 0))
@@ -589,14 +589,14 @@ dev.off ()
 # Plot estimated cell wall area for each group over time
 #----------------------------------------------------------------------------------------
 tiff ('../fig/Exp2017CumulativeCellWallAreaOverDateAdjusted.tiff', width = 1200, height = 380)
-layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1.05))
+layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.25, 1, 1, 1.05))
 for (i in c (1,3,4,2)) {
   
   # Determine the panel name
   #--------------------------------------------------------------------------------------
   if (i == 1) {
     descriptor <- 'control'
-    par (mar = c (3, 8, 1, 0))
+    par (mar = c (3, 9, 1, 0))
   } else if (i == 2) {
     descriptor <- 'girdled'
     par (mar = c (3, 0, 1, 0))
@@ -673,7 +673,7 @@ dev.off ()
 # Plot cell wall area against ring width for each tree and group
 #----------------------------------------------------------------------------------------
 tiff ('../fig/Exp2017radialPositionVsCWT.tiff', width = 1000, height = 400)
-layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.2, 1, 1, 1))
+layout (matrix (1:4, nrow = 1, byrow = TRUE), widths  = c (1.25, 1, 1, 1))
 par (mar = c (5, 5, 1, 0))
 con <- data [['tree']] == 1 & data [['year']] == 2017
 plot (x = rollmean (data [['RADDISTR.BAND']] [con], 5),

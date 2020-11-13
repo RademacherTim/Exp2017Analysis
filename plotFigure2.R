@@ -154,10 +154,10 @@ layout (matrix (1:4, nrow = 1, byrow = TRUE), width = c (1.74,1,1,2.48))
 for (m in c ('august','october','november','total')) {
   
   # Check whether it is a single period or the cumulative total 
-  #----------------------------------------------------------------------------------------
+  #--------------------------------------------------------------------------------------
   if (m != 'total') {
     # get two matrices, one for structural carbon gain
-    #----------------------------------------------------------------------------------------
+    #------------------------------------------------------------------------------------
     dataPos <- summaryData %>% ungroup %>% filter (month == m) %>% 
       select (meanResp, meanSC, meanNSC0, sdResp, sdSC, sdNSC0)  
   } else {

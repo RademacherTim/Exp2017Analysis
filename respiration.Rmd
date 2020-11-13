@@ -1,9 +1,9 @@
 ---
 title: |
   | Supplementary Information 5:
-  | Estimating respiratory losses
+  | Estimating losses due to CO$_{2}$ efflux
 author: Tim Rademacher
-date: "14/08/2020"
+date: "13/11/2020"
 output: pdf_document
 bibliography: "/home/tim/projects/PlantGrowth/bib/Exp2017.bib"
 csl: "/home/tim/projects/PlantGrowth/bib/harvard.csl"
@@ -21,24 +21,27 @@ source ('plotingFunctions.R')
 ```
 
 
-\begin {center}
-\textit {This pdf was generated from an Rmarkdown file, which includes all R code necessary to reproduce the estimatations. The Rmarkdown file is available on github: https://github.com/TTRademacher/Exp2017Analysis.}
-\end {center}
+\begin{center}
+\textit{This pdf was generated from an Rmarkdown file, which includes all R code necessary to reproduce the estimatations. The Rmarkdown file is available on github: https://github.com/TTRademacher/Exp2017Analysis.}
+\end{center}
 
-## Estimating total respiratory losses
+## Estimating total carbon losses due to CO$_{2}$ efflux
 
-To estimate stem respiratory losses, weekly stem respiration measurements were made using a Li-Cor820 starting at 13.00h. The LiCor820 was attached to a PVC pipe (4" diameter) that were previously fitted and attached to the stem sections using silicone to create a closed chamber in which the enclosed air circulates via a small pump, similar to the Flux Puppy system [@carbone_flux_2019]. Respiration fluxes and uncertainties were calculate from the change in CO<sub>2</sub> using the RespChamberProc package [@perez-priego_sun-induced_2015] in R [@r_core_team_r:_2019]. The rates were corrected for fluctuations in atmospheric water vapour pressure using climate data from the Fisher meteorological station. Stem sections were measured in the same order every week to minimise variations in time of day of repeat measurements. 
+To estimate stem carbon losses due to CO$_{2}$ efflux, weekly CO$_{2}$ efflux measurements were made using a Li-Cor820 starting at 13.00h. The LiCor820 was attached to a PVC pipe (4" diameter) that were previously fitted and attached to the stem sections using silicone to create a closed chamber in which the enclosed air circulates via a small pump, similar to the Flux Puppy system [@carbone_flux_2019]. CO$_2$ efflux and uncertainties were calculate from the change in CO$_{2}$ concentrations using the RespChamberProc package [@perez-priego_sun-induced_2015] in R [@r_core_team_r:_2019]. Stem sections were visited in the same order to reduce the role of diel variations over the course of the experiment. The order was initially randomised but slightly adjusted to assure that no treatment was systematically measured later in the day. Air temperatures and volumetric soil water content ranged between 7.1 and 23.9℃ and 11.3 and 44.8% over the experiment, but less than 2.9℃ or 0.1% on any particular measurement date. All data is publicly available on the Harvard Forest Data Archive [@rademacher_white_2020].
 
 ## Integration over the surface area of each stem section
 
-Instantaneous fluxes of diffusive CO<sub>2</sub> loss through the bark were measured as described above and subsequently integrated across space (e.g. the specific surface area of a 10 cm stem section) for each stem section to estimate the respiratrory loss in grams per stem section per day. To integrate the measured respiration rates across a 10cm stem section, we calculate the surface area of the i-th stem section ($A_{s,i}$) as follows:
+Instantaneous fluxes of diffusive CO$_2$ loss through the bark were measured as described above and subsequently integrated across the surface area of each stem section to estimate the respiratrory loss in grams per stem section per day. To integrate the measured CO$_2$ efflux rates across the surface of each 10cm-stem section, we first calculated the surface area of the i-th stem section ($A_{s,i}$) as follows:
 
 $$
 A_{s, i} = \frac {cbh_{s,i}} {100} \times h 
 $$
-, where is the $cbh_{s,i}$ is the circumference in cemtimeters and $h$ is the height of the section in meters (here $h = 0.1$m).
+, where is the $cbh_{s,i}$ is the circumference in cemtimetres, as measured in the field with a tape measure, and $h$ is the height of the section in metres (here $h = 0.1$m). The stem CO$_2$ efflux rate over this surface area ($R_{i,k}$) was then determined by multiplication of the instanteanous CO$_2$ flux ($f_{i, CO2}$; in $g \, m^{-2} \,day^{-1}$) and the surface area to get the CO$_2$ flux rate (in $g \, day_{-1}$).
 
-The stem respiration rate over this surface area was then determined by multiplication of the instanteanous respiration flux (in $g \, m^{-2} \,day^{-1}$) by the surface area to get the respiration rate (in $g \, day_{-1}$).
+$$
+R_{i} = f_{i, CO2} \times A_{s,i} 
+$$
+
 ```{r integrateAcrossSpace, echo = FALSE}
 # get the tree measurements of circumference from spreadsheet
 #----------------------------------------------------------------------------------------
@@ -162,14 +165,12 @@ for (iTree in 1:40) {
 
 ## Estimate respiratory losses for each periods
 
-Respiration rates were averaged for over four time periods: (i) pre-treatment, (ii) treatment period 1 (i.e. first month after start of the experiment), (iii) treament period 2 (i.e. second and third month after the start of the experiment) and (iii) treatment period 3 (i.e. fourth month after the start of the experiment to the end of the growing season). 
-
-We then approximated the total loss of carbon for each combination of period $j$ and stem section $i$ ($R_{i,j}$) by multiplying the temporal mean of spatially integrated respiration rates in $g \, day^{-1}$ measured during each period $j$ by the length of the period ($l_p$ in days).
+CO$_2$ flux rates were averaged for over four time periods sensu Figure 1 of the main text: (0) before experimental onset, (1) first month after start of the experiment, (2) second and third month after the start of the experiment, and (3) from the fourth month after the start of the experiment to late autumn. We then approximated the total loss of carbon for each combination of period $j$ and stem section $i$ ($R_{i,j}$) by multiplying the temporal mean of spatially integrated CO$_2$ flux rates ($R_{i}$; in $g \, day^{-1}$) by the length of the period ($l_p$ in days).
 
 $$
 R_{i,j} = \frac {1} {n} \sum_{k=1}^{n} R_{i,k} \times l_p
 $$
-, where n is the number of weekly sampling dates during each period.
+, where n is the number of weekly sampling dates during each period. The figure below shows the average and standard deviation of the mean loss of carbon due to CO$_2$ efflux for each period (i.e., above the start date of each period). 
 
 ``` {r temporalIntegration, echo = FALSE}
 # set period boundaries
@@ -266,7 +267,7 @@ par (mfrow = c (2, 2))
 par (mar = c (5,5,1,1))
 plot (x = tmp150 [['month']] [tmp150 [['treatment']] == 1],
       y = tmp150 [['mean']] [tmp150 [['treatment']] == 1],
-      xlab = 'month', ylab  = 'respiratory loss (gC)', las = 1,
+      xlab = 'month', ylab = expression (paste ('loss from ',CO[2],' efflux (gC)', sep = '')), las = 1,
       typ = 'l', lwd = 2,
       col = tColours [['colour']] [1],
       ylim =  c (0, 30))
@@ -275,12 +276,16 @@ polygon (x = c (tmp150 [['month']] [tmp150 [['treatment']] == 1],
         y = c (tmp150 [['max']] [tmp150 [['treatment']] == 1], 
                rev (tmp150 [['min']] [tmp150 [['treatment']] == 1])),
         col = '#91b9a433', lty = 0)
+text (x = 7.5, y = 29, labels = 'control')
+legend (x = 7, y = 29, bg = 'transparent', box.lty = 0, legend = c ('control','above','middle','below'),
+        lty = c (1, 2, 4, 3), lwd = 2)
 plot (x = tmp100 [['month']] [tmp100 [['treatment']] == 2],
        y = tmp100 [['mean']]  [tmp100 [['treatment']] == 2],
-      xlab = 'month', ylab  = 'respiratory loss (gC)', las = 1,
-      typ = 'l', lwd = 2, lty = 2,
+      xlab = 'month', ylab = expression (paste ('loss from ',CO[2],' efflux (gC)', sep = '')), las = 1,
+      typ = 'l', lwd = 2, lty = 3,
       col = tColours [['colour']] [2],
       ylim =  c (0, 30))
+text (x = 7.5, y = 29, labels = 'gridled')
 polygon (x = c (tmp100 [['month']] [tmp100 [['treatment']] == 2], 
                 rev (tmp100 [['month']] [tmp100 [['treatment']] == 2])),
         y = c (tmp100 [['max']] [tmp100 [['treatment']] == 2], 
@@ -288,7 +293,7 @@ polygon (x = c (tmp100 [['month']] [tmp100 [['treatment']] == 2],
         col = '#C0334D33', lty = 0)
 lines (x = tmp200 [['month']] [tmp200 [['treatment']] == 2],
        y = tmp200 [['mean']]  [tmp200 [['treatment']] == 2],
-       lty = 1, lwd = 2, col = tColours [['colour']] [2])
+       lty = 2, lwd = 2, col = tColours [['colour']] [2])
 polygon (x = c (tmp200 [['month']] [tmp200 [['treatment']] == 2], 
                 rev (tmp200 [['month']] [tmp200 [['treatment']] == 2])),
         y = c (tmp200 [['max']] [tmp200 [['treatment']] == 2], 
@@ -296,10 +301,11 @@ polygon (x = c (tmp200 [['month']] [tmp200 [['treatment']] == 2],
         col = '#C0334D33', lty = 0)
 plot (x = tmp100 [['month']] [tmp100 [['treatment']] == 3],
        y = tmp100 [['mean']]  [tmp100 [['treatment']] == 3],
-      xlab = 'month', ylab  = 'respiratory loss (gC)', las = 1,
-      typ = 'l', lwd = 2, lty = 2,
+      xlab = 'month', ylab = expression (paste ('loss from ',CO[2],' efflux (gC)', sep = '')), las = 1,
+      typ = 'l', lwd = 2, lty = 3,
       col = tColours [['colour']] [3],
       ylim =  c (0, 30))
+text (x = 8, y = 29, labels = 'compressed')
 polygon (x = c (tmp100 [['month']] [tmp100 [['treatment']] == 3], 
                 rev (tmp100 [['month']] [tmp100 [['treatment']] == 3])),
         y = c (tmp100 [['max']] [tmp100 [['treatment']] == 3], 
@@ -307,7 +313,7 @@ polygon (x = c (tmp100 [['month']] [tmp100 [['treatment']] == 3],
         col = '#F1890433', lty = 0)
 lines (x = tmp200 [['month']] [tmp200 [['treatment']] == 3],
        y = tmp200 [['mean']]  [tmp200 [['treatment']] == 3],
-       lty = 1, lwd = 2, col = tColours [['colour']] [3])
+       lty = 2, lwd = 2, col = tColours [['colour']] [3])
 polygon (x = c (tmp200 [['month']] [tmp200 [['treatment']] == 3], 
                 rev (tmp200 [['month']] [tmp200 [['treatment']] == 3])),
         y = c (tmp200 [['max']] [tmp200 [['treatment']] == 3], 
@@ -315,10 +321,11 @@ polygon (x = c (tmp200 [['month']] [tmp200 [['treatment']] == 3],
         col = '#F1890433', lty = 0)
 plot (x = tmp50 [['month']] [tmp50 [['treatment']] == 4],
        y = tmp50 [['mean']]  [tmp50 [['treatment']] == 4],
-      xlab = 'month', ylab  = 'respiratory loss (gC)', las = 1,
-      typ = 'l', lwd = 2, lty = 2,
+      xlab = 'month', ylab = expression (paste ('loss from ',CO[2],' efflux (gC)', sep = '')), las = 1,
+      typ = 'l', lwd = 2, lty = 3,
       col = tColours [['colour']] [4],
       ylim =  c (0, 30))
+text (x = 8, y = 29, labels = 'double compressed')
 polygon (x = c (tmp50 [['month']] [tmp50 [['treatment']] == 4], 
                 rev (tmp50 [['month']] [tmp50 [['treatment']] == 4])),
         y = c (tmp50 [['max']] [tmp50 [['treatment']] == 4], 
@@ -326,7 +333,7 @@ polygon (x = c (tmp50 [['month']] [tmp50 [['treatment']] == 4],
         col = '#5C4A7233', lty = 0)
 lines (x = tmp150 [['month']] [tmp150 [['treatment']] == 4],
        y = tmp150 [['mean']]  [tmp150 [['treatment']] == 4],
-      col = tColours [['colour']] [4], lwd = 2, lty = 3)
+      col = tColours [['colour']] [4], lwd = 2, lty = 4)
 polygon (x = c (tmp150 [['month']] [tmp150 [['treatment']] == 4], 
                 rev (tmp150 [['month']] [tmp150 [['treatment']] == 4])),
         y = c (tmp150 [['max']] [tmp150 [['treatment']] == 4], 
@@ -334,7 +341,7 @@ polygon (x = c (tmp150 [['month']] [tmp150 [['treatment']] == 4],
         col = '#5C4A7233', lty = 0)
 lines (x = tmp250 [['month']] [tmp250 [['treatment']] == 4],
        y = tmp250 [['mean']]  [tmp250 [['treatment']] == 4],
-      col = tColours [['colour']] [4], lwd = 2, lty = 1)
+      col = tColours [['colour']] [4], lwd = 2, lty = 2)
 polygon (x = c (tmp250 [['month']] [tmp250 [['treatment']] == 4], 
                 rev (tmp150 [['month']] [tmp250 [['treatment']] == 4])),
         y = c (tmp250 [['max']] [tmp250 [['treatment']] == 4], 

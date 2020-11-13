@@ -3,7 +3,7 @@ title: |
   | Supplementary Information 4:
   | Scaling structural carbon
 author: Tim Rademacher
-date: "14/08/2020"
+date: "13/11/2020"
 output: pdf_document
 bibliography: "/home/tim/projects/PlantGrowth/bib/Exp2017.bib"
 csl: "/home/tim/projects/PlantGrowth/bib/harvard.csl"
@@ -26,7 +26,7 @@ options (warn = -1)
 \textit {This pdf was generated from an Rmarkdown file, which includes all R code necessary to reproduce the estimatations. The Rmarkdown file is available on github: https://github.com/TTRademacher/Exp2017Analysis.}
 \end {center}
 
-## Structural carbon estimation for stem sections of the 2017 experiment at Harvard Forest
+## Structural carbon estimation for stem sections
 
 ``` {r getData, echo = FALSE}
 # source plotting functions for colour schemes and plotting functions
