@@ -292,7 +292,7 @@ respData [['period']] <- factor (respData [['period']])
 
 # fit mixed effects model with tree as random effect
 #----------------------------------------------------------------------------------------
-M2 <- lmer (formula = flux ~ (1 | tree) + period + period:treatment:height, 
+M2 <- lmer (formula = fluxRaw ~ (1 | tree) + period + period:treatment:height, 
             data = filter (respData, study == 'Exp2017'),
             REML = FALSE)
 summary (M2)

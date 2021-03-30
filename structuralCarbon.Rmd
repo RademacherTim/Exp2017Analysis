@@ -340,7 +340,7 @@ dryMatterData <- tibble (tree = rep (1:40, 4),
                          DMat250 = NA, DMat200 = NA, DMat150 = NA, DMat100 = NA, 
                          DMat050 = NA)
 
-# cell wall density (kg m-3) or (g cm-3)
+# cell wall density (g cm-3)
 #----------------------------------------------------------------------------------------
 rhoCW <- 1.489
 
@@ -375,7 +375,7 @@ if (WRITE) {
 }
 ```
 
-Finally, the cell-wall volume for each ring portion of the stem section ($V_{CW,s,p}$) is multiplied by a fixed cell-wall density ($\rho_{CW}$) of $`r rhoCW`$ $kg \, m^{-3}$  (measured for Scots pine by @plotze_porosity_2011) and a carbon content of $`r CC`$%  typical of white pine [@lamlom_reassessment_2003] to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in g). 
+Finally, the cell-wall volume for each ring portion of the stem section ($V_{CW,s,p}$) is multiplied by a fixed cell-wall density ($\rho_{CW}$) of $`r rhoCW`$ $g \, cm^{-3}$  (measured for Scots pine by @plotze_porosity_2011) and a carbon content of $`r CC`$%  typical of white pine [@lamlom_reassessment_2003] to estimate the total structural carbon gain per stem section and period ($M_{p,s}$ in g). 
 
 $$
 M_{s,p} = V_{CW,s,p} \times \rho_{CW} \times 49.74\%
