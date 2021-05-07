@@ -14,12 +14,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library ('knitr')
 library ('tidyverse')
 library ('lubridate')
-#library ('googledrive')
 library ('zoo')
 
 # Specify the user and neglect warnings
 #----------------------------------------------------------------------------------------
-options (warn = -1)
+#options (warn = -1)
 ```
 
 \begin {center}
@@ -381,11 +380,9 @@ $$
 M_{s,p} = V_{CW,s,p} \times \rho_{CW} \times 49.74\%
 $$
 
-### Alternative estimate using wood density
+<!--### Alternative estimate using wood density-->
 
-To better understand uncertanties associated witgh our assumptions we also used an alternative estimate based on wood density. For this alternative estimation, the carbon is simply estimated as a product of the volume of wood and an average wood density. To obtain wood density values, X-ray densiometry was performed on 18 increment cores from the ten control trees. 
-
-```{r simpleEstimate, echo = FALSE}
+<!--```{r simpleEstimate, echo = FALSE}
 # declare mean stem wood density (kg m-3)
 #----------------------------------------------------------------------------------------
 rho <- 189.9 
@@ -501,6 +498,13 @@ for (iTree in 1:40) {
     }
   }
 }
-```
+```-->
 
-# References
+<!--To better understand uncertanties associated with our assumptions we also used an alternative estimate based on wood density. For this alternative estimate, structural carbon was simply estimated as a product of the volume of wood and an average wood density. To obtain wood density values, X-ray densiometry was performed on 18 increment cores from the ten control trees. Mean wood density from these samples was $`r rho`$ $kg \, m^{-3}$.-->
+
+<!--``` {r displaySimpleEst}
+simpleEstimate
+```
+-->
+
+# References 
